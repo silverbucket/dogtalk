@@ -1,4 +1,4 @@
-presage
+dogtalk
 =======
 
-light-weight messaging client.
+An light-weight messaging client

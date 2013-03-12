@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" ng-app>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>dogtalk</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/dogtalk.css">
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css?v=2.3.1">
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap-responsive.min.css?v=2.3.1">
+  </head>
+
+  <body>
+    <div id="remotestorage-connect"></div>
+    <!--[if lt IE 7]>
+      <p class="alert">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a>!</p>
+    <![endif]-->
+    <nav>
+      <div class="navbar">
+        <div class="navbar-inner">
+          <a class="brand" href="#">Dogtalk</a>
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#">Log</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div id="rspopup" class="modal hide fade">
+      <div class="modal-header"><h4>First things first</h4></div>
+      <div class="modal-body">You need to connect to your remoteStorage</div>
+      <div class="modal-footer"></div>
+    </div>
+    <div id="cfg_secret" class="modal hide fade">
+      <div class="modal-header"><h4>Application initialization</h4></div>
+      <div class="modal-body">
+        <p>In order to connect to Sockethub, please provide the secret key provided to your from your service provider</p>
+
+        <form name="cfgSecret">
+          <p><label for="secret">Sockethub secret:</label><input type="text" size="55" class="required" name="secret" value="" /></p>
+          <p><input class="btn-primary" type="button" name="submit" value="submit" /></p>
+        </form>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+
+    <section id="home" class="page">
+
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="span4 contacts">
+            <h4>Contacts</h4>
+            <div class="well sidebar-nav">
+              <ul class="nav nav-list">
+                <li class="nav-header">Online</li>
+                <li class="active"><a href="#">Link</a></li>
+                <li><a href="#">Link</a></li>
+                <li class="nav-header">Offline</li>
+                <li><a href="#">Link</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="span8 messages"><p>lal lala</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="log" class="page">
+    </section>
+
+    <footer>
+      <div class="footer">
+      dogtalk under development, totally unstable.
+      </div>
+    </footer>
+
+    <script type="text/javascript" src="vendor/angular.min.js?v=1.0.5"></script>
+    <script type="text/javascript" src="vendor/jquery.min.js?v=1.9.1"></script>
+    <script type="text/javascript" src="vendor/remoteStorage.min.js?v=0.7.1"></script>
+    <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js?v=2.3.1"></script>
+    <script type="text/javascript" src="vendor/sockethub.js?v=0.0.1"></script>
+
+    <script>
+function runWizard(page) {
+  console.log('runWizard called');
+  if (page === 'remoteStorage') {
+    $("#rspopup").modal({
+      show: true,
+      keyboard: true,
+    });
+  } else if (page === 'secret') {
+    $("#cfg_secret").modal({
+      show: true,
+      keyboard: true,
+    })
+  }
+}
+
+function initRemoteStorage() {
+  remoteStorage.util.silenceAllLoggers();
+  remoteStorage.defineModule('sockethub', function(privateClient, publicClient) {
+    return {
+      exports: {
+        getConfig: function() {
+          console.log(' [RS] getConfig()');
+          return privateClient.getObject('config.json');
+        },
+        writeConfig: function(data) {
+          console.log(' [RS] writeConfig()');
+          return privateClient.storeObject('config', 'config.json', data);
+        }
+      }
+    };
+  });
+
+  remoteStorage.claimAccess('sockethub', 'rw').then(function() {
+  //  return remoteStorage.claimAccess('messages', 'rw');
+  //}).then(function () {
+    remoteStorage.displayWidget('remotestorage-connect');
+  });
+}
+
+$(document).ready(function () {
+  initRemoteStorage();
+
+  sockethub.on('ping', function(sent, received) {
+    console.log('ping response - sent: ' + sent + ' received: ' + received);
+  });
+
+  sockethub.on('connect', function () { // connection to sockethub successful
+    console.log('connected to sockethub');
+    setTimeout(function () {
+      if (remoteStorage.getBearerToken() === null) {
+        console.log('remoteStorage not connected, skipping sockethub register.');
+        runWizard('remoteStorage');
+      } else {
+        remoteStorage.sockethub.getConfig().then(function (config) {
+          if ((typeof config !== 'undefined') &&
+              (typeof config.secret !== 'undefined')) {
+            sockethub.register({
+              storageInfo: remoteStorage.getStorageInfo(),
+              remoteStorage: {
+                bearerToken: remoteStorage.getBearerToken(),
+                scope: remoteStorage.claimedModules
+              }
+            });
+          } else {
+            // no secret found, we need to run the config wizard
+            runWizard('secret');
+          }
+
+        }, function (error) {
+          console.log('error getting config from remoteStorage: '+error);
+        });
+
+      }
+    // we delay 1 second because when we come back from the
+    // authorization sometimes the remoteStorage object is not
+    // populated right away.
+    }, 1000);
+  });
+
+  sockethub.on('error', function (o) { // any errors (status: false)
+    console.log('sockethub received error ['+o.rid+':'+o.verb+']: '+o.message, o);
+  });
+
+  sockethub.on('response', function (o) { // response to sent command
+    console.log('sockethub received response ['+o.rid+':'+o.verb+']', o);
+  });
+
+  sockethub.on('message', function (o) { // unprompted message from sockethub
+    console.log('sockethub received message ['+o.rid+':'+o.verb+']', o);
+  });
+
+  sockethub.on('close', function () {
+    console.log('sockethub received close');
+  });
+
+  sockethub.connect({
+    host: "ws://localhost:10550/sockethub",
+    confirmationTimeout: 6000, // timeout in miliseconds to wait for confirm
+    enablePings: true // good for keepalive
+  });
+
+});
+    </script>
+  </body>
+</html>

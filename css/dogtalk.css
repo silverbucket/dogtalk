@@ -1,0 +1,18 @@
+.contacts {
+  background-color: #ffffff;
+}
+
+.messages {
+  background-color: #ffffff;
+}
+
+footer {
+  display: block;
+  text-align: center;
+  margin: 0 auto 0 auto;
+}
+
+#log {
+  display: none;
+}
+
