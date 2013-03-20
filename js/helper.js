@@ -1,13 +1,3 @@
-function switchPage(pageName) {
-  console.log('switchPage called: ' + pageName);
-  $(".page").each(function () {
-    if ($(this).attr('id') === pageName) {
-      $(this).removeClass('hide');
-    } else {
-      $(this).addClass('hide');
-    }
-  });
-}
 
 function runWizard(name, config) {
   console.log('runWizard('+name+') called');
@@ -23,7 +13,7 @@ function runWizard(name, config) {
   }
 }
 
-function initRemoteStorage(callback) {
+function initRemoteStorage() {
   console.log('initRemoteStorage()');
   //remoteStorage.util.silenceAllLoggers();
   remoteStorage.defineModule('sockethub', function(privateClient, publicClient) {
@@ -45,54 +35,27 @@ function initRemoteStorage(callback) {
   //  return remoteStorage.claimAccess('messages', 'rw');
   //}).then(function () {
     remoteStorage.displayWidget('remotestorage-connect');
-    callback();
   });
 }
 
-function sockethubConnect() {
-  console.log('sockethubConnect()');
-  setTimeout(function () {
-    if (remoteStorage.getBearerToken() === null) {
-      console.log('remoteStorage not connected, skipping sockethub register.');
-      runWizard('remoteStorage');
-    } else {
-      remoteStorage.sockethub.getConfig().then(function (config) {
-        console.log('sockethub config: ', config);
-        if ((!config) ||
-            (typeof config.host === 'undefined') ||
-            (typeof config.port === 'undefined') ||
-            (typeof config.secret === 'undefined') ||
-            (!config.host) ||
-            (!config.port) ||
-            (!config.secret)) {
-          runWizard('sockethub', config);
-          return false;
-        } else {
-          sockethub.connect({
-            host: "ws://localhost:10550/sockethub",
-            confirmationTimeout: 6000, // timeout in miliseconds to wait for confirm
-            enablePings: true // good for keepalive
-          }).then(function () {  // connection to sockethub sucessful
-            console.log('connected to sockethub');
-            sockethub.register({
-              storageInfo: remoteStorage.getStorageInfo(),
-              remoteStorage: {
-                bearerToken: remoteStorage.getBearerToken(),
-                scope: remoteStorage.claimedModules
-              }
-            });
-          }, function (err, o) {
-            console.log('recevied error on connect: '+err+' : ', o);
-            return false;
-          });
-        }
-      }, function (error) {
-        console.log('error getting sockethub config: ', error);
-        return false;
-      });
-    }
-  // we delay 1 second because when we come back from the
-  // authorization sometimes the remoteStorage object is not
-  // populated right away.
-  }, 1000);
+function sockethubConnect(config) {
+  var promise = promising();
+  sockethub.connect({
+    host: "ws://localhost:10550/sockethub",
+    confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
+    enablePings: true   // good for keepalive
+  }).then(function () {    // connection to sockethub sucessful
+    console.log('connected to sockethub');
+    sockethub.register({
+      storageInfo: remoteStorage.getStorageInfo(),
+      remoteStorage: {
+        bearerToken: remoteStorage.getBearerToken(),
+        scope: remoteStorage.claimedModules
+      }
+    });
+  }, function (err, o) {
+    console.log('recevied error on connect: '+err+' : ', o);
+    promise.reject('recevied error on connect: '+err);
+  });
+  return promise;
 }
