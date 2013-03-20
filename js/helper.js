@@ -9,25 +9,23 @@ function switchPage(pageName) {
   });
 }
 
-function runWizard(modalName) {
-  console.log('runWizard called');
+function runWizard(name, config) {
+  console.log('runWizard('+name+') called');
   //navClass('settings');
   //navCtrl.switchPage('settings');
-  if (modalName === 'remoteStorage') {
-    $("#rspopup").modal({
-      show: true,
-      keyboard: true
-    });
-  } else if (modalName === 'secret') {
-    $("#cfg_secret").modal({
+  if (name === 'remoteStorage') {
+    $("#rsAlert").show();
+  } else if (name === 'sockethub') {
+    $("#modalCfgSockethub").modal({
       show: true,
       keyboard: true
     });
   }
 }
 
-function initRemoteStorage() {
-  remoteStorage.util.silenceAllLoggers();
+function initRemoteStorage(callback) {
+  console.log('initRemoteStorage()');
+  //remoteStorage.util.silenceAllLoggers();
   remoteStorage.defineModule('sockethub', function(privateClient, publicClient) {
     return {
       exports: {
@@ -47,5 +45,54 @@ function initRemoteStorage() {
   //  return remoteStorage.claimAccess('messages', 'rw');
   //}).then(function () {
     remoteStorage.displayWidget('remotestorage-connect');
+    callback();
   });
+}
+
+function sockethubConnect() {
+  console.log('sockethubConnect()');
+  setTimeout(function () {
+    if (remoteStorage.getBearerToken() === null) {
+      console.log('remoteStorage not connected, skipping sockethub register.');
+      runWizard('remoteStorage');
+    } else {
+      remoteStorage.sockethub.getConfig().then(function (config) {
+        console.log('sockethub config: ', config);
+        if ((!config) ||
+            (typeof config.host === 'undefined') ||
+            (typeof config.port === 'undefined') ||
+            (typeof config.secret === 'undefined') ||
+            (!config.host) ||
+            (!config.port) ||
+            (!config.secret)) {
+          runWizard('sockethub', config);
+          return false;
+        } else {
+          sockethub.connect({
+            host: "ws://localhost:10550/sockethub",
+            confirmationTimeout: 6000, // timeout in miliseconds to wait for confirm
+            enablePings: true // good for keepalive
+          }).then(function () {  // connection to sockethub sucessful
+            console.log('connected to sockethub');
+            sockethub.register({
+              storageInfo: remoteStorage.getStorageInfo(),
+              remoteStorage: {
+                bearerToken: remoteStorage.getBearerToken(),
+                scope: remoteStorage.claimedModules
+              }
+            });
+          }, function (err, o) {
+            console.log('recevied error on connect: '+err+' : ', o);
+            return false;
+          });
+        }
+      }, function (error) {
+        console.log('error getting sockethub config: ', error);
+        return false;
+      });
+    }
+  // we delay 1 second because when we come back from the
+  // authorization sometimes the remoteStorage object is not
+  // populated right away.
+  }, 1000);
 }

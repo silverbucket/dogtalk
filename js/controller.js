@@ -1,16 +1,5 @@
-function navCtrl($scope, $route, $routeParams, $location) {
-
-
-  function switchPage(pageName) {
-    console.log('switchPage called: ' + pageName);
-    $(".page").each(function () {
-      if ($(this).attr('id') === pageName) {
-        $(this).removeClass('hide');
-      } else {
-        $(this).addClass('hide');
-      }
-    });
-  }
+Dogtalk.controller("navCtrl",  ['$scope', '$route', '$routeParams', '$location',
+                   function ($scope, $route, $routeParams, $location) {
 
   $scope.navClass = function (page) {
     var currentRoute = $location.path().substring(1) || 'home';
@@ -22,9 +11,7 @@ function navCtrl($scope, $route, $routeParams, $location) {
     }
     //return page === currentRoute ? 'active' : '';
   };
-
-
-}
+}] );
 
 //navList.controller('navCtrl', ['$scope', '$location', function ($scope, $location) {
 //}]);

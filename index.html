@@ -30,21 +30,45 @@
       </div>
     </nav>
 
-    <div id="rspopup" class="modal hide fade" tabindex="-1">
-      <div class="modal-header"><h4>First things first</h4></div>
-      <div class="modal-body">You need to connect to your remoteStorage</div>
-      <div class="modal-footer"></div>
+    <!-- remoteStorage connect modal window -->
+    <div id="rsAlert" class="alert alert-error hide">
+      <strong>First things first</strong>
+      <p>You need to connect to your remoteStorage</p>
     </div>
-    <div id="cfg_secret" class="modal hide fade">
+
+    <!-- sockethub config modal window -->
+    <div id="modalCfgSockethub" class="modal hide fade">
       <div class="modal-header"><h4>Application initialization</h4></div>
       <div class="modal-body">
-        <p>In order to connect to Sockethub, please enter the secret key provided to you from your service provider</p>
-
-        <form name="cfgSecret" class="form-inline">
+        <p>In order to connect to Sockethub, please enter the host, port and secret provided to you from your service provider</p>
+        <form name="cfgSockethub" class="form-horizontal">
           <fieldset>
-            <label for="secret">Sockethub secret:</label>
-            <input type="text" class="required input-xlarge" name="secret" placeholder="Enter secret..." required>
-            <input class="btn-primary" type="submit" name="submit" value="submit" />
+            <div class="control-group">
+              <label for="host" class="control-label">Hostname</label>
+              <div class="controls">
+                <input type="text" class="required input-large" name="host" placeholder="Enter hostname..." required>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="port" class="control-label">Port</label>
+              <div class="controls">
+                <input type="text" class="required input-small" name="port" placeholder="Enter port..." required>
+               </div>
+             </div>
+
+            <div class="control-group">
+              <label for="secret" class="control-label">Secret</label>
+              <div class="controls">
+                <input type="text" class="required input-xlarge" name="secret" placeholder="Enter secret..." required>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="controls">
+                <input class="btn-primary" type="submit" name="submit" value="submit" />
+              </div>
+            </div>
           </fieldset>
         </form>
         <p></p>
@@ -52,12 +76,13 @@
       <div class="modal-footer"></div>
     </div>
 
+    <!-- dogtalk settings panel -->
     <section id="settings" class="page hide">
       <h2>Settings</h2>
       <div class="container-fluid">
         <div class="row-fluid">
           <div class="span6 configitem">
-            <h4>Sockethub Secret</h4>
+            <h4>Sockethub</h4>
           </div>
           <div class="span6 configitem">
             <h4>XMPP</h4>
@@ -75,6 +100,7 @@
     </section>
 
 
+    <!-- dogtalk main interface -->
     <section id="home" class="page">
       <div class="container-fluid">
         <div class="row-fluid">
@@ -120,7 +146,7 @@
 
 $(document).ready(function () {
 
-  initRemoteStorage();
+  initRemoteStorage(sockethubConnect);
 
   sockethub.on('ping', function(sent, received) {
     console.log('ping response - sent: ' + sent + ' received: ' + received);
@@ -140,46 +166,9 @@ $(document).ready(function () {
 
   sockethub.on('close', function () {
     console.log('sockethub received close');
+
   });
 
-  sockethub.connect({
-    host: "ws://localhost:10550/sockethub",
-    confirmationTimeout: 6000, // timeout in miliseconds to wait for confirm
-    enablePings: true // good for keepalive
-  }).then(function () {  // connection to sockethub sucessful
-    console.log('connected to sockethub');
-    setTimeout(function () {
-      if (remoteStorage.getBearerToken() === null) {
-        console.log('remoteStorage not connected, skipping sockethub register.');
-        runWizard('remoteStorage');
-      } else {
-        remoteStorage.sockethub.getConfig().then(function (config) {
-          if ((typeof config !== 'undefined') &&
-              (typeof config.secret !== 'undefined')) {
-            sockethub.register({
-              storageInfo: remoteStorage.getStorageInfo(),
-              remoteStorage: {
-                bearerToken: remoteStorage.getBearerToken(),
-                scope: remoteStorage.claimedModules
-              }
-            });
-          } else {
-            // no secret found, we need to run the config wizard
-            runWizard('secret');
-          }
-
-        }, function (error) {
-          console.log('error getting config from remoteStorage: '+error);
-        });
-
-      }
-    // we delay 1 second because when we come back from the
-    // authorization sometimes the remoteStorage object is not
-    // populated right away.
-    }, 1000);
-  }, function (err, o) {
-    console.log('recevied error on connect: '+err+' : ', o);
-  });
 });
     </script>
   </body>
