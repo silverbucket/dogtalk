@@ -114,6 +114,7 @@ settingsCtrl.loadData = function ($q, $timeout) {
   return defer.promise;
 };
 
+
 // log
 var logCtrl = dogtalk.controller("logCtrl",  ['$scope', '$route', '$routeParams', '$location',
                    function ($scope, $route, $routeParams, $location) {

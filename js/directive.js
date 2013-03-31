@@ -22,7 +22,8 @@ dogtalk.directive("error", function ($rootScope) {
           scope.isSockethubConfigError = true;
           $("#modalCfgSockethub").modal({
             show: true,
-            keyboard: true
+            keyboard: true,
+            backdrop: "static"
           });
         } else {
           scope.isUnknownError = true;
