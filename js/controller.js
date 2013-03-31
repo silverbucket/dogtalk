@@ -1,34 +1,63 @@
 /**
  * app
  * */
-var appCtrl = dogtalk.controller('appCtrl', ['$rootScope',
-                   function ($rootScope) {
-  $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
-    console.log('failed to change routes: ' + rejection);
-    //console.log('event: ', event);
-    //console.log('current route: ', current);
-    //console.log('previous route: ', previous);
-  });
-}] );
+var appCtrl = dogtalk.controller('appCtrl', function ($scope, $rootScope, $route, $location) {
 
-appCtrl.loadData = function ($q, $timeout) {
-  var defer = $q.defer();
-  $timeout(function () {
-    console.log('remoteStorage.getBearerToken(): ' + remoteStorage.getBearerToken());
+  $rootScope.$on("$routeChangeStart", function (event, current, previous, rejection) {
+    console.log('routeChangeStart: ', $scope, $rootScope, $route, $location);
+  });
+
+  $rootScope.$on("$routeChangeSuccess", function (event, current, previous, rejection) {
+    console.log('routeChangeSuccess: ', $scope, $rootScope, $route, $location);
+  });
+
+  $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
+    console.log('routeChangeError: ', rejection);
+  });
+
+});
+
+
+appCtrl.initializeApp = function ($q, $timeout) {
+  return $timeout(function() {
     if (remoteStorage.getBearerToken() === null) {
-      defer.reject("remoteStorage not connected");
+      return $q.reject({error: 1, message: "remoteStorage not connected"});
     } else {
-      remoteStorage.sockethub.getConfig().then(function (config) {
-        return sockethubConnect(config);
-      }).then(function (data) {
-        defer.resolve(data);
+      return remoteStorage.sockethub.getConfig().then(function (config) {
+        console.log('initializeApp: got config: ', config);
+        if (!config) {
+          return $q.reject("config not set");
+        } else {
+          return sockethubConnect(config);
+        }
       }, function (error) {
-        defer.reject(error);
+        return $q.reject("couldn't get config: " + error);
       });
     }
-  }, 1000);
-  return defer.promise;
+  }, 0);
 };
+
+/*appCtrl.initializeApp = function ($q, $timeout) {
+  var defer = $q.defer();
+  $timeout(function () {
+    console.log('appCtrl.initializeApp');
+    if (remoteStorage.getBearerToken() === null) {
+      defer.reject({error: 1, message: "remoteStorage not connected"});
+    } else {
+      remoteStorage.sockethub.getConfig().then(function (config) {
+        console.log('appCtrl: sockethub config: ', config);
+        return sockethubConnect(config);
+      }).then(function () {
+          defer.resolve();
+      }, function (error) {
+        console.log('defer reject');
+        defer.reject("defer reject");//{error: 2, message: error});
+        console.log("after defer reject");
+      });
+    }
+  }, 5000);
+  return defer.promise;
+};*/
 
 
 /**
@@ -57,6 +86,7 @@ var homeCtrl = dogtalk.controller("homeCtrl",  ['$scope', '$route', '$routeParam
 
 homeCtrl.loadData = function ($q, $timeout) {
   var defer = $q.defer();
+  console.log('homeCtrl: loadData');
   $timeout(function () {
     if (remoteStorage.getBearerToken() === null) {
       defer.reject("remoteStorage not connected");
