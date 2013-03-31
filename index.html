@@ -97,6 +97,14 @@
       </section>
     </script>
 
+    <!-- dogtalk settings panel -->
+    <script type="text/ng-template" id="app.html">
+      <section id="appload" class="page">
+        <h2>... connecting ...</h2>
+        <p>{{model.message}}</p>
+      </section>
+    </script>
+
 
     <!-- dogtalk settings panel -->
     <script type="text/ng-template" id="settings.html">
@@ -141,7 +149,7 @@
 
     <script type="text/javascript" src="vendor/angular.min.js?v=1.0.5"></script>
     <script type="text/javascript" src="vendor/jquery.min.js?v=1.9.1"></script>
-    <script type="text/javascript" src="vendor/remoteStorage.min.js?v=0.7.1"></script>
+    <script type="text/javascript" src="vendor/remoteStorage.min.js?v=0.7.1-redirect"></script>
     <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js?v=2.3.1"></script>
     <script type="text/javascript" src="vendor/promising.js?v=0.0.4"></script>
     <script type="text/javascript" src="vendor/sockethub.js?v=0.0.1"></script>
@@ -152,6 +160,7 @@
     <script>
 
 $(document).ready(function () {
+  //console.log('we live at: ' + window.location.origin + "/");
 
   initRemoteStorage();
 
