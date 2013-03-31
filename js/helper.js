@@ -14,7 +14,11 @@ function runWizard(name, config) {
 }
 
 function submitConfig(host, port, secret) {
-  console.log(host, port, secret);
+  remoteStorage.sockethub.writeConfig({
+    host: host,
+    port: parseInt(port),
+    secret: secret
+  });
 }
 
 function initRemoteStorage() {

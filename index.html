@@ -62,7 +62,8 @@
 
             <div class="control-group">
               <div class="controls">
-                <input class="btn-primary" type="submit" name="submit" value="submit" onclick="submitConfig($('#host')[0].value, $('#port')[0].value, $('#secret')[0].value);"/>
+                <input class="btn-primary" type="submit" name="submit" value="submit"
+                  onclick="submitConfig($('#host')[0].value, $('#port')[0].value, $('#secret')[0].value);$('#modalCfgSockethub').addClass('hide');$('#modalCfgSockethub').addClass('fade')"/>
               </div>
             </div>
           </fieldset>
