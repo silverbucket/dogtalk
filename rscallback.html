@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>dogtalk - remoteStorage callback endpoint</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div id="remotestorage-connect"></div>
+    <script type="text/javascript" src="vendor/remoteStorage.min.js?v=0.7.1-redirect"></script>
+    <script type="text/javascript" src="js/helper.js?v=0.0.1"></script>
+    <script>
+initRemoteStorage();
+setTimeout(function rsConnect() {
+  if (remoteStorage.getBearerToken() === 'null') {
+    console.log('waiting for rs to connect');
+    rsConnect();
+  } else {
+    var baseUrl = window.location.origin;
+    console.log('rs connected, reloading to ' + baseUrl + "/");
+    window.location = baseUrl + "/";
+  }
+}, 1000);
+    </script>
+  </body>
+</html>
