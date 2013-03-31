@@ -13,6 +13,10 @@ function runWizard(name, config) {
   }
 }
 
+function submitConfig(host, port, secret) {
+  console.log(host, port, secret);
+}
+
 function initRemoteStorage() {
   console.log('initRemoteStorage()');
   remoteStorage.util.silenceAllLoggers();
