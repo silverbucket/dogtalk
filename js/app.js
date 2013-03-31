@@ -23,7 +23,7 @@ dogtalk.config(function ($routeProvider) {
     templateUrl: "home.html",
     controller: "homeCtrl",
     resolve: {
-      loadData: appCtrl.loadData
+      loadData: appCtrl.initializeApp
     }
   }).otherwise({
     redirectTo: "/"
