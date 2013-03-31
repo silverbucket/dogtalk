@@ -21,7 +21,7 @@
         <div class="navbar-inner">
           <a class="brand" href="#">Dogtalk</a>
           <ul class="nav">
-            <li ng-class="navClass('home')"><a href="#/" class="home"><i class="icon-home"></i> Home</a></li>
+            <li ng-class="navClass('home')"><a href="#/home" class="home"><i class="icon-home"></i> Home</a></li>
             <li ng-class="navClass('settings')"><a href="#/settings" class="settings"><i class="icon-cog"></i> Settings</a></li>
             <li ng-class="navClass('log')"><a href="#/log" class="log"><i class="icon-list-alt"></i> Log</a></li>
           </ul>
@@ -182,7 +182,6 @@ $(document).ready(function () {
 
   sockethub.on('close', function () {
     console.log('sockethub received close');
-
   });
 
 });

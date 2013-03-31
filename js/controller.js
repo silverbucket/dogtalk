@@ -18,46 +18,41 @@ var appCtrl = dogtalk.controller('appCtrl', function ($scope, $rootScope, $route
 });
 
 
-appCtrl.initializeApp = function ($q, $timeout) {
-  return $timeout(function() {
-    if (remoteStorage.getBearerToken() === null) {
-      return $q.reject({error: 1, message: "remoteStorage not connected"});
-    } else {
-      return remoteStorage.sockethub.getConfig().then(function (config) {
-        console.log('initializeApp: got config: ', config);
-        if (!config) {
-          return $q.reject("config not set");
-        } else {
-          return sockethubConnect(config);
-        }
-      }, function (error) {
-        return $q.reject("couldn't get config: " + error);
-      });
-    }
-  }, 0);
-};
 
-/*appCtrl.initializeApp = function ($q, $timeout) {
+/**
+ * Function: initializeApp
+ *
+ * when app is loaded, we need to verify remoteStorage and Sockethub are connected
+ * and provide the proper control-flow to the user if not.
+ *
+ */
+appCtrl.initializeApp = function ($q, $timeout, $rootScope) {
   var defer = $q.defer();
-  $timeout(function () {
-    console.log('appCtrl.initializeApp');
+  $timeout(function() {
     if (remoteStorage.getBearerToken() === null) {
       defer.reject({error: 1, message: "remoteStorage not connected"});
     } else {
       remoteStorage.sockethub.getConfig().then(function (config) {
-        console.log('appCtrl: sockethub config: ', config);
-        return sockethubConnect(config);
-      }).then(function () {
-          defer.resolve();
+        console.log('initializeApp: got config: ', config);
+        $rootScope.$apply(function () {
+          if (!config) {
+            defer.reject({error: 2, message: "no sockethub config found"});
+          } else {
+            sockethubConnect(config).then(function () {
+              console.log('connection successful');
+            }, function (err) {
+              console.log('connection failed');
+            });
+          }
+        });
       }, function (error) {
-        console.log('defer reject');
-        defer.reject("defer reject");//{error: 2, message: error});
-        console.log("after defer reject");
+        defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
       });
     }
-  }, 5000);
+  }, 0);
   return defer.promise;
-};*/
+};
+
 
 
 /**
@@ -106,6 +101,18 @@ var settingsCtrl = dogtalk.controller("settingsCtrl",  ['$scope', '$route', '$ro
   };
 }] );
 
+settingsCtrl.loadData = function ($q, $timeout) {
+  var defer = $q.defer();
+  console.log('settingsCtrl: loadData');
+  $timeout(function () {
+    if (remoteStorage.getBearerToken() === null) {
+      defer.reject("remoteStorage not connected");
+    } else {
+      defer.resolve();
+    }
+  }, 0);
+  return defer.promise;
+};
 
 // log
 var logCtrl = dogtalk.controller("logCtrl",  ['$scope', '$route', '$routeParams', '$location',
