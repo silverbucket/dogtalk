@@ -33,7 +33,7 @@
     <ng-view></ng-view>
 
     <!-- sockethub config modal window -->
-    <div id="modalCfgSockethub" class="modal hide fade">
+    <div id="modalCfgSockethub" class="modal">
       <div class="modal-header"><h4>Application initialization</h4></div>
       <div class="modal-body">
         <p>In order to connect to Sockethub, please enter the host, port and secret provided to you from your service provider</p>
@@ -42,27 +42,28 @@
             <div class="control-group">
               <label for="host" class="control-label">Hostname</label>
               <div class="controls">
-                <input type="text" class="required input-large" name="host" placeholder="Enter hostname..." required>
+                <input type="text" class="required input-large" name="host" id="host" placeholder="Enter hostname..." required>
               </div>
             </div>
 
             <div class="control-group">
               <label for="port" class="control-label">Port</label>
               <div class="controls">
-                <input type="text" class="required input-small" name="port" placeholder="Enter port..." required>
+                <input type="text" class="required input-small" name="port" id="port" placeholder="Enter port..." required>
                </div>
              </div>
 
             <div class="control-group">
               <label for="secret" class="control-label">Secret</label>
               <div class="controls">
-                <input type="text" class="required input-xlarge" name="secret" placeholder="Enter secret..." required>
+                <input type="text" class="required input-xlarge" name="secret" id="secret" placeholder="Enter secret..." required>
               </div>
             </div>
 
             <div class="control-group">
               <div class="controls">
-                <input class="btn-primary" type="submit" name="submit" value="submit" />
+                <input class="btn-primary" type="submit" name="submit" value="submit"
+                  onclick="submitConfig($('#host')[0].value, $('#port')[0].value, $('#secret')[0].value);$('#modalCfgSockethub').addClass('hide');$('#modalCfgSockethub').addClass('fade')"/>
               </div>
             </div>
           </fieldset>

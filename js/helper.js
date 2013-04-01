@@ -13,6 +13,14 @@ function runWizard(name, config) {
   }
 }
 
+function submitConfig(host, port, secret) {
+  remoteStorage.sockethub.writeConfig({
+    host: host,
+    port: parseInt(port),
+    secret: secret
+  });
+}
+
 function initRemoteStorage() {
   console.log('initRemoteStorage()');
   remoteStorage.util.silenceAllLoggers();
@@ -48,14 +56,13 @@ function initRemoteStorage() {
           var promise = promising();
           privateClient.getObject('config.json').then(function (config) {
             console.log('got config:', config);
-            promise.fulfill(config);
 
-            /*if (config) {
+            if (config) {
               promise.fulfill(config);
             } else {
               console.log('sockethub module: no config found');
               promise.reject('no config found');
-            }*/
+            }
           }, function (error) {
             promise.reject(error);
           });
