@@ -1,11 +1,12 @@
 var dogtalk = angular.module('dogtalk', []);
 
 dogtalk.config(function ($routeProvider) {
-  $routeProvider.when('/home', {
+  $routeProvider.when('/', {
     templateUrl: "home.html",
     controller: "homeCtrl",
     resolve: {
-      loadData: homeCtrl.loadData
+      loadData: appCtrl.initializeApp
+      //loadData: homeCtrl.loadData
     }
   }).when('/settings', {
     templateUrl: "settings.html",
@@ -19,12 +20,12 @@ dogtalk.config(function ($routeProvider) {
     resolve: {
       loadData: logCtrl.loadData
     }
-  }).when('/', {
+  /*}).when('/', {
     templateUrl: "home.html",
     controller: "homeCtrl",
     resolve: {
       loadData: appCtrl.initializeApp
-    }
+    }*/
   }).otherwise({
     redirectTo: "/"
   });

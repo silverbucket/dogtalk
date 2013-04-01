@@ -32,37 +32,38 @@
     <error></error>
     <ng-view></ng-view>
 
-    <!-- sockethub config modal window -->
-    <div id="modalCfgSockethub" class="modal hide fade">
-      <div class="modal-header"><h4>Application initialization</h4></div>
+    <!-- sockethub settings modal window -->
+    <div id="modalSettingsSockethub" class="modal hide fade">
+      <div class="modal-header"><h4>Sockethub initialization</h4></div>
       <div class="modal-body">
         <p>In order to connect to Sockethub, please enter the host, port and secret provided to you from your service provider</p>
-        <form name="cfgSockethub" class="form-horizontal">
+        <form name="settingsSockethub" class="form-horizontal" ng-controller="settingsSockethub" novalidate>
           <fieldset>
             <div class="control-group">
               <label for="host" class="control-label">Hostname</label>
               <div class="controls">
-                <input type="text" class="required input-large" name="host" placeholder="Enter hostname..." required>
+                <input type="text" class="required input-large" name="host" placeholder="Enter hostname..." ng-model="settings.host" required>
               </div>
             </div>
 
             <div class="control-group">
               <label for="port" class="control-label">Port</label>
               <div class="controls">
-                <input type="text" class="required input-small" name="port" placeholder="Enter port..." required>
+                <input type="text" class="required input-small" name="port" placeholder="Enter port..." ng-model="settings.port" required>
                </div>
              </div>
 
             <div class="control-group">
               <label for="secret" class="control-label">Secret</label>
               <div class="controls">
-                <input type="text" class="required input-xlarge" name="secret" placeholder="Enter secret..." required>
+                <input type="text" class="required input-xlarge" name="secret" placeholder="Enter secret..." ng-model="settings.secret" required>
               </div>
             </div>
 
             <div class="control-group">
               <div class="controls">
-                <input class="btn-primary" type="submit" name="submit" value="submit" />
+                <!-- <input class="btn-primary" type="submit" name="submit" value="submit" ng-onclick="saveSettings()" /> -->
+                <button ng-click="saveSettings(settings)" ng-disabled="settingsSockethub.$invalid">Submit</button>
               </div>
             </div>
           </fieldset>
@@ -96,6 +97,7 @@
         </div>
       </section>
     </script>
+
 
     <!-- dogtalk settings panel -->
     <script type="text/ng-template" id="app.html">
@@ -136,7 +138,7 @@
     <!-- sockethub log page -->
     <script type="text/ng-template" id="log.html">
       <section id="log" class="page">
-        <p>{{model.message}}</p>
+        <pre id="log_output"></pre>
       </section>
     </script>
 

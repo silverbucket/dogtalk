@@ -1,7 +1,8 @@
 /**
  * app
  * */
-var appCtrl = dogtalk.controller('appCtrl', function ($scope, $rootScope, $route, $location) {
+var appCtrl = dogtalk.controller('appCtrl', ['$scope', '$rootScope', '$route', '$location',
+function ($scope, $rootScope, $route, $location) {
 
   $rootScope.$on("$routeChangeStart", function (event, current, previous, rejection) {
     console.log('routeChangeStart: ', $scope, $rootScope, $route, $location);
@@ -15,7 +16,7 @@ var appCtrl = dogtalk.controller('appCtrl', function ($scope, $rootScope, $route
     console.log('routeChangeError: ', rejection);
   });
 
-});
+}] );
 
 
 
@@ -40,8 +41,14 @@ appCtrl.initializeApp = function ($q, $timeout, $rootScope) {
           } else {
             sockethubConnect(config).then(function () {
               console.log('connection successful');
+              $rootScope.$apply(function () {
+                defer.resolve();
+              });
             }, function (err) {
               console.log('connection failed');
+              $rootScope.$apply(function () {
+                defer.reject({error: 3, message: "unable to connect to sockethub"});
+              });
             });
           }
         });
@@ -59,7 +66,7 @@ appCtrl.initializeApp = function ($q, $timeout, $rootScope) {
  * nav
  * */
 var navCtrl = dogtalk.controller("navCtrl",  ['$scope', '$route', '$routeParams', '$location',
-                   function ($scope, $route, $routeParams, $location) {
+function ($scope, $route, $routeParams, $location) {
   $scope.navClass = function (page) {
     var currentRoute = $location.path().substring(1) || 'home';
     return page === currentRoute ? 'active' : '';
@@ -67,13 +74,16 @@ var navCtrl = dogtalk.controller("navCtrl",  ['$scope', '$route', '$routeParams'
 }] );
 
 
-/**
- * page controllers
- * */
 
-// home
+// pages controllers
+
+
+
+/*******
+ * home
+ ******/
 var homeCtrl = dogtalk.controller("homeCtrl",  ['$scope', '$route', '$routeParams', '$location',
-                   function ($scope, $route, $routeParams, $location) {
+function ($scope, $route, $routeParams, $location) {
   $scope.model = {
     message: "this is the main page fool!"
   };
@@ -93,9 +103,12 @@ homeCtrl.loadData = function ($q, $timeout) {
 };
 
 
-// settings
+
+/***********
+ * settings
+ ***********/
 var settingsCtrl = dogtalk.controller("settingsCtrl",  ['$scope', '$route', '$routeParams', '$location',
-                   function ($scope, $route, $routeParams, $location) {
+function ($scope, $route, $routeParams, $location) {
   $scope.model = {
     message: "this is the settings page fool!"
   };
@@ -114,11 +127,38 @@ settingsCtrl.loadData = function ($q, $timeout) {
   return defer.promise;
 };
 
+var settingsSockethub =  dogtalk.controller("settingsSockethub", ['$scope', '$rootScope',
+function ($scope, $rootScope) {
 
-// log
+  $scope.saveSettings = function (config) {
+    console.log('sockethub saveSettings ', config);
+    // validation ?
+    remoteStorage.sockethub.writeConfig({
+      host: $scope.settings.host,
+      port: parseInt($scope.settings.port, null),
+      secret: $scope.settings.secret
+    }).then (function () {
+      console.log('config saved to remotestorage');
+      $rootScope.$apply(function() {
+          $("#modalSettingsSockethub").modal({
+            show: false
+          });
+        $location.path('/');
+      });
+    });
+  };
+
+}]);
+
+
+
+/******
+ * log
+ ******/
 var logCtrl = dogtalk.controller("logCtrl",  ['$scope', '$route', '$routeParams', '$location',
-                   function ($scope, $route, $routeParams, $location) {
+function ($scope, $route, $routeParams, $location) {
   $scope.model = {
     message: "this is the log page fool!"
   };
 }] );
+

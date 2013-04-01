@@ -102,6 +102,7 @@ var sockethub = (function (window, document, undefined) {
 
   pub.connect = function (o) {
     var promise = promising();
+    var isConnecting = true;
     if (typeof o.host !== 'undefined') {
       cfg.host = o.host;
     }
@@ -115,31 +116,40 @@ var sockethub = (function (window, document, undefined) {
     if (typeof cfg.host === 'undefined') {
       log(3, null, "sockethub.connect requires an object parameter with a 'host' property", o);
       promise.reject("sockethub.connect requires an object parameter with a 'host' property");
-
     } else {
-      var connectString = cfg.host;
-      log(1, null, 'attempting to connect to ' + connectString);
+      log(1, null, 'attempting to connect to ' + cfg.host);
 
       var sock;
       try {
-        sock = new WebSocket(connectString, 'sockethub');
+        sock = new WebSocket(cfg.host, 'sockethub');
       } catch (e) {
         log(3, null, 'error connecting to sockethub: ' + e);
         promise.reject('error connecting to sockethub: ' + e);
       }
 
       if (sock) {
+console.log('test1');
         sock.onopen = function () {
+console.log('test2');
           ping.pause = false;
-          promise.fulfill();
+          if (isConnecting) {
+            isConnecting = false;
+            promise.fulfill();
+          }
         };
 
         sock.onclose = function () {
+console.log('test3');
           ping.pause = true;
+          if (isConnecting) {
+            isConnecting = true;
+            promise.reject("unable to connect to sockethub at "+cfg.host);
+          }
           callbacks.close();
         };
 
         sock.onmessage = function (e) {
+console.log('test4');
           var data = JSON.parse(e.data);
           var now = new Date().getTime();
 
@@ -268,6 +278,9 @@ var sockethub = (function (window, document, undefined) {
   };
 
   function log(type, rid, message) {
+    // TODO FIXME
+    // logs not working for now, lets get back to this later
+    return;
     var c = { 1:'blue', 2:'green', 3:'red'};
     var d = new Date();
     var ds = (d.getHours() + 1) + ':' + d.getMinutes() + ':' + d.getSeconds();
@@ -283,7 +296,7 @@ var sockethub = (function (window, document, undefined) {
     p.style.color = c[type];
     var pmsg = document.createTextNode(prefix + ' - ' + message +"\n");
     p.appendChild(pmsg);
-    var pre = document.getElementById('log');
+    var pre = document.getElementById('log_output');
     pre.insertBefore(p, pre.childNodes[0]);
 
     if (type === 1) {

@@ -79,7 +79,10 @@ function initRemoteStorage() {
 }
 
 function sockethubConnect(config) {
+  //console.log('promising: ', promising);
   var promise = promising();
+  console.log('promise: ', promise);
+  //promise.fulfill();
   sockethub.connect({
     host: "ws://localhost:10550/sockethub",
     confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
@@ -94,8 +97,9 @@ function sockethubConnect(config) {
       }
     });
   }, function (err, o) {
-    console.log('recevied error on connect: '+err+' : ', o);
-    promise.reject('recevied error on connect: '+err);
+    //console.log('received error on connect: '+err+' : ', o);
+    promise.reject('received error on connect: '+err);
   });
+
   return promise;
 }

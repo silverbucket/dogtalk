@@ -9,6 +9,10 @@ dogtalk.directive("error", function ($rootScope) {
               '<strong>Unable to connect to Sockethub</strong>' +
               '<p>You must fill in your Sockethub connection details</p>' +
               '</div>' +
+              '<div class="alert alert-error" ng-show="isSockethubConnectionError">'+
+              '<strong>Sockethub connection</strong>' +
+              '<p>Unable to connect to Sockethub, please check your configuration and try again.</p>' +
+              '</div>' +
               '<div class="alert alert-error" ng-show="isUnknownError">'+
               '<strong>Unknown error</strong>' +
               '<p>An unknown routing error has occurred</p>' +
@@ -20,11 +24,13 @@ dogtalk.directive("error", function ($rootScope) {
           scope.isRemoteStorageError = true;
         } else if (rejection.error === 2) {
           scope.isSockethubConfigError = true;
-          $("#modalCfgSockethub").modal({
+          $("#modalSettingsSockethub").modal({
             show: true,
             keyboard: true,
             backdrop: "static"
           });
+        } else if (rejection.error === 3) {
+          scope.isSockethubConnectionError = true;
         } else {
           scope.isUnknownError = true;
         }
@@ -32,3 +38,4 @@ dogtalk.directive("error", function ($rootScope) {
     }
   };
 });
+
