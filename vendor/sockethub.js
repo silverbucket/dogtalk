@@ -128,9 +128,7 @@ var sockethub = (function (window, document, undefined) {
       }
 
       if (sock) {
-console.log('test1');
         sock.onopen = function () {
-console.log('test2');
           ping.pause = false;
           if (isConnecting) {
             isConnecting = false;
@@ -139,7 +137,6 @@ console.log('test2');
         };
 
         sock.onclose = function () {
-console.log('test3');
           ping.pause = true;
           if (isConnecting) {
             isConnecting = true;
@@ -149,7 +146,6 @@ console.log('test3');
         };
 
         sock.onmessage = function (e) {
-console.log('test4');
           var data = JSON.parse(e.data);
           var now = new Date().getTime();
 
