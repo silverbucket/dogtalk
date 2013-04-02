@@ -122,7 +122,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, sockethubConfig) 
     config: sockethubConfig,
     show: function () {
       console.log('showSockethub: ', $scope.sockethub.config);
-      $rootScope.$broadcast('showModalSockethubSettings');
+      $rootScope.$broadcast('showModalSockethubSettings', {locked: false});
     },
     save: function (config) {
       console.log('saveSockethub: ', config);
@@ -139,7 +139,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, sockethubConfig) 
           $scope.sockethub.config.secret = config.secret;
           console.log("closing modalwindow");
           $rootScope.$broadcast('closeModalSockethubSettings');
-          //$location.path('/');
+          $location.path('/');
         });
       }, function () {
         console.log('error saving config to remoteStorage!');

@@ -103,10 +103,7 @@ dogtalk.run(function($rootScope, sockethubConfig) {
 
 
     $rootScope.$on('closeModalSockethubSettings', function(event, args) {
-      console.log('closeModalSockethubSettings');
-      $("#modalSettingsSockethub").modal({
-        show: false
-      });
-      console.log('hi');
+      //console.log('closeModalSockethubSettings');
+      $("#modalSettingsSockethub").modal('hide');
     });
 });
