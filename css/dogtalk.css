@@ -2,6 +2,17 @@ html {
   overflow-y: scroll;
 }
 
+footer {
+  background-color: #FaFaFa;
+  position: absolute;
+  bottom: 10px; /* negative value of footer height */
+  height: 10px;
+  width: 100%;
+}
+.footer p {
+  text-align: center;
+}
+
 .contacts {
   background-color: #ffffff;
 }
@@ -19,6 +30,10 @@ footer {
 
 form {
   padding: 16px 0 1px 0;
+}
+
+.modal-header {
+  text-align: center;
 }
 
 

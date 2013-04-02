@@ -5,15 +5,15 @@ var appCtrl = dogtalk.controller('appCtrl', ['$scope', '$rootScope', '$route', '
 function ($scope, $rootScope, $route, $location) {
 
   $rootScope.$on("$routeChangeStart", function (event, current, previous, rejection) {
-    console.log('routeChangeStart: ', $scope, $rootScope, $route, $location);
+    //console.log('routeChangeStart: ', $scope, $rootScope, $route, $location);
   });
 
   $rootScope.$on("$routeChangeSuccess", function (event, current, previous, rejection) {
-    console.log('routeChangeSuccess: ', $scope, $rootScope, $route, $location);
+    //console.log('routeChangeSuccess: ', $scope, $rootScope, $route, $location);
   });
 
   $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
-    console.log('routeChangeError: ', rejection);
+    //console.log('routeChangeError: ', rejection);
   });
 
 }] );
@@ -27,7 +27,7 @@ function ($scope, $rootScope, $route, $location) {
  * and provide the proper control-flow to the user if not.
  *
  */
-appCtrl.initializeApp = function ($q, $timeout, $rootScope) {
+appCtrl.initializeApp = function ($q, $timeout, $rootScope, sockethubConfig) {
   var defer = $q.defer();
   $timeout(function() {
     if (remoteStorage.getBearerToken() === null) {
@@ -39,9 +39,14 @@ appCtrl.initializeApp = function ($q, $timeout, $rootScope) {
           if (!config) {
             defer.reject({error: 2, message: "no sockethub config found"});
           } else {
+            console.log('setting config and attempting connection');
+            sockethubConfig.host = config.host;
+            sockethubConfig.port = config.port;
+            sockethubConfig.secret = config.secret;
             sockethubConnect(config).then(function () {
               console.log('connection successful');
               $rootScope.$apply(function () {
+
                 defer.resolve();
               });
             }, function (err) {
@@ -107,48 +112,43 @@ homeCtrl.loadData = function ($q, $timeout) {
 /***********
  * settings
  ***********/
-var settingsCtrl = dogtalk.controller("settingsCtrl",  ['$scope', '$route', '$routeParams', '$location',
-function ($scope, $route, $routeParams, $location) {
+var settingsCtrl = dogtalk.controller("settingsCtrl",
+['$scope', '$route', '$routeParams', '$location', '$rootScope', 'sockethubConfig',
+function ($scope, $route, $routeParams, $location, $rootScope, sockethubConfig) {
   $scope.model = {
     message: "this is the settings page fool!"
   };
-}] );
-
-settingsCtrl.loadData = function ($q, $timeout) {
-  var defer = $q.defer();
-  console.log('settingsCtrl: loadData');
-  $timeout(function () {
-    if (remoteStorage.getBearerToken() === null) {
-      defer.reject("remoteStorage not connected");
-    } else {
-      defer.resolve();
-    }
-  }, 0);
-  return defer.promise;
-};
-
-var settingsSockethub =  dogtalk.controller("settingsSockethub", ['$scope', '$rootScope',
-function ($scope, $rootScope) {
-
-  $scope.saveSettings = function (config) {
-    console.log('sockethub saveSettings ', config);
-    // validation ?
-    remoteStorage.sockethub.writeConfig({
-      host: $scope.settings.host,
-      port: parseInt($scope.settings.port, null),
-      secret: $scope.settings.secret
-    }).then (function () {
-      console.log('config saved to remotestorage');
-      $rootScope.$apply(function() {
-          $("#modalSettingsSockethub").modal({
-            show: false
-          });
-        $location.path('/');
+  $scope.sockethub = {
+    config: sockethubConfig,
+    show: function () {
+      console.log('showSockethub: ', $scope.sockethub.config);
+      $rootScope.$broadcast('showModalSockethubSettings');
+    },
+    save: function (config) {
+      console.log('saveSockethub: ', config);
+      // validation ?
+      remoteStorage.sockethub.writeConfig({
+        host: $scope.sockethub.config.host,
+        port: parseInt($scope.sockethub.config.port, null),
+        secret: $scope.sockethub.config.secret
+      }).then (function () {
+        console.log('config saved to remotestorage');
+        $rootScope.$apply(function() {
+          $scope.sockethub.config.host = config.host;
+          $scope.sockethub.config.port = config.port;
+          $scope.sockethub.config.secret = config.secret;
+          console.log("closing modalwindow");
+          $rootScope.$broadcast('closeModalSockethubSettings');
+          //$location.path('/');
+        });
+      }, function () {
+        console.log('error saving config to remoteStorage!');
       });
-    });
+    }
   };
 
-}]);
+}] );
+
 
 
 

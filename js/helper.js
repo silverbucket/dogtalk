@@ -14,7 +14,6 @@ function runWizard(name, config) {
 }
 
 function initRemoteStorage() {
-  console.log('initRemoteStorage()');
   remoteStorage.util.silenceAllLoggers();
   remoteStorage.defineModule('sockethub', function(privateClient, publicClient) {
     privateClient.declareType('config', {
@@ -43,11 +42,9 @@ function initRemoteStorage() {
     return {
       exports: {
         getConfig: function() {
-          console.log(' [RS] getConfig()');
-  //$scope.$apply(function() {console.log('YARG');});
           var promise = promising();
           privateClient.getObject('config.json').then(function (config) {
-            console.log('got config:', config);
+            //console.log('got config:', config);
             promise.fulfill(config);
 
             /*if (config) {
@@ -62,7 +59,7 @@ function initRemoteStorage() {
           return promise;
         },
         writeConfig: function(data) {
-          console.log(' [RS] writeConfig()');
+          //console.log(' [RS] writeConfig()');
           return privateClient.storeObject('config', 'config.json', data);
         }
       }
@@ -79,10 +76,7 @@ function initRemoteStorage() {
 }
 
 function sockethubConnect(config) {
-  //console.log('promising: ', promising);
   var promise = promising();
-  console.log('promise: ', promise);
-  //promise.fulfill();
   sockethub.connect({
     host: "ws://localhost:10550/sockethub",
     confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
@@ -96,6 +90,7 @@ function sockethubConnect(config) {
         scope: remoteStorage.claimedModules
       }
     });
+    promise.fulfill();
   }, function (err, o) {
     //console.log('received error on connect: '+err+' : ', o);
     promise.reject('received error on connect: '+err);
