@@ -42,21 +42,7 @@ function initRemoteStorage() {
     return {
       exports: {
         getConfig: function() {
-          var promise = promising();
-          privateClient.getObject('config.json').then(function (config) {
-            //console.log('got config:', config);
-            promise.fulfill(config);
-
-            /*if (config) {
-              promise.fulfill(config);
-            } else {
-              console.log('sockethub module: no config found');
-              promise.reject('no config found');
-            }*/
-          }, function (error) {
-            promise.reject(error);
-          });
-          return promise;
+          return privateClient.getObject('config.json');
         },
         writeConfig: function(data) {
           //console.log(' [RS] writeConfig()');
@@ -76,25 +62,21 @@ function initRemoteStorage() {
 }
 
 function sockethubConnect(config) {
-  var promise = promising();
-  sockethub.connect({
+  return sockethub.connect({
     host: "ws://localhost:10550/sockethub",
     confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
     enablePings: true            // good for keepalive
   }).then(function () {  // connection to sockethub sucessful
     console.log('connected to sockethub');
-    sockethub.register({
+    return sockethub.register({
       storageInfo: remoteStorage.getStorageInfo(),
       remoteStorage: {
         bearerToken: remoteStorage.getBearerToken(),
         scope: remoteStorage.claimedModules
       }
     });
-    promise.fulfill();
   }, function (err, o) {
     //console.log('received error on connect: '+err+' : ', o);
-    promise.reject('received error on connect: '+err);
+    throw 'received error on connect: '+err;
   });
-
-  return promise;
 }
