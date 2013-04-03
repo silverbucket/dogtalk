@@ -69,14 +69,19 @@ function sockethubConnect(config) {
   }).then(function () {  // connection to sockethub sucessful
     console.log('connected to sockethub');
     return sockethub.register({
-      storageInfo: remoteStorage.getStorageInfo(),
       remoteStorage: {
         bearerToken: remoteStorage.getBearerToken(),
-        scope: remoteStorage.claimedModules
+        scope: remoteStorage.claimedModules,
+        storageInfo: remoteStorage.getStorageInfo()
       }
     });
-  }, function (err, o) {
+  }, function (err) {
     //console.log('received error on connect: '+err+' : ', o);
-    throw 'received error on connect: '+err;
+    console.error('received error on connect: '+err, (err && err.stack) || '');
+  }).then(function() {
+    console.log('registered!');
+  }, function(err) {
+    console.log('error registering: ', err);
+    throw err;
   });
 }

@@ -10,6 +10,7 @@ var sockethub = (function (window, document, undefined) {
   var ridDB = {
     counter: 0
   };
+  var ridHandlers = {};
   var ping = {
     sent: 0,
     received: 0,
@@ -190,8 +191,14 @@ var sockethub = (function (window, document, undefined) {
               log(3, data.rid, e.data);
               callbacks.message(data);
             } else {
-              log(2, data.rid, e.data);
-              callbacks.response(data);
+              var handler = ridHandlers[data.rid];
+              if(handler) {
+                delete ridHandlers[data.rid];
+                handler(data);
+              } else {
+                log(2, data.rid, e.data);
+                callbacks.response(data);
+              }
             }
           }
         };
@@ -347,11 +354,21 @@ var sockethub = (function (window, document, undefined) {
     var r = sendData.register;
 
     r.object = o;
-    r.rid = getRID('register');
-    var rawMessage = JSON.stringify(r);
-    log(1, r.rid, rawMessage);
-    sock.send(rawMessage);
-   };
+    return this.sendObject(r, getRID('register')).
+      then(function(result) {
+        if(! result.status) {
+          throw "Failed to register with sockethub. Reason: " + result.message;
+        }
+      });
+  };
+
+  pub.sendObject = function(object, rid) {
+    var promise = promising();
+    object.rid = rid;
+    ridHandlers[rid] = promise.fulfill;
+    sock.send(JSON.stringify(object));
+    return promise;
+  };
 
   pub.set = function (platform, data) {
     assertConnected();
