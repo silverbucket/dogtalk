@@ -125,7 +125,6 @@ var sockethub = (function (window, document, undefined) {
     } else {
       log(1, null, 'attempting to connect to ' + cfg.host);
 
-      var sock;
       try {
         sock = new WebSocket(cfg.host, 'sockethub');
       } catch (e) {
