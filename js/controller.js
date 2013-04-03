@@ -19,46 +19,6 @@ function ($scope, $rootScope, $route, $location) {
 }] );
 
 
-
-// /**
-//  * Function: initializeApp
-//  *
-//  * when app is loaded, we need to verify remoteStorage and Sockethub are connected
-//  * and provide the proper control-flow to the user if not.
-//  *
-//  */
-// appCtrl.initializeApp = function ($q, $timeout, $rootScope, sockethubConfig) {
-//   var defer = $q.defer();
-//   $timeout(function() {
-//     if (remoteStorage.getBearerToken() === null) {
-//       defer.reject({error: 1, message: "remoteStorage not connected"});
-//     } else {
-//       remoteStorage.sockethub.getConfig().then(function (config) {
-//         console.log('initializeApp: got config: ', config);
-//         if (!config) {
-//           defer.reject({error: 2, message: "no sockethub config found"});
-//         } else {
-//           console.log('setting config and attempting connection');
-//           sockethubConfig.host = config.host;
-//           sockethubConfig.port = config.port;
-//           sockethubConfig.secret = config.secret;
-//           sockethubConnect(config).then(function () {
-//             console.log('connection successful');
-//             defer.resolve();
-//           }, function (err) {
-//             console.log('connection failed');
-//             defer.reject({error: 3, message: "unable to connect to sockethub"});
-//           });
-//         }
-//       }, function (error) {
-//         defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
-//       });
-//     }
-//   }, 0);
-//   return defer.promise;
-// };
-
-
 /**
  * nav
  * */
