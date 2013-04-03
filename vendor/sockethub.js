@@ -25,6 +25,12 @@ var sockethub = (function (window, document, undefined) {
     ping: function () {}
   };
 
+  function assertConnected() {
+    if(typeof(sock) === 'undefined') {
+      throw new Error("You need to connect sockethub before sending anything!");
+    }
+  }
+
   var sendData = {
     ping: {
       verb: 'ping',
@@ -338,6 +344,7 @@ var sockethub = (function (window, document, undefined) {
    *   return n/a
    */
   pub.register = function (o) {
+    assertConnected();
     var r = sendData.register;
 
     r.object = o;
@@ -348,6 +355,7 @@ var sockethub = (function (window, document, undefined) {
    };
 
   pub.set = function (platform, data) {
+    assertConnected();
     var r = sendData.set;
     r.target.platform = platform;
     r.object = data;
@@ -358,6 +366,7 @@ var sockethub = (function (window, document, undefined) {
   };
 
   pub.send = function (platform, actor, target, object) {
+    assertConnected();
     var r = sendData.send;
     r.platform = platform;
     r.object = object;
@@ -370,6 +379,7 @@ var sockethub = (function (window, document, undefined) {
   };
 
   pub.post = function (platform, actor, target, object) {
+    assertConnected();
     var r = sendData.post;
     r.platform = platform;
     r.object = object;
@@ -382,6 +392,7 @@ var sockethub = (function (window, document, undefined) {
   };
 
   pub.submit = function (o) {
+    assertConnected();
     o.rid = getRID(o.verb);
     var json_o = JSON.stringify(o);
     log(1, o.rid, 'submitting: '+json_o);
