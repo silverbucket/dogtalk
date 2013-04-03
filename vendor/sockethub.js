@@ -368,7 +368,7 @@ var sockethub = (function (window, document, undefined) {
     var r = sendData.register;
 
     r.object = o;
-    return this.sendObject(r, getRID('register')).
+    return this.sendObject(r, 'register').
       then(function(result) {
         if(! result.status) {
           throw "Failed to register with sockethub. Reason: " + result.message;
@@ -379,15 +379,15 @@ var sockethub = (function (window, document, undefined) {
   /**
    * Function: sendObject
    *
-   * Send given object, setting it's 'rid' as specified.
+   * Send given object, setting it's 'rid' to a value based on the given ridType.
    *
    * Returns a promise, which will be fulfilled with the first response carrying
    * the same 'rid'.
    */
-  pub.sendObject = function(object, rid) {
+  pub.sendObject = function(object, ridType) {
     var promise = promising();
-    object.rid = rid;
-    ridHandlers[rid] = promise.fulfill;
+    object.rid = getRID(ridType);
+    ridHandlers[object.rid] = promise.fulfill;
     sock.send(JSON.stringify(object));
     return promise;
   };
