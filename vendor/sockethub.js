@@ -113,6 +113,11 @@ var sockethub = (function (window, document, undefined) {
   pub.connect = function (o) {
     var promise = promising();
     var isConnecting = true;
+    if (typeof o !== 'object') {
+      promise.reject('connection object not received');
+      return promise;
+    }
+
     if (typeof o.host !== 'undefined') {
       cfg.host = o.host;
     }

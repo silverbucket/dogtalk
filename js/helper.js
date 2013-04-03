@@ -4,7 +4,7 @@ function applyAngularPromiseHack(constructor, rootScope) {
     return function() {
       var args = Array.prototype.slice.call(arguments);
       return rootScope.$apply(function() {
-        return f.apply(this, args)
+        return f.apply(this, args);
       });
     };
   }
@@ -22,25 +22,11 @@ function applyAngularPromiseHack(constructor, rootScope) {
         if(typeof(_failure) === 'function') {
           failure = apply(_failure);
         }
-      } 
+      }
       return oldThen(success, failure);
     };
     return promise;
   };
-}
-
-function runWizard(name, config) {
-  console.log('runWizard('+name+') called');
-  //navClass('settings');
-  //navCtrl.switchPage('settings');
-  if (name === 'remoteStorage') {
-    $("#rsAlert").show();
-  } else if (name === 'sockethub') {
-    $("#modalCfgSockethub").modal({
-      show: true,
-      keyboard: true
-    });
-  }
 }
 
 function initRemoteStorage($scope) {
@@ -95,28 +81,3 @@ function initRemoteStorage($scope) {
   });
 }
 
-function sockethubConnect(config) {
-  return sockethub.connect({
-    host: "ws://localhost:10550/sockethub",
-    confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
-    enablePings: true            // good for keepalive
-  }).then(function () {  // connection to sockethub sucessful
-    console.log('connected to sockethub');
-    return sockethub.register({
-      remoteStorage: {
-        bearerToken: remoteStorage.getBearerToken(),
-        scope: remoteStorage.claimedModules,
-        storageInfo: remoteStorage.getStorageInfo()
-      },
-      secret: config.secret
-    });
-  }, function (err) {
-    //console.log('received error on connect: '+err+' : ', o);
-    console.error('received error on connect: '+err, (err && err.stack) || '');
-  }).then(function() {
-    console.log('registered!');
-  }, function(err) {
-    console.log('error registering: ', err);
-    throw err;
-  });
-}

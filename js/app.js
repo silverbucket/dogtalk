@@ -100,38 +100,15 @@ function ($rootScope, $q, $timeout, sh) {
             } else {
               remoteStorage.sockethub.getConfig().then(function (config) {
                 console.log('initializeApp: got config: ', config);
-                $rootScope.$apply(function () {
-                  if (!config) {
-                    defer.reject({error: 2, message: "no sockethub config found"});
-                  } else {
-                    console.log('setting config and attempting connection');
-                    sh.config.host = config.host;
-                    sh.config.port = config.port;
-                    sh.config.secret = config.secret;
-                    sockethub.connect({
-                      host: "ws://localhost:10550/sockethub",
-                      confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
-                      enablePings: true            // good for keepalive
-                    }).then(function () {  // connection to sockethub sucessful
-                      console.log('connected to sockethub');
-                      $rootScope.$apply(function () {
-                        sockethub.register({
-                          storageInfo: remoteStorage.getStorageInfo(),
-                          remoteStorage: {
-                            bearerToken: remoteStorage.getBearerToken(),
-                            scope: remoteStorage.claimedModules
-                          }
-                        });
-                        defer.resolve();
-                      });
-                    }, function (err, o) {
-                      $rootScope.$apply(function () {
-                        console.log('received error on connect: '+err+' : ', o);
-                        defer.reject({error: 3, message: 'received error on connect: '+err});
-                      });
-                    });
-                  }
-                });
+                if (!config) {
+                  defer.reject({error: 2, message: "no sockethub config found"});
+                } else {
+                  console.log('setting config and attempting connection');
+                  sh.config.host = config.host;
+                  sh.config.port = config.port;
+                  sh.config.secret = config.secret;
+                  return sh.connect();
+                }
               }, function (error) {
                 defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
               });
@@ -163,27 +140,29 @@ function ($rootScope, $q) {
   };
 
   function connect() {
-    var defer = $q.defer;
-    sockethub.connect({
-      host: "ws://localhost:10550/sockethub",
+    return sockethub.connect({
+      host: 'ws://' + config.host + ':' + config.port + '/sockethub',
       confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
       enablePings: true            // good for keepalive
     }).then(function () {  // connection to sockethub sucessful
       console.log('connected to sockethub');
-      sockethub.register({
-        storageInfo: remoteStorage.getStorageInfo(),
+      return sockethub.register({
         remoteStorage: {
           bearerToken: remoteStorage.getBearerToken(),
-          scope: remoteStorage.claimedModules
-        }
+          scope: remoteStorage.claimedModules,
+          storageInfo: remoteStorage.getStorageInfo()
+        },
+        secret: config.secret
       });
-      defer.resolve();
-    }, function (err, o) {
-      console.log('received error on connect: '+err+' : ', o);
-      defer.reject({error: 3, message: 'received error on connect: '+err});
+    }, function (err) {
+      //console.log('received error on connect: '+err+' : ', o);
+      console.error('received error on connect: '+err, (err && err.stack) || '');
+    }).then(function() {
+      console.log('registered!');
+    }, function(err) {
+      console.log('error registering: ', err);
+      throw err;
     });
-console.log('returning promise:',defer);
-    return defer.promise;
   }
 
   return {
