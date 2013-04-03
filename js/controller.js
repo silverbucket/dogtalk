@@ -120,7 +120,7 @@ function ($scope, $route, $routeParams, $location) {
 
 logCtrl.logInit = function ($q, init) {
   console.log('logCtrl.init()');
-  var defer = $q.defer;
+  var defer = $q.defer();
   defer.resolve();
   return defer.promise;
 };
