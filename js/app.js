@@ -156,12 +156,12 @@ function ($rootScope, $q) {
       });
     }, function (err) {
       //console.log('received error on connect: '+err+' : ', o);
-      throw { type: 'connect', error: err };
+      throw { type: 'connect', original: err, error: 2 };
     }).then(function() {
       console.log('registered!');
     }, function(err) {
       if(typeof(err) !== 'object') {
-        throw { type: 'register', error: err };
+        throw { type: 'register', original: err, error: 3 };
       } else {
         throw err;
       }
