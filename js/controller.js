@@ -19,8 +19,6 @@ function ($scope, $rootScope, $route, $location) {
 }] );
 
 
-
-
 /**
  * nav
  * */
@@ -82,14 +80,12 @@ function ($scope, $route, $routeParams, $location, $rootScope, sh) {
         secret: $scope.sockethub.config.secret
       }).then (function () {
         console.log('config saved to remotestorage');
-        $rootScope.$apply(function() {
-          $scope.sockethub.config.host = config.host;
-          $scope.sockethub.config.port = config.port;
-          $scope.sockethub.config.secret = config.secret;
-          console.log("closing modalwindow");
-          $rootScope.$broadcast('closeModalSockethubSettings');
-          $location.path('/');
-        });
+        $scope.sockethub.config.host = config.host;
+        $scope.sockethub.config.port = config.port;
+        $scope.sockethub.config.secret = config.secret;
+        console.log("closing modalwindow");
+        $rootScope.$broadcast('closeModalSockethubSettings');
+        $location.path('/');
       }, function () {
         console.log('error saving config to remoteStorage!');
       });
