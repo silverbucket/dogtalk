@@ -301,11 +301,11 @@ var sockethub = (function (window, document, undefined) {
     pre.insertBefore(p, pre.childNodes[0]);
 
     if (type === 1) {
-      console.log(' [socekthub] info - '+message);
+      console.log(' [sockethub] info - '+message);
     } else if (type === 2) {
-      console.log(' [socekthub] successi - '+message);
+      console.log(' [sockethub] success - '+message);
     } else if (type === 3) {
-      console.log(' [socekthub] error - '+message);
+      console.log(' [sockethub] error - '+message);
     }
   }
 
