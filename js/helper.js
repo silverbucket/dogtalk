@@ -73,7 +73,8 @@ function sockethubConnect(config) {
         bearerToken: remoteStorage.getBearerToken(),
         scope: remoteStorage.claimedModules,
         storageInfo: remoteStorage.getStorageInfo()
-      }
+      },
+      secret: config.secret
     });
   }, function (err) {
     //console.log('received error on connect: '+err+' : ', o);
