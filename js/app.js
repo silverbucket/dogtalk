@@ -24,7 +24,6 @@ dogtalk.config(function ($routeProvider) {
   });
 });
 
-
 dogtalk.directive("error", function ($rootScope) {
   return {
     restrict: "E",
@@ -43,10 +42,19 @@ dogtalk.directive("error", function ($rootScope) {
               '<div class="alert alert-error" ng-show="isUnknownError">'+
               '<strong>Unknown error</strong>' +
               '<p>An unknown routing error has occurred</p>' +
+              '<p>{{message}}</p>'+
               '</div>',
     link: function (scope) {
       $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
-        //console.log('directive routeChangeError: ', event, current, previous, rejection);
+        console.log('directive routeChangeError: ', event, current, previous, rejection);
+
+        scope.isRemoteStorageError =
+          scope.isSockethubConfigError =
+          scope.isSockethubConnectionError =
+          scope.isSockethubRegistrationError =
+          scope.isUnknownError =
+          false;
+
         if (rejection.error === 1) {
           scope.isRemoteStorageError = true;
         } else if (rejection.error === 2) {
@@ -55,9 +63,15 @@ dogtalk.directive("error", function ($rootScope) {
           $rootScope.$broadcast('showModalSockethubSettings', {locked: true});
         } else if (rejection.error === 3) {
           scope.isSockethubConnectionError = true;
+        } else if (rejection.error === 4) {
+          scope.isSockethubRegistrationError = true;
         } else {
           scope.isUnknownError = true;
+          scope.message = String(rejection.original || rejection);
         }
+
+        console.log('error scope has flags now: ', 'remotestorage', scope.isRemoteStorageError, 'sockethub config', scope.isSockethubConfigError, 'sockethub connect', scope.isSockethubConnectionError, 'sockethub registration', scope.isSockethubRegistrationError, 'unknown', scope.isUnknownError);
+
       });
 
       $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
@@ -98,19 +112,23 @@ function ($rootScope, $q, $timeout, sh) {
               console.log('already have sockethub config, no need to fetch');
               sockethub.connect(defer);
             } else {
-              remoteStorage.sockethub.getConfig().then(function (config) {
-                console.log('initializeApp: got config: ', config);
-                if (!config) {
-                  defer.reject({error: 2, message: "no sockethub config found"});
-                } else {
-                  console.log('setting config and attempting connection');
-                  sh.config.host = config.host;
-                  sh.config.port = config.port;
-                  sh.config.secret = config.secret;
-                  return sh.connect();
-                }
-              }, function (error) {
-                defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
+              remoteStorage.onWidget('ready', function() {
+                $timeout(function() {
+                  remoteStorage.sockethub.getConfig().then(function (config) {
+                    console.log('initializeApp: got config: ', config);
+                    if (!config) {
+                      defer.reject({error: 2, message: "no sockethub config found"});
+                    } else {
+                      console.log('setting config and attempting connection');
+                      sh.config.host = config.host;
+                      sh.config.port = config.port;
+                      sh.config.secret = config.secret;
+                      return sh.connect().then(undefined, defer.reject);
+                    }
+                  }, function (error) {
+                    defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
+                  });
+                });
               });
             }
           }
@@ -156,12 +174,12 @@ function ($rootScope, $q) {
       });
     }, function (err) {
       //console.log('received error on connect: '+err+' : ', o);
-      throw { type: 'connect', original: err, error: 2 };
+      throw { type: 'connect', original: err, error: 3 };
     }).then(function() {
       console.log('registered!');
     }, function(err) {
       if(typeof(err) !== 'object') {
-        throw { type: 'register', original: err, error: 3 };
+        throw { type: 'register', original: err, error: 4 };
       } else {
         throw err;
       }
