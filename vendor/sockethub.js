@@ -10,6 +10,9 @@ var sockethub = (function (window, document, undefined) {
   var ridDB = {
     counter: 0
   };
+  // maps 'rid's to a function that is being called once a response with that rid
+  // is received. After that the function will be cleaned up
+  var ridHandlers = {};
   var ping = {
     sent: 0,
     received: 0,
@@ -24,6 +27,12 @@ var sockethub = (function (window, document, undefined) {
     //register: function () {},
     ping: function () {}
   };
+
+  function assertConnected() {
+    if(typeof(sock) === 'undefined') {
+      throw new Error("You need to connect sockethub before sending anything!");
+    }
+  }
 
   var sendData = {
     ping: {
@@ -119,7 +128,6 @@ var sockethub = (function (window, document, undefined) {
     } else {
       log(1, null, 'attempting to connect to ' + cfg.host);
 
-      var sock;
       try {
         sock = new WebSocket(cfg.host, 'sockethub');
       } catch (e) {
@@ -185,8 +193,14 @@ var sockethub = (function (window, document, undefined) {
               log(3, data.rid, e.data);
               callbacks.message(data);
             } else {
-              log(2, data.rid, e.data);
-              callbacks.response(data);
+              var handler = ridHandlers[data.rid];
+              if(handler) {
+                delete ridHandlers[data.rid];
+                handler(data);
+              } else {
+                log(2, data.rid, e.data);
+                callbacks.response(data);
+              }
             }
           }
         };
@@ -296,11 +310,11 @@ var sockethub = (function (window, document, undefined) {
     pre.insertBefore(p, pre.childNodes[0]);
 
     if (type === 1) {
-      console.log(' [socekthub] info - '+message);
+      console.log(' [sockethub] info - '+message);
     } else if (type === 2) {
-      console.log(' [socekthub] successi - '+message);
+      console.log(' [sockethub] success - '+message);
     } else if (type === 3) {
-      console.log(' [socekthub] error - '+message);
+      console.log(' [sockethub] error - '+message);
     }
   }
 
@@ -338,16 +352,36 @@ var sockethub = (function (window, document, undefined) {
    *   return n/a
    */
   pub.register = function (o) {
+    assertConnected();
     var r = sendData.register;
 
     r.object = o;
-    r.rid = getRID('register');
-    var rawMessage = JSON.stringify(r);
-    log(1, r.rid, rawMessage);
-    sock.send(rawMessage);
-   };
+    return this.sendObject(r, getRID('register')).
+      then(function(result) {
+        if(! result.status) {
+          throw "Failed to register with sockethub. Reason: " + result.message;
+        }
+      });
+  };
+
+  /**
+   * Function: sendObject
+   *
+   * Send given object, setting it's 'rid' as specified.
+   *
+   * Returns a promise, which will be fulfilled with the first response carrying
+   * the same 'rid'.
+   */
+  pub.sendObject = function(object, rid) {
+    var promise = promising();
+    object.rid = rid;
+    ridHandlers[rid] = promise.fulfill;
+    sock.send(JSON.stringify(object));
+    return promise;
+  };
 
   pub.set = function (platform, data) {
+    assertConnected();
     var r = sendData.set;
     r.target.platform = platform;
     r.object = data;
@@ -358,6 +392,7 @@ var sockethub = (function (window, document, undefined) {
   };
 
   pub.send = function (platform, actor, target, object) {
+    assertConnected();
     var r = sendData.send;
     r.platform = platform;
     r.object = object;
@@ -370,6 +405,7 @@ var sockethub = (function (window, document, undefined) {
   };
 
   pub.post = function (platform, actor, target, object) {
+    assertConnected();
     var r = sendData.post;
     r.platform = platform;
     r.object = object;
@@ -382,6 +418,7 @@ var sockethub = (function (window, document, undefined) {
   };
 
   pub.submit = function (o) {
+    assertConnected();
     o.rid = getRID(o.verb);
     var json_o = JSON.stringify(o);
     log(1, o.rid, 'submitting: '+json_o);

@@ -181,11 +181,11 @@ $(document).ready(function () {
     console.log('sockethub received error ['+o.rid+':'+o.verb+']: '+o.message, o);
   });
 
-  sockethub.on('response', function (err, o) { // response to sent command
+  sockethub.on('response', function (o) { // response to sent command
     console.log('sockethub received response ['+o.rid+':'+o.verb+']', o);
   });
 
-  sockethub.on('message', function (err, o) { // unprompted message from sockethub
+  sockethub.on('message', function (o) { // unprompted message from sockethub
     console.log('sockethub received message ['+o.rid+':'+o.verb+']', o);
   });
 
