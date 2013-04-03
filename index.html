@@ -12,7 +12,8 @@
   </head>
 
   <body>
-      <div id="remotestorage-connect"></div>
+      <div id="remotestorage-connect" ng-controller="initRemoteStorage"></div>
+
       <!--[if lt IE 7]>
         <p class="alert">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a>!</p>
       <![endif]-->
@@ -168,8 +169,6 @@
 
 $(document).ready(function () {
   //console.log('we live at: ' + window.location.origin + "/");
-
-  initRemoteStorage();
 
   sockethub.on('ping', function(sent, received) {
     console.log('ping response - sent: ' + sent + ' received: ' + received);

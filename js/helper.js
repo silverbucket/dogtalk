@@ -1,4 +1,35 @@
 
+function remoteStorageApplyAngularPromiseHack(rootScope) {
+  var oldGetPromise = remoteStorage.util.getPromise;
+  function apply(f) {
+    return function() {
+      var args = Array.prototype.slice.call(arguments);
+      return rootScope.$apply(function() {
+        return f.apply(this, args)
+      });
+    };
+  }
+  remoteStorage.util.getPromise = function() {
+    var promise = oldGetPromise.apply(this, arguments);
+    var oldThen = promise.then;
+    promise.then = function(_success, _failure) {
+      var success = _success, failure = _failure;
+      var angularPhase = rootScope.$$phase;
+      if(angularPhase !== '$apply' &&
+         angularPhase !== '$digest') {
+        if(typeof(_success) === 'function') {
+          success = apply(_success);
+        }
+        if(typeof(_failure) === 'function') {
+          failure = apply(_failure);
+        }
+      } 
+      return oldThen(success, failure);
+    };
+    return promise;
+  };
+}
+
 function runWizard(name, config) {
   console.log('runWizard('+name+') called');
   //navClass('settings');
@@ -13,7 +44,10 @@ function runWizard(name, config) {
   }
 }
 
-function initRemoteStorage() {
+function initRemoteStorage($scope) {
+  if(typeof($scope) !== 'undefined') {
+    remoteStorageApplyAngularPromiseHack($scope.$root);
+  }
   remoteStorage.util.silenceAllLoggers();
   remoteStorage.defineModule('sockethub', function(privateClient, publicClient) {
     privateClient.declareType('config', {
@@ -53,8 +87,6 @@ function initRemoteStorage() {
   });
 
   remoteStorage.claimAccess('sockethub', 'rw').then(function() {
-  //  return remoteStorage.claimAccess('messages', 'rw');
-  //}).then(function () {
     remoteStorage.displayWidget('remotestorage-connect', {
       redirectUri: window.location.origin + '/rscallback.html'
     });
