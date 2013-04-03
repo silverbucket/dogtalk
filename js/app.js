@@ -114,17 +114,21 @@ function ($rootScope, $q, $timeout, sh) {
                       enablePings: true            // good for keepalive
                     }).then(function () {  // connection to sockethub sucessful
                       console.log('connected to sockethub');
-                      sockethub.register({
-                        storageInfo: remoteStorage.getStorageInfo(),
-                        remoteStorage: {
-                          bearerToken: remoteStorage.getBearerToken(),
-                          scope: remoteStorage.claimedModules
-                        }
+                      $rootScope.$apply(function () {
+                        sockethub.register({
+                          storageInfo: remoteStorage.getStorageInfo(),
+                          remoteStorage: {
+                            bearerToken: remoteStorage.getBearerToken(),
+                            scope: remoteStorage.claimedModules
+                          }
+                        });
+                        defer.resolve();
                       });
-                      defer.resolve();
                     }, function (err, o) {
-                      console.log('received error on connect: '+err+' : ', o);
-                      defer.reject({error: 3, message: 'received error on connect: '+err});
+                      $rootScope.$apply(function () {
+                        console.log('received error on connect: '+err+' : ', o);
+                        defer.reject({error: 3, message: 'received error on connect: '+err});
+                      });
                     });
                   }
                 });

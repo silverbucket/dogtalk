@@ -51,11 +51,7 @@ function ($scope, $route, $routeParams, $location) {
 homeCtrl.homeInit = function ($q, init) {
   var defer = $q.defer();
   console.log('homeCtrl.init()');
-  init.setState().then(function() {
-    console.log('setState GOOD');
-  }, function (error) {
-    console.log('setState BAD', error);
-  });
+  init.setState().then(defer.resolve, defer.reject);
   return defer.promise;
 };
 
