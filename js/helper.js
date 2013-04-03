@@ -1,6 +1,5 @@
 
-function remoteStorageApplyAngularPromiseHack(rootScope) {
-  var oldGetPromise = remoteStorage.util.getPromise;
+function applyAngularPromiseHack(constructor, rootScope) {
   function apply(f) {
     return function() {
       var args = Array.prototype.slice.call(arguments);
@@ -9,8 +8,8 @@ function remoteStorageApplyAngularPromiseHack(rootScope) {
       });
     };
   }
-  remoteStorage.util.getPromise = function() {
-    var promise = oldGetPromise.apply(this, arguments);
+  return function() {
+    var promise = constructor.apply(this, arguments);
     var oldThen = promise.then;
     promise.then = function(_success, _failure) {
       var success = _success, failure = _failure;
@@ -46,7 +45,10 @@ function runWizard(name, config) {
 
 function initRemoteStorage($scope) {
   if(typeof($scope) !== 'undefined') {
-    remoteStorageApplyAngularPromiseHack($scope.$root);
+    remoteStorage.util.getPromise = applyAngularPromiseHack(
+      remoteStorage.util.getPromise, $scope.$root
+    );
+    promising = applyAngularPromiseHack(promising, $scope.$root);
   }
   remoteStorage.util.silenceAllLoggers();
   remoteStorage.defineModule('sockethub', function(privateClient, publicClient) {
