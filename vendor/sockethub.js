@@ -10,6 +10,8 @@ var sockethub = (function (window, document, undefined) {
   var ridDB = {
     counter: 0
   };
+  // maps 'rid's to a function that is being called once a response with that rid
+  // is received. After that the function will be cleaned up
   var ridHandlers = {};
   var ping = {
     sent: 0,
@@ -362,6 +364,14 @@ var sockethub = (function (window, document, undefined) {
       });
   };
 
+  /**
+   * Function: sendObject
+   *
+   * Send given object, setting it's 'rid' as specified.
+   *
+   * Returns a promise, which will be fulfilled with the first response carrying
+   * the same 'rid'.
+   */
   pub.sendObject = function(object, rid) {
     var promise = promising();
     object.rid = rid;
