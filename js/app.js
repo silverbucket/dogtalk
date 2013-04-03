@@ -5,27 +5,20 @@ dogtalk.config(function ($routeProvider) {
     templateUrl: "home.html",
     controller: "homeCtrl",
     resolve: {
-      loadData: appCtrl.initializeApp
-      //loadData: homeCtrl.loadData
+      init: homeCtrl.homeInit
     }
   }).when('/settings', {
     templateUrl: "settings.html",
-    controller: "settingsCtrl"
-   //resolve: {
-    //  loadData: appCtrl.initializeApp
-   // }
+    controller: "settingsCtrl",
+    resolve: {
+      loadData: settingsCtrl.settingsInit
+    }
   }).when('/log', {
     templateUrl: "log.html",
     controller: "logCtrl",
     resolve: {
-      loadData: logCtrl.loadData
+      init: logCtrl.logInit
     }
-  /*}).when('/', {
-    templateUrl: "home.html",
-    controller: "homeCtrl",
-    resolve: {
-      loadData: appCtrl.initializeApp
-    }*/
   }).otherwise({
     redirectTo: "/"
   });
@@ -45,7 +38,7 @@ dogtalk.directive("error", function ($rootScope) {
               '</div>' +
               '<div class="alert alert-error" ng-show="isSockethubConnectionError">'+
               '<strong>Sockethub connection</strong>' +
-              '<p>Unable to connect to Sockethub, please check your configuration and try again.</p>' +
+              '<p>Unable to connect to Sockethub, please <a href="#/settings">check your configuration</a> and try again</p>' +
               '</div>' +
               '<div class="alert alert-error" ng-show="isUnknownError">'+
               '<strong>Unknown error</strong>' +
@@ -66,22 +59,139 @@ dogtalk.directive("error", function ($rootScope) {
           scope.isUnknownError = true;
         }
       });
+
+      $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
+        if (sockethub.isConnected()) {
+          scope.isSockethubConnectionError = false;
+        } else {
+          scope.isSockethubConnectionError = true;
+        }
+
+      });
     }
   };
 });
 
 
-
-dogtalk.factory('sockethubConfig', function () {
+/**
+ * Function: initializeApp
+ *
+ * when app is loaded, we need to verify remoteStorage and Sockethub are connected
+ * and provide the proper control-flow to the user if not.
+ *
+ */
+// initialization factory
+dogtalk.factory('init', ['$rootScope', '$q', '$timeout', 'sh',
+function ($rootScope, $q, $timeout, sh) {
   return {
+    setState: function () {
+      var defer = $q.defer();
+      $timeout(function() {
+        if (remoteStorage.getBearerToken() === null) {
+          defer.reject({error: 1, message: "remoteStorage not connected"});
+        } else {
+          if (sh.isConnected()) {
+            console.log('already connected to sockethub');
+            defer.resolve();
+          } else {
+            if (sh.config.exists()) {
+              console.log('already have sockethub config, no need to fetch');
+              sockethub.connect(defer);
+            } else {
+              remoteStorage.sockethub.getConfig().then(function (config) {
+                console.log('initializeApp: got config: ', config);
+                $rootScope.$apply(function () {
+                  if (!config) {
+                    defer.reject({error: 2, message: "no sockethub config found"});
+                  } else {
+                    console.log('setting config and attempting connection');
+                    sh.config.host = config.host;
+                    sh.config.port = config.port;
+                    sh.config.secret = config.secret;
+                    sockethub.connect({
+                      host: "ws://localhost:10550/sockethub",
+                      confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
+                      enablePings: true            // good for keepalive
+                    }).then(function () {  // connection to sockethub sucessful
+                      console.log('connected to sockethub');
+                      sockethub.register({
+                        storageInfo: remoteStorage.getStorageInfo(),
+                        remoteStorage: {
+                          bearerToken: remoteStorage.getBearerToken(),
+                          scope: remoteStorage.claimedModules
+                        }
+                      });
+                      defer.resolve();
+                    }, function (err, o) {
+                      console.log('received error on connect: '+err+' : ', o);
+                      defer.reject({error: 3, message: 'received error on connect: '+err});
+                    });
+                  }
+                });
+              }, function (error) {
+                defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
+              });
+            }
+          }
+        }
+      }, 0);
+      return defer.promise;
+    }
+  };
+}] );
+
+// sockethub factory
+dogtalk.factory('sh', ['$rootScope', '$q',
+function ($rootScope, $q) {
+  var config = {
     host: '',
     port: '',
-    secret: ''
+    secret: '',
+    exists: function () {
+      if ((config.host !== '') &&
+          (config.port !== '') &&
+          (config.secret !== '')) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   };
-});
+
+  function connect() {
+    var defer = $q.defer;
+    sockethub.connect({
+      host: "ws://localhost:10550/sockethub",
+      confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
+      enablePings: true            // good for keepalive
+    }).then(function () {  // connection to sockethub sucessful
+      console.log('connected to sockethub');
+      sockethub.register({
+        storageInfo: remoteStorage.getStorageInfo(),
+        remoteStorage: {
+          bearerToken: remoteStorage.getBearerToken(),
+          scope: remoteStorage.claimedModules
+        }
+      });
+      defer.resolve();
+    }, function (err, o) {
+      console.log('received error on connect: '+err+' : ', o);
+      defer.reject({error: 3, message: 'received error on connect: '+err});
+    });
+console.log('returning promise:',defer);
+    return defer.promise;
+  }
+
+  return {
+    config: config,
+    connect: connect,
+    isConnected: sockethub.isConnected
+  };
+}] );
 
 
-dogtalk.run(function($rootScope, sockethubConfig) {
+
+dogtalk.run(function($rootScope, sh) {
     /*
         Receive emitted messages from elsewhere.
         http://jsfiddle.net/VxafF/

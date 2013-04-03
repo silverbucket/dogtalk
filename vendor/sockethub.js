@@ -7,6 +7,7 @@ var sockethub = (function (window, document, undefined) {
   };
   var sock;
   var isRegistered = false;
+  var isConnected = false;
   var ridDB = {
     counter: 0
   };
@@ -130,6 +131,7 @@ var sockethub = (function (window, document, undefined) {
       if (sock) {
         sock.onopen = function () {
           ping.pause = false;
+          isConnected = true;
           if (isConnecting) {
             isConnecting = false;
             promise.fulfill();
@@ -138,8 +140,9 @@ var sockethub = (function (window, document, undefined) {
 
         sock.onclose = function () {
           ping.pause = true;
+          isConnected = false;
           if (isConnecting) {
-            isConnecting = true;
+            isConnecting = false;
             promise.reject("unable to connect to sockethub at "+cfg.host);
           }
           callbacks.close();
@@ -201,6 +204,10 @@ var sockethub = (function (window, document, undefined) {
       sock.close();
       pub.connect();
     }, 0);
+  };
+
+  pub.isConnected = function () {
+    return isConnected;
   };
 
   /*window.addEventListener('load', function() {
