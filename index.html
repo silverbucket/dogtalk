@@ -140,6 +140,48 @@
         <div class="modal-footer"></div>
       </div>
 
+      <!-- XMPP settings modal window -->
+      <div id="modalSettingsXmpp" class="modal hide fade">
+        <div class="modal-header">
+          <img src="/img/xmpp-logo.png" />
+          <h4>XMPP configuration</h4>
+        </div>
+        <div class="modal-body">
+          <p>Please provide your XMPP account details</p>
+          <form name="settingsXmpp" class="form-horizontal" ng-controller="settingsCtrl" novalidate>
+            <fieldset>
+              <div class="control-group">
+                <label for="name" class="control-label">Name</label>
+                <div class="controls">
+                  <input type="text" class="required input-large" name="name" ng-model="xmpp.account.name" disabled>
+                </div>
+              </div>
+              <div class="control-group">
+                <label for="jid" class="control-label">JID</label>
+                <div class="controls">
+                  <input type="text" class="required input-large" name="jid" placeholder="Enter JID..." ng-model="xmpp.account.jid" required>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label for="password" class="control-label">Password</label>
+                <div class="controls">
+                  <input type="password" class="required input-large" name="password" placeholder="Enter Password..." ng-model="xmpp.account.password" required>
+                 </div>
+              </div>
+
+              <div class="control-group">
+                <div class="controls">
+                  <!-- <input class="btn-primary" type="submit" name="submit" value="submit" ng-onclick="saveSettings()" /> -->
+                  <button ng-click="xmpp.save(xmpp.account)" ng-disabled="settingsXmpp.$invalid">Save</button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+          <p></p>
+        </div>
+        <div class="modal-footer"></div>
+      </div>
 
       <!-- sockethub log page -->
       <script type="text/ng-template" id="log.html">

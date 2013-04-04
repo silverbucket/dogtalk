@@ -193,7 +193,18 @@ function ($rootScope, $q) {
   };
 }] );
 
-
+dogtalk.factory('xmpp', [
+  '$rootScope', '$q',
+  function($rootScope, $q) {
+    return {
+      account: {
+        name: 'default',
+        jid: '',
+        password: ''
+      }
+    };
+  }
+]);
 
 dogtalk.run(function($rootScope, sh) {
     /*
@@ -215,9 +226,27 @@ dogtalk.run(function($rootScope, sh) {
       });
     });
 
-
     $rootScope.$on('closeModalSockethubSettings', function(event, args) {
       //console.log('closeModalSockethubSettings');
       $("#modalSettingsSockethub").modal('hide');
+    });
+
+    $rootScope.$on('showModalXmppSettings', function(event, args) {
+      backdrop_setting = true;
+      if ((typeof args === 'object') && (typeof args.locked !== 'undefined')) {
+        if (args.locked) {
+          backdrop_setting = "static";
+        }
+      }
+      console.log('backdrop: '+backdrop_setting);
+      $("#modalSettingsXmpp").modal({
+        show: true,
+        keyboard: true,
+        backdrop: backdrop_setting
+      });
+    });
+
+    $rootScope.$on('closeModalXmppSettings', function(event, args) {
+      $("#modalSettingsXmpp").modal('hide');
     });
 });

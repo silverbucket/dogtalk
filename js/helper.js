@@ -74,7 +74,10 @@ function initRemoteStorage($scope) {
     };
   });
 
-  remoteStorage.claimAccess('sockethub', 'rw').then(function() {
+  remoteStorage.claimAccess({
+    'sockethub': 'rw',
+    'messages': 'rw'
+  }).then(function() {
     remoteStorage.displayWidget('remotestorage-connect', {
       redirectUri: window.location.origin + '/rscallback.html'
     });

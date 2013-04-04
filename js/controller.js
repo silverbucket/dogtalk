@@ -60,8 +60,8 @@ homeCtrl.homeInit = function ($q, init) {
  * settings
  ***********/
 var settingsCtrl = dogtalk.controller("settingsCtrl",
-['$scope', '$route', '$routeParams', '$location', '$rootScope', 'sh',
-function ($scope, $route, $routeParams, $location, $rootScope, sh) {
+['$scope', '$route', '$routeParams', '$location', '$rootScope', 'sh', 'xmpp',
+function ($scope, $route, $routeParams, $location, $rootScope, sh, xmpp) {
   $scope.model = {
     message: "this is the settings page fool!"
   };
@@ -88,6 +88,30 @@ function ($scope, $route, $routeParams, $location, $rootScope, sh) {
         $location.path('/');
       }, function () {
         console.log('error saving config to remoteStorage!');
+      });
+    }
+  };
+
+  $scope.xmpp = {
+    account: xmpp.account,
+    show: function() {
+      remoteStorage.messages.getAccount(
+        'xmpp', $scope.xmpp.account.name
+      ).then(function(account) {
+        $scope.xmpp.account.jid = account.jid;
+        $scope.xmpp.account.password = account.password;
+        $scope.$apply(function() {
+          $rootScope.$broadcast('showModalXmppSettings', { locked: false });
+        });
+      });
+    },
+    save: function(account) {
+      remoteStorage.messages.setAccount(
+        'xmpp', $scope.xmpp.account.name, $scope.xmpp.account
+      ).then(function() {
+        $rootScope.$broadcast('closeModalXmppSettings');
+      }, function(errors) {
+        console.log('errors saving XMPP account', errors);
       });
     }
   };
