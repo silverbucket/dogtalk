@@ -35,19 +35,19 @@ dogtalk.directive("error", function ($rootScope) {
 
       var errors = {
         'remotestorage-connect': {
-          title : 'First things first',
-          message: 'You must connect to your remoteStorage'
+          title : 'Connect to remoteStorage',
+          message: 'First things first. You must connect to your remoteStorage'
         },
         'sockethub-config': {
-          title: 'Unable to connect to Sockethub',
+          title: 'Sockethub configuration needed',
           message: 'You must fill in your Sockethub connection details'
         },
         'sockethub-connect': {
-          title: 'Sockethub connection',
+          title: 'Sockethub connection error',
           message: 'Unable to connect to Sockethub please check your configuration and try again'
         },
         'sockethub-register': {
-          title: 'Registration problem',
+          title: 'Sockethub registration problem',
           message: 'We were unable to register with your Sockethub instance'
         },
         'unknown': {
@@ -70,7 +70,7 @@ dogtalk.directive("error", function ($rootScope) {
         } else {
           scope.displayError = errors[rejection.error];
           if (typeof rejection.message === 'string') {
-            scope.displayError.message = scope.displayError.message + ' : ' + rejection.message;
+            scope.displayError.message = rejection.message;
           }
         }
         scope.isError = true;
