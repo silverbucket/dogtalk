@@ -32,61 +32,63 @@ dogtalk.directive("error", function ($rootScope) {
               '<p>{{displayError.message}}</p>' +
               '</div>',
     link: function (scope) {
+
+      var errors = {
+        'remotestorage-connect': {
+          title : 'First things first',
+          message: 'You must connect to your remoteStorage'
+        },
+        'sockethub-config': {
+          title: 'Unable to connect to Sockethub',
+          message: 'You must fill in your Sockethub connection details'
+        },
+        'sockethub-connect': {
+          title: 'Sockethub connection',
+          message: 'Unable to connect to Sockethub please check your configuration and try again'
+        },
+        'sockethub-register': {
+          title: 'Registration problem',
+          message: 'We were unable to register with your Sockethub instance'
+        },
+        'unknown': {
+          title: 'An unknown error has occurred',
+          message: ''
+        }
+      };
+
       $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
         console.log('directive routeChangeError: ', event, current, previous, rejection);
 
         scope.isError = false;
         scope.displayError = {title: '', message: ''};
-        var errors = {
-          1: {
-            title : 'First things first',
-            message: 'You must connect to your remoteStorage'
-          },
-          2: {
-            title: 'Unable to connect to Sockethub',
-            message: 'You must fill in your Sockethub connection details'
-          },
-          3: {
-            title: 'Sockethub connection',
-            message: 'Unable to connect to Sockethub please check your configuration and try again'
-          },
-          4: {
-            title: 'Registration problem',
-            message: 'We were unable to register with your Sockethub instance'
-          },
-          'unknown': {
-            title: 'An unknown error has occurred',
-            message: ''
-          }
-        };
 
-
-        scope.isError = true;
         if ((typeof rejection !== 'object') ||
             (typeof rejection.error === 'undefined') ||
             (typeof errors[rejection.error] == 'undefined')) {
           scope.displayError = errors['unknown'];
-          scope.displayError.message = String(rejection.original || rejection);
+          scope.displayError.message = String(rejection.message || rejection);
         } else {
           scope.displayError = errors[rejection.error];
+          if (typeof rejection.message === 'string') {
+            scope.displayError.message = scope.displayError.message + ': ' + rejection.message;
+          }
         }
+        scope.isError = true;
 
-        if (rejection.error === 2) {
+        if (rejection.error === 'sockethub-config') {
           console.log('no config found, launch modal');
           $rootScope.$broadcast('showModalSockethubSettings', {locked: true});
         }
-
-        //console.log('error scope has flags now: ', 'remotestorage', scope.isRemoteStorageError, 'sockethub config', scope.isSockethubConfigError, 'sockethub connect', scope.isSockethubConnectionError, 'sockethub registration', scope.isSockethubRegistrationError, 'unknown', scope.isUnknownError);
-
       });
+
 
       $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         if (sockethub.isConnected()) {
-          scope.isSockethubConnectionError = false;
+          scope.isError = false;
         } else {
-          scope.isSockethubConnectionError = true;
+          scope.isError = true;
+          scope.displayError = errors['sockethub-connect'];
         }
-
       });
     }
   };
@@ -108,7 +110,7 @@ function ($rootScope, $q, $timeout, sh) {
       var defer = $q.defer();
       $timeout(function() {
         if (remoteStorage.getBearerToken() === null) {
-          defer.reject({error: 1, message: "remoteStorage not connected"});
+          defer.reject({error: 'remotestorage-connect'});
         } else {
           if (sh.isConnected()) {
             console.log('already connected to sockethub');
@@ -123,16 +125,16 @@ function ($rootScope, $q, $timeout, sh) {
                   remoteStorage.sockethub.getConfig().then(function (config) {
                     console.log('initializeApp: got config: ', config);
                     if (!config) {
-                      defer.reject({error: 2, message: "no sockethub config found"});
+                      defer.reject({error: 'sockethub-config'});
                     } else {
                       console.log('setting config and attempting connection');
                       sh.config.host = config.host;
                       sh.config.port = config.port;
                       sh.config.secret = config.secret;
-                      return sh.connect().then(undefined, defer.reject);
+                      sh.connect().then(defer.resolve, defer.reject);
                     }
                   }, function (error) {
-                    defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
+                    defer.reject({error: 'sockethub-config'});
                   });
                 });
               });
@@ -178,16 +180,16 @@ function ($rootScope, $q) {
         },
         secret: config.secret
       });
-    }, function (err) {
-      //console.log('received error on connect: '+err+' : ', o);
-      throw { type: 'connect', original: err, error: 3 };
+    }, function (err) { // sockethub connection failed
+      console.log('received error on connect: ', err);
+      throw { error: 'sockethub-connect', message: err};
     }).then(function() {
       console.log('registered!');
     }, function(err) {
       if(typeof(err) !== 'object') {
-        throw { type: 'register', original: err, error: 4 };
+        throw {error: 'sockethub-register', message: err};
       } else {
-        throw err;
+        throw {error: 'sockethub-register'};
       }
     });
   }
