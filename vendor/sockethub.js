@@ -302,6 +302,7 @@ var sockethub = (function (window, document, undefined) {
   function log(type, rid, message) {
     // TODO FIXME
     // logs not working for now, lets get back to this later
+    console.log('SOCKETHUB', type, rid, message);
     return;
     var c = { 1:'blue', 2:'green', 3:'red'};
     var d = new Date();
@@ -368,7 +369,7 @@ var sockethub = (function (window, document, undefined) {
     var r = sendData.register;
 
     r.object = o;
-    return this.sendObject(r, getRID('register')).
+    return this.sendObject(r, 'register').
       then(function(result) {
         if(! result.status) {
           throw "Failed to register with sockethub. Reason: " + result.message;
@@ -379,16 +380,18 @@ var sockethub = (function (window, document, undefined) {
   /**
    * Function: sendObject
    *
-   * Send given object, setting it's 'rid' as specified.
+   * Send given object, setting it's 'rid' to a value based on the given ridType.
    *
    * Returns a promise, which will be fulfilled with the first response carrying
    * the same 'rid'.
    */
-  pub.sendObject = function(object, rid) {
+  pub.sendObject = function(object, ridType) {
     var promise = promising();
-    object.rid = rid;
-    ridHandlers[rid] = promise.fulfill;
-    sock.send(JSON.stringify(object));
+    object.rid = getRID(ridType);
+    ridHandlers[object.rid] = promise.fulfill;
+    var rawMessage = JSON.stringify(object);
+    sock.send(rawMessage);
+    log(1, object.rid, rawMessage);
     return promise;
   };
 
