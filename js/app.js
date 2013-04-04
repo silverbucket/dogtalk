@@ -27,50 +27,56 @@ dogtalk.config(function ($routeProvider) {
 dogtalk.directive("error", function ($rootScope) {
   return {
     restrict: "E",
-    template: '<div class="alert alert-error" ng-show="isRemoteStorageError">'+
-              '<strong>First things first</strong>' +
-              '<p>You need to connect to your remoteStorage</p>' +
-              '</div>' +
-              '<div class="alert alert-error" ng-show="isSockethubConfigError">'+
-              '<strong>Unable to connect to Sockethub</strong>' +
-              '<p>You must fill in your Sockethub connection details</p>' +
-              '</div>' +
-              '<div class="alert alert-error" ng-show="isSockethubConnectionError">'+
-              '<strong>Sockethub connection</strong>' +
-              '<p>Unable to connect to Sockethub, please <a href="#/settings">check your configuration</a> and try again</p>' +
-              '</div>' +
-              '<div class="alert alert-error" ng-show="isUnknownError">'+
-              '<strong>Unknown error</strong>' +
-              '<p>An unknown routing error has occurred</p>' +
-              '<p>{{message}}</p>'+
+    template: '<div class="alert alert-error" ng-show="isError">'+
+              '<strong>{{displayError.title}}</strong>' +
+              '<p>{{displayError.message}}</p>' +
               '</div>',
     link: function (scope) {
       $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
         console.log('directive routeChangeError: ', event, current, previous, rejection);
 
-        scope.isRemoteStorageError =
-          scope.isSockethubConfigError =
-          scope.isSockethubConnectionError =
-          scope.isSockethubRegistrationError =
-          scope.isUnknownError =
-          false;
+        scope.isError = false;
+        scope.displayError = {title: '', message: ''};
+        var errors = {
+          1: {
+            title : 'First things first',
+            message: 'You must connect to your remoteStorage'
+          },
+          2: {
+            title: 'Unable to connect to Sockethub',
+            message: 'You must fill in your Sockethub connection details'
+          },
+          3: {
+            title: 'Sockethub connection',
+            message: 'Unable to connect to Sockethub please check your configuration and try again'
+          },
+          4: {
+            title: 'Registration problem',
+            message: 'We were unable to register with your Sockethub instance'
+          },
+          'unknown': {
+            title: 'An unknown error has occurred',
+            message: ''
+          }
+        };
 
-        if (rejection.error === 1) {
-          scope.isRemoteStorageError = true;
-        } else if (rejection.error === 2) {
-          scope.isSockethubConfigError = true;
-          console.log('no config found, launch modal');
-          $rootScope.$broadcast('showModalSockethubSettings', {locked: true});
-        } else if (rejection.error === 3) {
-          scope.isSockethubConnectionError = true;
-        } else if (rejection.error === 4) {
-          scope.isSockethubRegistrationError = true;
+
+        scope.isError = true;
+        if ((typeof rejection !== 'object') ||
+            (typeof rejection.error === 'undefined') ||
+            (typeof errors[rejection.error] == 'undefined')) {
+          scope.displayError = errors['unknown'];
+          scope.displayError.message = String(rejection.original || rejection);
         } else {
-          scope.isUnknownError = true;
-          scope.message = String(rejection.original || rejection);
+          scope.displayError = errors[rejection.error];
         }
 
-        console.log('error scope has flags now: ', 'remotestorage', scope.isRemoteStorageError, 'sockethub config', scope.isSockethubConfigError, 'sockethub connect', scope.isSockethubConnectionError, 'sockethub registration', scope.isSockethubRegistrationError, 'unknown', scope.isUnknownError);
+        if (rejection.error === 2) {
+          console.log('no config found, launch modal');
+          $rootScope.$broadcast('showModalSockethubSettings', {locked: true});
+        }
+
+        //console.log('error scope has flags now: ', 'remotestorage', scope.isRemoteStorageError, 'sockethub config', scope.isSockethubConfigError, 'sockethub connect', scope.isSockethubConnectionError, 'sockethub registration', scope.isSockethubRegistrationError, 'unknown', scope.isUnknownError);
 
       });
 
