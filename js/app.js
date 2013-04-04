@@ -178,15 +178,14 @@ function ($rootScope, $q) {
           storageInfo: remoteStorage.getStorageInfo()
         },
         secret: config.secret
-      }).then(function () {
+      }).then(function () { // sockethub registration success
         console.log('registered!');
         defer.resolve();
-      }, function (err) {
+      }, function (err) { // sockethub registration fail
         defer.reject({error: 'sockethub-register', message: err});
       });
     }, function (err) { // sockethub connection failed
       console.log('received error on connect: ', err);
-      //defer.reject({error: 'sockethub-connect', message: err});
       if (err) {
         defer.reject({error:'sockethub-connect', message: err});
       } else {
