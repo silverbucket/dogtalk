@@ -130,7 +130,16 @@ function ($rootScope, $q, $timeout, sh) {
                       sh.config.host = config.host;
                       sh.config.port = config.port;
                       sh.config.secret = config.secret;
-                      sh.connect().then(defer.resolve, defer.reject);
+
+                      var p = sh.connect();
+                      console.log('p = ', p );
+                      p.then(function () {
+                        defer.resolve();
+                      }, function (err) {
+                        console.log('err: ', err);
+                        defer.reject(err);
+                      //defer.reject({error:'sockethub-connect'});
+                      });
                     }
                   }, function (error) {
                     defer.reject({error: 'sockethub-config'});
@@ -165,13 +174,15 @@ function ($rootScope, $q) {
   };
 
   function connect() {
-    return sockethub.connect({
+    var defer = $q.defer();
+
+    sockethub.connect({
       host: 'ws://' + config.host + ':' + config.port + '/sockethub',
       confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
       enablePings: true            // good for keepalive
     }).then(function () {  // connection to sockethub sucessful
       console.log('connected to sockethub');
-      return sockethub.register({
+      sockethub.register({
         remoteStorage: {
           bearerToken: remoteStorage.getBearerToken(),
           scope: remoteStorage.claimedModules,
@@ -180,13 +191,16 @@ function ($rootScope, $q) {
         secret: config.secret
       }).then(function () {
         console.log('registered!');
+        defer.resolve();
       }, function (err) {
-        throw {error: 'sockethub-register', message: err};
+        defer.reject({error: 'sockethub-register', message: err});
       });
     }, function (err) { // sockethub connection failed
       console.log('received error on connect: ', err);
-      throw { error: 'sockethub-connect', message: err};
+      defer.reject({error: 'sockethub-connect', message: err});
     });
+
+    return defer.promise;
   }
 
   return {

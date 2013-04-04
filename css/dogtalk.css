@@ -2,6 +2,9 @@ html {
   overflow-y: scroll;
 }
 
+.brand {
+  padding: 5px 5px 0 5px !important;
+}
 footer {
   background-color: #FaFaFa;
   position: absolute;
