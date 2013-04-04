@@ -121,7 +121,6 @@ function ($rootScope, $q, $timeout, sh) {
               sh.connect().then(defer.resolve, defer.reject);
             } else {
               remoteStorage.onWidget('ready', function() {
-                $timeout(function() {
                   remoteStorage.sockethub.getConfig().then(function (config) {
                     console.log('got config: ', config);
                     if (!config) {
@@ -136,7 +135,6 @@ function ($rootScope, $q, $timeout, sh) {
                   }, function (error) {
                     defer.reject({error: 'sockethub-config'});
                   });
-                });
               });
             }
           }
@@ -182,24 +180,18 @@ function ($rootScope, $q) {
         secret: config.secret
       }).then(function () {
         console.log('registered!');
-        $rootScope.$apply(function () {
-          defer.resolve();
-        });
+        defer.resolve();
       }, function (err) {
-        $rootScope.$apply(function () {
-          defer.reject({error: 'sockethub-register', message: err});
-        });
+        defer.reject({error: 'sockethub-register', message: err});
       });
     }, function (err) { // sockethub connection failed
       console.log('received error on connect: ', err);
       //defer.reject({error: 'sockethub-connect', message: err});
-      $rootScope.$apply(function () {
-        if (err) {
-          defer.reject({error:'sockethub-connect', message: err});
-        } else {
-          defer.reject({error:'sockethub-connect'});
-        }
-      });
+      if (err) {
+        defer.reject({error:'sockethub-connect', message: err});
+      } else {
+        defer.reject({error:'sockethub-connect'});
+      }
     });
 
     return defer.promise;
