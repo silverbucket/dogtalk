@@ -167,7 +167,6 @@ function ($rootScope, $q) {
 
   function connect() {
     var defer = $q.defer();
-
     sockethub.connect({
       host: 'ws://' + config.host + ':' + config.port + '/sockethub',
       confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
@@ -183,13 +182,24 @@ function ($rootScope, $q) {
         secret: config.secret
       }).then(function () {
         console.log('registered!');
-        defer.resolve();
+        $rootScope.$apply(function () {
+          defer.resolve();
+        });
       }, function (err) {
-        defer.reject({error: 'sockethub-register', message: err});
+        $rootScope.$apply(function () {
+          defer.reject({error: 'sockethub-register', message: err});
+        });
       });
     }, function (err) { // sockethub connection failed
       console.log('received error on connect: ', err);
-      defer.reject({error: 'sockethub-connect', message: err});
+      //defer.reject({error: 'sockethub-connect', message: err});
+      $rootScope.$apply(function () {
+        if (err) {
+          defer.reject({error:'sockethub-connect', message: err});
+        } else {
+          defer.reject({error:'sockethub-connect'});
+        }
+      });
     });
 
     return defer.promise;
