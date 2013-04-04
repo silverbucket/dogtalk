@@ -121,20 +121,20 @@ function ($rootScope, $q, $timeout, sh) {
               sh.connect().then(defer.resolve, defer.reject);
             } else {
               remoteStorage.onWidget('ready', function() {
-                  remoteStorage.sockethub.getConfig().then(function (config) {
-                    console.log('got config: ', config);
-                    if (!config) {
-                      defer.reject({error: 'sockethub-config'});
-                    } else {
-                      console.log('setting config and attempting connection');
-                      sh.config.host = config.host;
-                      sh.config.port = config.port;
-                      sh.config.secret = config.secret;
-                      sh.connect().then(defer.resolve, defer.reject);
-                    }
-                  }, function (error) {
+                remoteStorage.sockethub.getConfig().then(function (config) {
+                  console.log('got config: ', config);
+                  if (!config) {
                     defer.reject({error: 'sockethub-config'});
-                  });
+                  } else {
+                    console.log('setting config and attempting connection');
+                    sh.config.host = config.host;
+                    sh.config.port = config.port;
+                    sh.config.secret = config.secret;
+                    sh.connect().then(defer.resolve, defer.reject);
+                  }
+                }, function (error) {
+                  defer.reject({error: 'sockethub-config'});
+                });
               });
             }
           }
