@@ -70,7 +70,7 @@ dogtalk.directive("error", function ($rootScope) {
         } else {
           scope.displayError = errors[rejection.error];
           if (typeof rejection.message === 'string') {
-            scope.displayError.message = scope.displayError.message + ': ' + rejection.message;
+            scope.displayError.message = scope.displayError.message + ' : ' + rejection.message;
           }
         }
         scope.isError = true;
@@ -80,7 +80,6 @@ dogtalk.directive("error", function ($rootScope) {
           $rootScope.$broadcast('showModalSockethubSettings', {locked: true});
         }
       });
-
 
       $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         if (sockethub.isConnected()) {
@@ -179,18 +178,14 @@ function ($rootScope, $q) {
           storageInfo: remoteStorage.getStorageInfo()
         },
         secret: config.secret
+      }).then(function () {
+        console.log('registered!');
+      }, function (err) {
+        throw {error: 'sockethub-register', message: err};
       });
     }, function (err) { // sockethub connection failed
       console.log('received error on connect: ', err);
       throw { error: 'sockethub-connect', message: err};
-    }).then(function() {
-      console.log('registered!');
-    }, function(err) {
-      if(typeof(err) !== 'object') {
-        throw {error: 'sockethub-register', message: err};
-      } else {
-        throw {error: 'sockethub-register'};
-      }
     });
   }
 
