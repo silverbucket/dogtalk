@@ -302,6 +302,7 @@ var sockethub = (function (window, document, undefined) {
   function log(type, rid, message) {
     // TODO FIXME
     // logs not working for now, lets get back to this later
+    console.log('SOCKETHUB', type, rid, message);
     return;
     var c = { 1:'blue', 2:'green', 3:'red'};
     var d = new Date();
@@ -388,7 +389,9 @@ var sockethub = (function (window, document, undefined) {
     var promise = promising();
     object.rid = getRID(ridType);
     ridHandlers[object.rid] = promise.fulfill;
-    sock.send(JSON.stringify(object));
+    var rawMessage = JSON.stringify(object);
+    sock.send(rawMessage);
+    log(1, object.rid, rawMessage);
     return promise;
   };
 

@@ -31,20 +31,51 @@
      *   A promise, fulfilled once setting the presence has been confirmed by
      *   the hub.
      */
-    setPresence: function(type, status) {
+    setPresence: function(jid, type, status) {
       if(! (type in sockethub.chat.PRESENCE_TYPES_MAP)) {
-        return promising().reject("Invalid presence type: " + type);
+        throw "Invalid presence type: " + type;
       }
+      console.log('setPresence', type, status);
       return sockethub.sendObject({
-        verb: 'presence',
+        verb: 'change-presence',
         platform: 'xmpp',
+        actor: {
+          address: jid
+        },
         object: {
           type: type,
           status: status
         }
-      }, 'presence');
-    }
+      }, 'presence').then(function(result) {
+        if(! result.status) {
+          throw result.message;
+        }
+      });
+    },
 
+    /**
+     * Method: init
+     *
+     * Initialize sockethub chat.
+     *
+     *   - Sends initial presence
+     *   - Loads the roster
+     */
+    init: function(jid) {
+      return sockethub.chat.setPresence(jid, 'available').
+        then(function() {
+          sockethub.chat.loadRoster(jid);
+        });
+    },
+
+    /**
+     * Method: loadRoster
+     *
+     * TODO
+     */
+    loadRoster: function(jid) {
+      console.log('loadRoster', jid);
+    }
   };
 
   sockethub.chat.PRESENCE_TYPES_MAP = sockethub.chat.PRESENCE_TYPES.reduce(

@@ -70,8 +70,6 @@ dogtalk.directive("error", function ($rootScope) {
           scope.message = String(rejection.original || rejection);
         }
 
-        console.log('error scope has flags now: ', 'remotestorage', scope.isRemoteStorageError, 'sockethub config', scope.isSockethubConfigError, 'sockethub connect', scope.isSockethubConnectionError, 'sockethub registration', scope.isSockethubRegistrationError, 'unknown', scope.isUnknownError);
-
       });
 
       $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
@@ -95,8 +93,8 @@ dogtalk.directive("error", function ($rootScope) {
  *
  */
 // initialization factory
-dogtalk.factory('init', ['$rootScope', '$q', '$timeout', 'sh',
-function ($rootScope, $q, $timeout, sh) {
+dogtalk.factory('init', ['$rootScope', '$q', '$timeout', 'sh', 'xmpp',
+function ($rootScope, $q, $timeout, sh, xmpp) {
   return {
     setState: function () {
       var defer = $q.defer();
@@ -110,24 +108,15 @@ function ($rootScope, $q, $timeout, sh) {
           } else {
             if (sh.config.exists()) {
               console.log('already have sockethub config, no need to fetch');
-              sockethub.connect(defer);
+              sockethub.connect(defer).
+                then(xmpp.initialize).
+                then(defer.resolve, defer.reject);
             } else {
               remoteStorage.onWidget('ready', function() {
                 $timeout(function() {
-                  remoteStorage.sockethub.getConfig().then(function (config) {
-                    console.log('initializeApp: got config: ', config);
-                    if (!config) {
-                      defer.reject({error: 2, message: "no sockethub config found"});
-                    } else {
-                      console.log('setting config and attempting connection');
-                      sh.config.host = config.host;
-                      sh.config.port = config.port;
-                      sh.config.secret = config.secret;
-                      return sh.connect().then(undefined, defer.reject);
-                    }
-                  }, function (error) {
-                    defer.reject({error: 2, message: "couldn't get sockethub config: " + error});
-                  });
+                  return sh.initialize().
+                    then(xmpp.initialize).
+                    then(defer.resolve, defer.reject);
                 });
               });
             }
@@ -186,23 +175,70 @@ function ($rootScope, $q) {
     });
   }
 
+  function initialize() {
+    return remoteStorage.sockethub.getConfig().then(function(cfg) {
+      if(! cfg) {
+        throw { error: 2, message: "no sockethub config found" };
+      } else {
+        config.host = cfg.host;
+        config.port = cfg.port;
+        config.secret = cfg.secret;
+        return connect();
+      }
+    }, function(error) {
+      throw { error: 2, message: "couldn't get sockethub config: " + error };
+    });
+  }
+
   return {
+    initialize: initialize,
     config: config,
     connect: connect,
     isConnected: sockethub.isConnected
   };
 }] );
 
+/**
+ * Service: xmpp
+ *
+ * Provides access to currently configured account data, synchronizes
+ * that account data with remoteStorage and manages presence.
+ */
 dogtalk.factory('xmpp', [
   '$rootScope', '$q',
   function($rootScope, $q) {
-    return {
+    var xmpp = {
       account: {
         name: 'default',
         jid: '',
         password: ''
+      },
+
+      isConfigured: function() {
+        return xmpp.account.jid && xmpp.account.password;
+      },
+
+      initialize: function() {
+        console.log('init XMPP');
+        return remoteStorage.messages.getAccount('xmpp', xmpp.account.name).
+          then(function(acct) {
+            xmpp.account.jid = acct.jid;
+            xmpp.account.password = acct.password;
+            if(xmpp.isConfigured()) {
+              sockethub.chat.init(xmpp.account.jid)
+            }
+          });
+      },
+
+      saveAccount: function(account) {
+        xmpp.account.jid = account.jid;
+        xmpp.account.password = account.password;
+        return remoteStorage.messages.setAccount(
+          'xmpp', xmpp.account.name, xmpp.account
+        );
       }
     };
+    return xmpp;
   }
 ]);
 

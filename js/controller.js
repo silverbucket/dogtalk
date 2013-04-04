@@ -93,25 +93,23 @@ function ($scope, $route, $routeParams, $location, $rootScope, sh, xmpp) {
   };
 
   $scope.xmpp = {
+    // Reference to the account managed by the "xmpp" service
     account: xmpp.account,
+    // Boolean flag, used to disable the "Save" button, while waiting for
+    // xmpp.saveAccount to finish.
+    saving: false,
+    // Method: show
+    // Displays the XMPP settings window
     show: function() {
-      remoteStorage.messages.getAccount(
-        'xmpp', $scope.xmpp.account.name
-      ).then(function(account) {
-        $scope.xmpp.account.jid = account.jid;
-        $scope.xmpp.account.password = account.password;
-        $scope.$apply(function() {
-          $rootScope.$broadcast('showModalXmppSettings', { locked: false });
-        });
-      });
+      $rootScope.$broadcast('showModalXmppSettings', { locked: false });
     },
-    save: function(account) {
-      remoteStorage.messages.setAccount(
-        'xmpp', $scope.xmpp.account.name, $scope.xmpp.account
-      ).then(function() {
+    // Method: save
+    // Saves the current account data. Bound to the "Save" button
+    save: function() {
+      $scope.xmpp.saving = true;
+      xmpp.saveAccount($scope.xmpp.account).then(function() {
+        $scope.xmpp.saving = false;
         $rootScope.$broadcast('closeModalXmppSettings');
-      }, function(errors) {
-        console.log('errors saving XMPP account', errors);
       });
     }
   };

@@ -172,8 +172,7 @@
 
               <div class="control-group">
                 <div class="controls">
-                  <!-- <input class="btn-primary" type="submit" name="submit" value="submit" ng-onclick="saveSettings()" /> -->
-                  <button ng-click="xmpp.save(xmpp.account)" ng-disabled="settingsXmpp.$invalid">Save</button>
+                  <button ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
                 </div>
               </div>
             </fieldset>
