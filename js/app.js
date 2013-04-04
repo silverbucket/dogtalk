@@ -57,7 +57,8 @@ dogtalk.directive("error", function ($rootScope) {
       };
 
       $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
-        console.log('directive routeChangeError: ', event, current, previous, rejection);
+        //console.log('directive routeChangeError: ', event, current, previous, rejection);
+        console.log('directive routeChangeError: ', rejection);
 
         scope.isError = false;
         scope.displayError = {title: '', message: ''};
@@ -117,12 +118,12 @@ function ($rootScope, $q, $timeout, sh) {
           } else {
             if (sh.config.exists()) {
               console.log('already have sockethub config, no need to fetch');
-              sockethub.connect(defer);
+              sh.connect().then(defer.resolve, defer.reject);
             } else {
               remoteStorage.onWidget('ready', function() {
                 $timeout(function() {
                   remoteStorage.sockethub.getConfig().then(function (config) {
-                    console.log('initializeApp: got config: ', config);
+                    console.log('got config: ', config);
                     if (!config) {
                       defer.reject({error: 'sockethub-config'});
                     } else {
@@ -130,16 +131,7 @@ function ($rootScope, $q, $timeout, sh) {
                       sh.config.host = config.host;
                       sh.config.port = config.port;
                       sh.config.secret = config.secret;
-
-                      var p = sh.connect();
-                      console.log('p = ', p );
-                      p.then(function () {
-                        defer.resolve();
-                      }, function (err) {
-                        console.log('err: ', err);
-                        defer.reject(err);
-                      //defer.reject({error:'sockethub-connect'});
-                      });
+                      sh.connect().then(defer.resolve, defer.reject);
                     }
                   }, function (error) {
                     defer.reject({error: 'sockethub-config'});

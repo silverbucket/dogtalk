@@ -1,6 +1,5 @@
 var sockethub = (function (window, document, undefined) {
   var pub = {};
-  //var noDelay = false; // delay the register command by 2 secs (read register function)
   var cfg = {
     enablePings:  false,
     confirmationTimeout: 6000
@@ -156,7 +155,7 @@ var sockethub = (function (window, document, undefined) {
           isConnected = false;
           if (isConnecting) {
             isConnecting = false;
-            promise.reject("unable to connect to sockethub at "+cfg.host);
+            promise.reject("Unable to connect to sockethub at "+cfg.host);
           }
           callbacks.close();
         };
@@ -303,7 +302,7 @@ var sockethub = (function (window, document, undefined) {
     // TODO FIXME
     // logs not working for now, lets get back to this later
     return;
-    var c = { 1:'blue', 2:'green', 3:'red'};
+    /*var c = { 1:'blue', 2:'green', 3:'red'};
     var d = new Date();
     var ds = (d.getHours() + 1) + ':' + d.getMinutes() + ':' + d.getSeconds();
     var verb;
@@ -327,7 +326,7 @@ var sockethub = (function (window, document, undefined) {
       console.log(' [sockethub] success - '+message);
     } else if (type === 3) {
       console.log(' [sockethub] error - '+message);
-    }
+    }*/
   }
 
   function getRID(verb) {
@@ -392,6 +391,17 @@ var sockethub = (function (window, document, undefined) {
     return promise;
   };
 
+  /**
+   * Function: set
+   *
+   * Issue the set command to a platform
+   *
+   * Parameters:
+   *
+   *   platform - the platform to send the set command to
+   *   data     - the data to be contained in the 'object' propery
+   *
+   */
   pub.set = function (platform, data) {
     assertConnected();
     var r = sendData.set;
@@ -403,6 +413,19 @@ var sockethub = (function (window, document, undefined) {
     sock.send(rawMessage);
   };
 
+  /**
+   * Function: send
+   *
+   * send a 'send' verb to a platform
+   *
+   * Parameters:
+   *
+   *   platform - the platform to send the message to
+   *   actor    - the actor object
+   *   target   - the target object
+   *   object   - the object object
+   *
+   */
   pub.send = function (platform, actor, target, object) {
     assertConnected();
     var r = sendData.send;
@@ -416,6 +439,23 @@ var sockethub = (function (window, document, undefined) {
     sock.send(rawMessage);
   };
 
+  /**
+   * Function: post
+   *
+   * send a 'post' verb to a platform
+   *
+   * Parameters:
+   *
+   *   platform - the platform to send the message to
+   *   actor    - the actor object
+   *   target   - the target object
+   *   object   - the object object
+   *
+   *
+   * Returns:
+   *
+   *   return description
+   */
   pub.post = function (platform, actor, target, object) {
     assertConnected();
     var r = sendData.post;
@@ -429,6 +469,16 @@ var sockethub = (function (window, document, undefined) {
     sock.send(rawMessage);
   };
 
+  /**
+   * Function: submit
+   *
+   * submit any message to sockethub, providing the entire object (except RID)
+   *
+   * Parameters:
+   *
+   *   o - the entire message (including actor, object, target), but NOT including RID
+   *
+   */
   pub.submit = function (o) {
     assertConnected();
     o.rid = getRID(o.verb);
