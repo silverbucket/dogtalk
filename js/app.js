@@ -5,7 +5,7 @@ dogtalk.config(function ($routeProvider) {
     templateUrl: "home.html",
     controller: "homeCtrl",
     resolve: {
-      init: homeCtrl.homeInit
+      loadData: homeCtrl.homeInit
     }
   }).when('/settings', {
     templateUrl: "settings.html",
@@ -171,17 +171,9 @@ function ($rootScope, $q) {
   function register() {
     var defer = $q.defer();
     sockethub.register({
-      remoteStorage: {
-        bearerToken: remoteStorage.getBearerToken(),
-        scope: remoteStorage.claimedModules,
-        storageInfo: remoteStorage.getStorageInfo()
-      },
       secret: config.secret
-    }).then(function () { // sockethub registration success
-      console.log('registered!');
-      defer.resolve();
-    }, function (err) { // sockethub registration fail
-      console.log('registration failed: ',err);
+    }).then(defer.resolve, function (err) { // sockethub registration fail
+      console.log('registration failed: ', err);
       defer.reject({error: 'sockethub-register', message: err});
     });
     return defer.promise;
@@ -193,10 +185,7 @@ function ($rootScope, $q) {
       host: 'ws://' + config.host + ':' + config.port + '/sockethub',
       confirmationTimeout: 6000,   // timeout in miliseconds to wait for confirm
       enablePings: true            // good for keepalive
-    }).then(function () {  // connection to sockethub sucessful
-      console.log('connected to sockethub');
-      defer.resolve();
-    }, function (err) { // sockethub connection failed
+    }).then(defer.resolve, function (err) { // sockethub connection failed
       console.log('received error on connect: ', err);
       if (err) {
         defer.reject({error:'sockethub-connect', message: err});
@@ -204,7 +193,6 @@ function ($rootScope, $q) {
         defer.reject({error:'sockethub-connect'});
       }
     });
-
     return defer.promise;
   }
 

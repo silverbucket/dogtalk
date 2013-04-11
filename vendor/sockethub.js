@@ -1,23 +1,26 @@
 var sockethub = (function (window, document, undefined) {
   var pub = {};
+  var sock;
+
   var cfg = {
+    host: '',
     enablePings:  false,
     confirmationTimeout: 6000
   };
-  var sock;
+
   var isRegistered = false;
   var isConnected = false;
+
   var ridDB = {
     counter: 0
   };
-  // maps 'rid's to a function that is being called once a response with that rid
-  // is received. After that the function will be cleaned up
-  //var ridHandlers = {};
+
   var ping = {
     sent: 0,
     received: 0,
     paused: false
   };
+
   var callbacks = {
     message: function () {},
     response: function () {},
@@ -26,13 +29,7 @@ var sockethub = (function (window, document, undefined) {
     ping: function () {}
   };
 
-  function assertConnected() {
-    if(typeof(sock) === 'undefined') {
-      throw new Error("You need to connect sockethub before sending anything!");
-    }
-  }
-
-  var sendData = {
+  var prepData = {
     ping: {
       verb: 'ping',
       platform: 'dispatcher'
@@ -42,18 +39,6 @@ var sockethub = (function (window, document, undefined) {
       platform: 'dispatcher',
       object: {}
     },
-    send: {
-      verb: "send",
-      target : [],
-      object: {},
-      actor: {}
-    },
-    post: {
-      verb: "post",
-      target: [],
-      object: {},
-      actor: {}
-    },
     set: {
       verb: "set",
       platform: "dispatcher",
@@ -61,6 +46,13 @@ var sockethub = (function (window, document, undefined) {
       object: {}
     }
   };
+
+
+  function assertConnected() {
+    if(typeof(sock) === 'undefined') {
+      throw new Error("You need to connect sockethub before sending anything!");
+    }
+  }
 
   pub.on = function (type, callback) {
     if ((typeof callbacks[type] !== 'undefined') &&
@@ -76,6 +68,8 @@ var sockethub = (function (window, document, undefined) {
   pub.connect = function (o) {
     var promise = promising();
     var isConnecting = true;
+
+    // read and verify configuration
     if (typeof o !== 'object') {
       promise.reject('connection object not received');
       return promise;
@@ -83,119 +77,137 @@ var sockethub = (function (window, document, undefined) {
 
     if (typeof o.host !== 'undefined') {
       cfg.host = o.host;
+    } else {
+      log(3, null, "sockethub.connect requires an object parameter with a 'host' property", o);
+      promise.reject("sockethub.connect requires an object parameter with a 'host' property");
+      return promise;
     }
+
     if (typeof o.confirmationTimeout !== 'undefined') {
       cfg.confirmationTimeout = o.confirmationTimeout;
     }
+
     if (typeof o.enablePings !== 'undefined') {
       cfg.enablePings = o.enablePings;
     }
 
-    if (typeof cfg.host === 'undefined') {
-      log(3, null, "sockethub.connect requires an object parameter with a 'host' property", o);
-      promise.reject("sockethub.connect requires an object parameter with a 'host' property");
-    } else {
-      log(1, null, 'attempting to connect to ' + cfg.host);
+    log(1, null, 'attempting to connect to ' + cfg.host);
 
-      try {
-        sock = new WebSocket(cfg.host, 'sockethub');
-      } catch (e) {
-        log(3, null, 'error connecting to sockethub: ' + e);
-        promise.reject('error connecting to sockethub: ' + e);
-      }
-
-      if (sock) {
-        sock.onopen = function () {
-          ping.pause = false;
-          isConnected = true;
-          if (isConnecting) {
-            isConnecting = false;
-            promise.fulfill();
-          }
-        };
-
-        sock.onclose = function () {
-          ping.pause = true;
-          isConnected = false;
-          isRegistered = false;
-          if (isConnecting) {
-            isConnecting = false;
-            promise.reject("Unable to connect to sockethub at "+cfg.host);
-          }
-          callbacks.close();
-        };
-
-        sock.onmessage = function (e) {
-          var data = JSON.parse(e.data);
-          var now = new Date().getTime();
-
-          if (data.verb === "ping") {
-            //} else if ((typeof data.response === 'object') &&
-            //           (typeof data.response.timestamp === 'number')) {
-            // incoming ping
-            var sentTime = parseInt(data.response.timestamp, null);
-            if (ping.sent > sentTime) {
-              log(3, data.rid, 'out of date ping response received');
-              return false;
-            } else {
-              ping.received = now;
-            }
-
-            ping.rid = data.rid;
-            log(1, data.rid, 'response received: '+e.data);
-            if (data.rid) {
-              processCallback(ping);
-            } else {
-              var msg = 'no rid found on ping';
-              if (data.message) {
-                msg = data.message;
-              }
-              callbacks.error(data, msg);
-            }
-
-          } else if (data.verb === 'confirm') {
-            //log(1, data.rid, 'confirmation receipt received. ' + e.data);
-            ridDB[data.rid]['received'] = now;
-            // XXX - how to expose confirms to the front-end?
-            // call the error portion of the callback when the confirmation hasn't
-            // been received for [confirmationTimeout] miliseconds.
-
-          } else {
-            if (typeof data.rid === 'undefined') {
-              log(3, data.rid, e.data);
-              callbacks.message(data);
-            } else {
-              if (typeof ridDB[data.rid].promise === "object") {
-                var handler = ridDB[data.rid].promise;
-                delete ridDB[data.rid].promise;
-
-                if ((typeof data.status !== "undefined") && (data.status === false)) {
-                  log(3, data.rid, "rejecting promise");
-                  handler.reject(data);
-                } else {
-                  if (data.verb === 'register') {
-                    isRegistered = true;
-                  }
-                  log(2, data.rid, "fulfilling promise");
-                  handler.fulfill(data);
-                }
-              } else {
-                log(2, data.rid, "issuing 'response' callback");
-                callbacks.response(data);
-              }
-            }
-          }
-        };
-      }
+    try {
+      sock = new WebSocket(cfg.host, 'sockethub');
+    } catch (e) {
+      log(3, null, 'error connecting to sockethub: ' + e);
+      promise.reject('error connecting to sockethub: ' + e);
     }
+
+    if (!sock) {
+      return promise;
+    }
+
+
+    //
+    // as far as we know, we're now connected, we can use the 'sock' object
+    // to set our handler functions.
+    //
+    sock.onopen = function () {
+      log(4, null, 'onopen fired');
+      ping.pause = false;
+      isConnected = true;
+      if (isConnecting) {
+        isConnecting = false;
+        promise.fulfill();
+      }
+    };
+
+    sock.onclose = function () {
+      log(4, null, 'onclose fired');
+      ping.pause = true;
+      isConnected = false;
+      isRegistered = false;
+      if (isConnecting) {
+        isConnecting = false;
+        promise.reject("Unable to connect to sockethub at "+cfg.host);
+      }
+      callbacks.close();
+    };
+
+    sock.onmessage = function (e) {
+      log(4, null, 'onmessage fired');
+
+      var data = JSON.parse(e.data);
+      var now = new Date().getTime();
+
+      if (data.verb === "ping") {
+        //} else if ((typeof data.response === 'object') &&
+        //           (typeof data.response.timestamp === 'number')) {
+        // incoming ping
+        var sentTime = parseInt(data.response.timestamp, null);
+        if (ping.sent > sentTime) {
+          log(3, data.rid, 'out of date ping response received');
+          return false;
+        } else {
+          ping.received = now;
+        }
+
+        ping.rid = data.rid;
+        log(1, data.rid, 'response received: '+e.data);
+        if (data.rid) {
+          processCallback(ping);
+        } else {
+          var msg = 'no rid found on ping';
+          if (data.message) {
+            msg = data.message;
+          }
+          callbacks.error(data, msg);
+        }
+
+      } else if (data.verb === 'confirm') {
+        log(4, data.rid, 'confirmation receipt received. ' + e.data);
+        ridDB[data.rid]['received'] = now;
+        // XXX - how to expose confirms to the front-end?
+        // call the error portion of the callback when the confirmation hasn't
+        // been received for [confirmationTimeout] miliseconds.
+
+      } else {
+        // now we know that this object is either a response (has an RID) or
+        // a message (new messages from sockethub)
+        if (typeof data.rid === 'undefined') { // message
+          log(3, data.rid, e.data);
+          callbacks.message(data);
+        } else {
+          if (typeof ridDB[data.rid].promise === "object") { // response with callback
+            var handler = ridDB[data.rid].promise;
+            delete ridDB[data.rid].promise;
+
+            if ((typeof data.status !== "undefined") && (data.status === false)) {
+              log(3, data.rid, "rejecting promise");
+              handler.reject(data);
+            } else {
+              if (data.verb === 'register') {
+                isRegistered = true;
+              }
+              log(2, data.rid, "fulfilling promise");
+              handler.fulfill(data);
+            }
+          } else {  // response without callback, send to handler
+            log(2, data.rid, "issuing 'response' callback");
+            callbacks.response(data);
+          }
+        }
+      }
+    };
     return promise;
   };
 
   pub.reconnect = function () {
     ping.pause = true;
+    isConnected = false;
+    isRegistered = false;
     setTimeout(function () {
       sock.close();
-      pub.connect();
+      setTimeout(function () {
+        pub.connect(cfg);
+      }, 0);
     }, 0);
   };
 
@@ -249,18 +261,6 @@ var sockethub = (function (window, document, undefined) {
     return ping.pause;
   };
 
-  function log(type, rid, message) {
-    // TODO FIXME
-    // logs not working for now, lets get back to this later
-    if (type === 1) {
-      console.log(' [sockethub] info - '+message);
-    } else if (type === 2) {
-      console.log(' [sockethub] success - '+message);
-    } else if (type === 3) {
-      console.log(' [sockethub] error - '+message);
-    }
-  }
-
   function getRID(verb) {
     ridDB.counter++;
     rid = ridDB.counter;
@@ -280,6 +280,21 @@ var sockethub = (function (window, document, undefined) {
     return v;
   }
 
+  function log(type, rid, message) {
+    var verb = '';
+    if (rid) {
+      verb = ':' + lookupVerb(rid);
+    }
+    if (type === 1) {
+      console.log('  [sockethub'+verb+'] info    - '+message);
+    } else if (type === 2) {
+      console.log('  [sockethub'+verb+'] success - '+message);
+    } else if (type === 3) {
+      console.log('  [sockethub'+verb+'] error   - '+message);
+    } else if (type === 4) {
+      console.log('  [sockethub'+verb+'] debug   - '+message);
+    }
+  }
 
 
 
@@ -320,20 +335,11 @@ var sockethub = (function (window, document, undefined) {
     assertConnected();
     console.log('verified connection');
 
-    var r = sendData.register;
+    var r = prepData.register;
     r.rid = getRID('register');
 
     r.object = o;
     return sendObject(r);
-    /*.
-      then(function(result) {
-        if(! result.status) {
-          throw "Failed to register with sockethub. reason: " + result.message;
-        } else {
-          console.log('register success?');
-        }
-      });
-    */
   };
 
 
@@ -350,7 +356,7 @@ var sockethub = (function (window, document, undefined) {
    */
   pub.set = function (platform, data) {
     assertConnected();
-    var r = sendData.set;
+    var r = prepData.set;
     r.target.platform = platform;
     r.object = data;
     r.rid = getRID('set');
