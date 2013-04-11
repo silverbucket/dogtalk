@@ -112,9 +112,12 @@ function ($rootScope, $q, $timeout, sh) {
         if (remoteStorage.getBearerToken() === null) {
           defer.reject({error: 'remotestorage-connect'});
         } else {
-          if (sh.isConnected()) {
-            console.log('already connected to sockethub');
+          if ((sh.isConnected()) && (sh.isRegistered())) {
+            console.log('already connected and registered to sockethub');
             defer.resolve();
+          } else if (sh.isConnected()) {
+            console.log('already connected to sockethub');
+            sh.register(defer.resolve, defer.reject);
           } else {
             if (sh.config.exists()) {
               console.log('already have sockethub config, no need to fetch');
@@ -130,7 +133,9 @@ function ($rootScope, $q, $timeout, sh) {
                     sh.config.host = config.host;
                     sh.config.port = config.port;
                     sh.config.secret = config.secret;
-                    sh.connect().then(defer.resolve, defer.reject);
+                    sh.connect().then(function () {
+                      sh.register(defer.resolve, defer.reject);
+                    }, defer.reject);
                   }
                 }, function (error) {
                   defer.reject({error: 'sockethub-config'});
@@ -163,6 +168,25 @@ function ($rootScope, $q) {
     }
   };
 
+  function register() {
+    var defer = $q.defer();
+    sockethub.register({
+      remoteStorage: {
+        bearerToken: remoteStorage.getBearerToken(),
+        scope: remoteStorage.claimedModules,
+        storageInfo: remoteStorage.getStorageInfo()
+      },
+      secret: config.secret
+    }).then(function () { // sockethub registration success
+      console.log('registered!');
+      defer.resolve();
+    }, function (err) { // sockethub registration fail
+      console.log('registration failed: ',err);
+      defer.reject({error: 'sockethub-register', message: err});
+    });
+    return defer.promise;
+  }
+
   function connect() {
     var defer = $q.defer();
     sockethub.connect({
@@ -171,19 +195,7 @@ function ($rootScope, $q) {
       enablePings: true            // good for keepalive
     }).then(function () {  // connection to sockethub sucessful
       console.log('connected to sockethub');
-      sockethub.register({
-        remoteStorage: {
-          bearerToken: remoteStorage.getBearerToken(),
-          scope: remoteStorage.claimedModules,
-          storageInfo: remoteStorage.getStorageInfo()
-        },
-        secret: config.secret
-      }).then(function () { // sockethub registration success
-        console.log('registered!');
-        defer.resolve();
-      }, function (err) { // sockethub registration fail
-        defer.reject({error: 'sockethub-register', message: err});
-      });
+      defer.resolve();
     }, function (err) { // sockethub connection failed
       console.log('received error on connect: ', err);
       if (err) {
@@ -199,7 +211,9 @@ function ($rootScope, $q) {
   return {
     config: config,
     connect: connect,
-    isConnected: sockethub.isConnected
+    register: register,
+    isConnected: sockethub.isConnected,
+    isRegistered: sockethub.isRegistered
   };
 }] );
 
