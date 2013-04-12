@@ -22,7 +22,7 @@
           <div class="navbar-inner">
             <a class="brand" href="#"><img src="img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
             <ul class="nav">
-              <li ng-class="navClass('home')"><a href="#/home" class="home"><i class="icon-home"></i> Home</a></li>
+              <li ng-class="navClass('talk')"><a href="#/" class="talk"><i class="icon-comment"></i> Talk</a></li>
               <li ng-class="navClass('settings')"><a href="#/settings" class="settings"><i class="icon-cog"></i> Settings</a></li>
               <li ng-class="navClass('log')"><a href="#/log" class="log"><i class="icon-list-alt"></i> Log</a></li>
             </ul>
@@ -35,8 +35,8 @@
 
 
       <!-- dogtalk main interface -->
-      <script type="text/ng-template" id="home.html">
-        <section id="home" class="page">
+      <script type="text/ng-template" id="talk.html">
+        <section id="talk" class="page">
           <div class="container-fluid">
             <div class="row-fluid">
               <div class="span4 contacts">
@@ -156,40 +156,17 @@
     </footer>
 
     <script type="text/javascript" src="vendor/jquery.min.js?v=1.9.1"></script>
-    <script type="text/javascript" src="vendor/angular.min.js?v=1.0.5"></script>
+    <script type="text/javascript" src="vendor/angular.js?v=1.0.6"></script>
     <script type="text/javascript" src="vendor/remoteStorage.min.js?v=0.7.1-redirect"></script>
     <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js?v=2.3.1"></script>
     <script type="text/javascript" src="vendor/promising.js?v=0.0.4"></script>
     <script type="text/javascript" src="vendor/sockethub.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/app.js?v=0.0.1"></script>
-    <script type="text/javascript" src="js/controller.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/services/ngSockethubClient.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/services/ngDogtalk.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/controllers/talk.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/controllers/settings.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/controllers/log.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/helper.js?v=0.0.1"></script>
-    <script>
-
-$(document).ready(function () {
-  //console.log('we live at: ' + window.location.origin + "/");
-
-  sockethub.on('ping', function(sent, received) {
-    console.log('ping response - sent: ' + sent + ' received: ' + received);
-  });
-
-  sockethub.on('error', function (err, o) { // any errors (status: false)
-    console.log('sockethub received error ['+o.rid+':'+o.verb+']: '+o.message, o);
-  });
-
-  sockethub.on('response', function (o) { // response to sent command
-    console.log('sockethub received response ['+o.rid+':'+o.verb+']', o);
-  });
-
-  sockethub.on('message', function (o) { // unprompted message from sockethub
-    console.log('sockethub received message ['+o.rid+':'+o.verb+']', o);
-  });
-
-  sockethub.on('close', function () {
-    console.log('sockethub received close');
-  });
-
-});
-    </script>
   </body>
 </html>
