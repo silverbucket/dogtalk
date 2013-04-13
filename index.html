@@ -12,7 +12,7 @@
   </head>
 
   <body>
-      <div id="remotestorage-connect" ng-controller="initRemoteStorage"></div>
+      <div id="remotestorage-connect" ng-controller="initRemoteStorageCtrl"></div>
 
       <!--[if lt IE 7]>
         <p class="alert">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a>!</p>
@@ -151,7 +151,7 @@
 
     <footer>
       <div class="footer">
-      <p>dogtalk under development, totally unstable.</p>
+      <p>dogtalk is under development and might not work</p>
       </div>
     </footer>
 
@@ -162,11 +162,11 @@
     <script type="text/javascript" src="vendor/promising.js?v=0.0.4"></script>
     <script type="text/javascript" src="vendor/sockethub.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/app.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/services/ngRemoteStorageClient.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/services/ngSockethubClient.js?v=0.0.1"></script>
-    <script type="text/javascript" src="js/services/ngDogtalk.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/controllers/talk.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/controllers/settings.js?v=0.0.1"></script>
-    <script type="text/javascript" src="js/controllers/log.js?v=0.0.1"></script>
-    <script type="text/javascript" src="js/helpers.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/directives/error.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/emitters/ModalSettingsSockethub.js?v=0.0.1"></script>
   </body>
 </html>

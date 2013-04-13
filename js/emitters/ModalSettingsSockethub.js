@@ -3,7 +3,7 @@ dogtalk.run(function($rootScope, SH) {
         Receive emitted messages from elsewhere.
         http://jsfiddle.net/VxafF/
     */
-    $rootScope.$on('showModalSockethubSettings', function(event, args) {
+    $rootScope.$on('showModalSettingsSockethub', function(event, args) {
       backdrop_setting = true;
       if ((typeof args === 'object') && (typeof args.locked !== 'undefined')) {
         if (args.locked) {
@@ -18,7 +18,7 @@ dogtalk.run(function($rootScope, SH) {
       });
     });
 
-    $rootScope.$on('closeModalSockethubSettings', function(event, args) {
+    $rootScope.$on('closeModalSettingsSockethub', function(event, args) {
       //console.log('closeModalSockethubSettings');
       $("#modalSettingsSockethub").modal('hide');
     });

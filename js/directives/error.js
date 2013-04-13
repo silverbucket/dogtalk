@@ -1,4 +1,4 @@
-dogtalk.directive("error", function ($rootScope) {
+dogtalk.directive("error", ['$rootScope', 'SH', function ($rootScope, SH) {
   return {
     restrict: "E",
     template: '<div class="alert alert-error" ng-show="isError">'+
@@ -37,8 +37,11 @@ dogtalk.directive("error", function ($rootScope) {
         scope.isError = false;
         scope.displayError = {title: '', message: ''};
 
-        if ((typeof rejection !== 'object') ||
-            (typeof rejection.error === 'undefined') ||
+        if (typeof rejection === 'undefined') {
+          rejection = 'no error specified';
+        }
+
+        if ((typeof rejection.error === 'undefined') ||
             (typeof errors[rejection.error] == 'undefined')) {
           scope.displayError = errors['unknown'];
           scope.displayError.message = String(rejection.message || rejection);
@@ -52,18 +55,21 @@ dogtalk.directive("error", function ($rootScope) {
 
         if (rejection.error === 'sockethub-config') {
           console.log('no config found, launch modal');
-          $rootScope.$broadcast('showModalSockethubSettings', {locked: true});
+          $rootScope.$broadcast('showModalSettingsSockethub', {locked: true});
         }
       });
 
       $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
-        if (sockethub.isConnected()) {
+        console.log('directive routeChangeSuccess ['+SH.isConnected()+']');
+        if (SH.isConnected()) {
+          console.log('noerror');
           scope.isError = false;
         } else {
+          console.log('yeserror');
           scope.isError = true;
           scope.displayError = errors['sockethub-connect'];
         }
       });
     }
   };
-});
+}]);

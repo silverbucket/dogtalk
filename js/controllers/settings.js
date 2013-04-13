@@ -2,13 +2,13 @@
  * settings
  ***********/
 var settingsCtrl = dogtalk.controller("settingsCtrl",
-['$scope', '$route', '$routeParams', '$location', '$rootScope', 'sockethubClient',
-function ($scope, $route, $routeParams, $location, $rootScope, sockethubClient) {
+['$scope', '$route', '$routeParams', '$location', '$rootScope', 'SH', 'RS',
+function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
   $scope.model = {
     message: "this is the settings page fool!"
   };
   $scope.sockethub = {
-    config: sockethubClient.config,
+    config: SH.config,
     show: function () {
       console.log('showSockethub: ', $scope.sockethub.config);
       $rootScope.$broadcast('showModalSockethubSettings', {locked: false});
@@ -35,3 +35,17 @@ function ($scope, $route, $routeParams, $location, $rootScope, sockethubClient) 
   };
 
 }] );
+
+settingsCtrl.loadSettings = function (RS, SH, $q) {
+    console.log('settingsCtrl conversations');
+    var defer = $q.defer();
+    // verify remoteStorage connection
+    if (!RS.isConnected()) {
+      defer.reject({error: "remotestorage-connect", message: "not connected to remoteStorage"});
+    } else if (SH.isConnected) {
+      defer.reject({error: "sockethub-connect", message: "not connected to sockethub"});
+    } else {
+      defer.resolve();
+    }
+    return defer.promise;
+};

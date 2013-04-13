@@ -1,41 +1,63 @@
-angular.module('ngSockethubClient', []).
-factory('sockethubClient', ['$rootScope',
-function ($rootScope) {
+angular.module('ngSockethubClient', ['ngRemoteStorageClient']).
+factory('SH', ['$rootScope', '$q',
+function ($rootScope, $q) {
 
-  var sc = {
-    isConnected: function () { return false; },
-    isRegistered: function () { return false; }
-  };
+  var sc;
 
   var config = {
     host: '',
     port: '',
-    secret: '',
-    exists: function () {
-      if ((config.host !== '') &&
-          (config.port !== '') &&
-          (config.secret !== '')) {
-        return true;
-      } else {
-        return false;
-      }
-    }
+    secret: ''
   };
 
+  function existsConfig() {
+    if ((config.host !== '') &&
+        (config.port !== '') &&
+        (config.secret !== '')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function setConfig(host, port, secret) {
+    config.host = host;
+    config.port = port;
+    config.secret = secret;
+  }
+
+  function getConfig() {
+    return config;
+  }
+
+  function isConnected() {
+    if (sc) {
+      return sc.isConnected();
+    } else {
+      return false;
+    }
+  }
+
+  function isRegistered() {
+    if (sc) {
+      return sc.isRegistered();
+    } else {
+      return false;
+    }
+  }
+
   function register() {
-    console.log('ngSockethubClient.register() called');
+    //console.log('ngSockethubClient.register() called');
     var defer = $q.defer();
-    sockethub.register({
+    sc.register({
       secret: config.secret
     }).then(function () {
-      console.log('ngSockethubClient.register: registration success');
-      $rootScope.$apply(function () {
-        defer.resolve();
-      });
+      //console.log('ngSockethubClient.register: registration success ['+sc.isConnected()+']');
+      $rootScope.$apply(defer.resolve);
     }, function (err) { // sockethub registration fail
       console.log('ngSockethubClient.register: registration failed: ', err);
       $rootScope.$apply(function () {
-        defer.reject({error: 'sockethub-register', message: err});
+        defer.reject(err);
       });
     });
     return defer.promise;
@@ -43,7 +65,7 @@ function ($rootScope) {
 
   function connect() {
     var defer = $q.defer();
-    console.log('ngSockethubClient.connect() called');
+    //console.log('ngSockethubClient.connect() called');
     SockethubClient.connect({
       host: 'ws://' + config.host + ':' + config.port + '/sockethub',
       confirmationTimeout: 3000,   // timeout in miliseconds to wait for confirm
@@ -54,23 +76,23 @@ function ($rootScope) {
         defer.resolve();
       });
     }, function (err) { // sockethub connection failed
-      console.log('ngSockethubClient.connect: received error on connect: ', err);
       $rootScope.$apply(function () {
-        if (err) {
-          defer.reject({error:'sockethub-connect', message: err});
-        } else {
-          defer.reject({error:'sockethub-connect'});
-        }
+        //console.log('ngSockethubClient.connect: received error on connect: ', err);
+        defer.reject(err);
       });
     });
     return defer.promise;
   }
 
   return {
-    config: config,
+    config: {
+      set: setConfig,
+      get: getConfig,
+      exists: existsConfig
+    },
     connect: connect,
     register: register,
-    isConnected: sc.isConnected,
-    isRegistered: sc.isRegistered
+    isConnected: isConnected,
+    isRegistered: isRegistered
   };
 }]);
