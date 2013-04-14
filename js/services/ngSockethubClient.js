@@ -21,6 +21,7 @@ function ($rootScope, $q) {
   }
 
   function setConfig(host, port, secret) {
+    console.log('SH.setConfig: '+host+', '+port+', '+secret);
     config.host = host;
     config.port = port;
     config.secret = secret;

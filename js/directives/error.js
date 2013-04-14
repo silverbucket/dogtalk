@@ -62,10 +62,8 @@ dogtalk.directive("error", ['$rootScope', 'SH', function ($rootScope, SH) {
       $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         console.log('directive routeChangeSuccess ['+SH.isConnected()+']');
         if (SH.isConnected()) {
-          console.log('noerror');
           scope.isError = false;
         } else {
-          console.log('yeserror');
           scope.isError = true;
           scope.displayError = errors['sockethub-connect'];
         }

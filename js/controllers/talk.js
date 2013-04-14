@@ -11,7 +11,6 @@ function ($scope, $route, $routeParams, $location) {
 
 talkCtrl.loadConversations = function (verifyState, $q) {
     console.log('dogtalk.talkCtrl.loadConversations');
-
     return verifyState();
 };
 
