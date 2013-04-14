@@ -42,21 +42,16 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
 
     // verify remoteStorage connection
     if (!RS.isConnected()) {
-console.log('1');
       defer.reject({error: "remotestorage-connect", message: "not connected to remoteStorage"});
     } else if (!SH.config.exists()) {
-console.log('2');
       RS.getConfig().then(function (config) {
-console.log('2.1');
         SH.config.set(config.host, config.port, config.secret);
         verifySHConnection().then(defer.resolve, defer.reject);
       }, function () {
-console.log('2.2');
         defer.reject({error: "sockethub-config", message: "sockethub not configured"});
       });
     } else {
-console.log('3');
-      return verifySHConnection();
+      verifySHConnection().then(defer.resolve, defer.reject);
     }
 
     return defer.promise;
