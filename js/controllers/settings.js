@@ -2,16 +2,21 @@
  * settings
  ***********/
 var settingsCtrl = dogtalk.controller("settingsCtrl",
-['$scope', '$route', '$routeParams', '$location', '$rootScope', 'SH', 'RS',
-function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
+['$scope', '$route', '$routeParams', '$location', '$rootScope', 'SH',
+function ($scope, $route, $routeParams, $location, $rootScope, SH) {
   $scope.model = {
     message: "this is the settings page fool!"
   };
   $scope.sockethub = {
-    config: SH.config,
+    config: {},
     show: function () {
+      var cfg = SH.config.get();
+      $scope.sockethub.config.host = cfg.host;
+      $scope.sockethub.config.port = cfg.port;
+      $scope.sockethub.config.secret = cfg.secret;
+      console.log('showSockethub: ', $scope.sockethub.config.host);
       console.log('showSockethub: ', $scope.sockethub.config);
-      $rootScope.$broadcast('showModalSockethubSettings', {locked: false});
+      $rootScope.$broadcast('showModalSettingsSockethub', {locked: false});
     },
     save: function (config) {
       console.log('saveSockethub: ', config);
@@ -26,7 +31,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
         $scope.sockethub.config.port = config.port;
         $scope.sockethub.config.secret = config.secret;
         console.log("closing modalwindow");
-        $rootScope.$broadcast('closeModalSockethubSettings');
+        $rootScope.$broadcast('closeModalSettingsSockethub');
         $location.path('/');
       }, function () {
         console.log('error saving config to remoteStorage!');
@@ -36,16 +41,10 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
 
 }] );
 
-settingsCtrl.loadSettings = function (RS, SH, $q) {
+settingsCtrl.loadSettings = function (verifyState, $q) {
     console.log('settingsCtrl conversations');
+    verifyState();
     var defer = $q.defer();
-    // verify remoteStorage connection
-    if (!RS.isConnected()) {
-      defer.reject({error: "remotestorage-connect", message: "not connected to remoteStorage"});
-    } else if (SH.isConnected) {
-      defer.reject({error: "sockethub-connect", message: "not connected to sockethub"});
-    } else {
-      defer.resolve();
-    }
+    defer.resolve();
     return defer.promise;
 };
