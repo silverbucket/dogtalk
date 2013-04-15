@@ -45,7 +45,6 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
       defer.reject({error: "remotestorage-connect", message: "not connected to remoteStorage"});
     } else if (!SH.config.exists()) {
       RS.getConfig().then(function (config) {
-        console.log('rsconfig 1', config);
         if (!config) {
           defer.reject({error: "sockethub-config", message: "sockethub not configured"});
         } else {
@@ -53,7 +52,6 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
           verifySHConnection().then(defer.resolve, defer.reject);
         }
       }, function () {
-        console.log('rsconfig 2');
         defer.reject({error: "sockethub-config", message: "sockethub not configured"});
       });
     } else {

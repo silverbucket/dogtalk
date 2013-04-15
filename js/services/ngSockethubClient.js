@@ -58,7 +58,7 @@ function ($rootScope, $q) {
     }, function (err) { // sockethub registration fail
       console.log('ngSockethubClient.register: registration failed: ', err);
       $rootScope.$apply(function () {
-        defer.reject(err);
+        defer.reject(err.message);
       });
     });
     return defer.promise;

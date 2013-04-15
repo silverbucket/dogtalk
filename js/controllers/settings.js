@@ -7,9 +7,13 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH) {
   $scope.model = {
     message: "this is the settings page fool!"
   };
-  $scope.sockethub = {
-    config: {},
-    show: function () {
+  $scope.sockethub = {};
+  $scope.sockethub.config = {
+    host: '',
+    port: '',
+    secret: ''
+  };
+  $scope.sockethub.show = function () {
       var cfg = SH.config.get();
       $scope.sockethub.config.host = cfg.host;
       $scope.sockethub.config.port = cfg.port;
@@ -17,8 +21,8 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH) {
       console.log('showSockethub: ', $scope.sockethub.config.host);
       console.log('showSockethub: ', $scope.sockethub.config);
       $rootScope.$broadcast('showModalSettingsSockethub', {locked: false});
-    },
-    save: function (config) {
+    };
+  $scope.sockethub.save = function (config) {
       console.log('saveSockethub: ', config);
       // validation ?
       remoteStorage.sockethub.writeConfig({
@@ -36,15 +40,17 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH) {
       }, function () {
         console.log('error saving config to remoteStorage!');
       });
-    }
-  };
+    };
 
 }] );
 
 settingsCtrl.loadSettings = function (verifyState, $q) {
     console.log('settingsCtrl conversations');
-    verifyState();
     var defer = $q.defer();
-    defer.resolve();
+    verifyState().then(function () {
+      defer.resolve();
+    }, function () {
+      defer.resolve();
+    });
     return defer.promise;
 };
