@@ -31,6 +31,8 @@ function ($scope, $route, $routeParams, $location, RS) {
 
   remoteStorage.util.silenceAllLoggers();
     remoteStorage.defineModule('sockethub', function(privateClient, publicClient) {
+      privateClient.release('');
+      publicClient.release('');
       privateClient.declareType('config', {
         "description" : "sockethub config file",
         "type" : "object",
