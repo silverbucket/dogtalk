@@ -106,11 +106,11 @@ remoteStorage.defineModule('messages', function(privateClient, publicClient) {
           return arr;
         });
       },
-    
+
       log: function(from, to, text) {
         var now = new Date().getTime(),
           obj = {
-            from: from, 
+            from: from,
             to: to,
             text: text,
             previous: {}

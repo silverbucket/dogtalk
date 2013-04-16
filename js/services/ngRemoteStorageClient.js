@@ -24,6 +24,9 @@ function ($rootScope, $q) {
         }, defer.reject);
       });
       return defer.promise;
+    },
+    writeConfig: function (config) {
+
     }
   };
 }]);

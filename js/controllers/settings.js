@@ -4,9 +4,6 @@
 var settingsCtrl = dogtalk.controller("settingsCtrl",
 ['$scope', '$route', '$routeParams', '$location', '$rootScope', 'SH', 'RS',
 function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
-  $scope.model = {
-    message: "this is the settings page fool!"
-  };
 
   $scope.sockethub = {
     config: SH.config,
@@ -45,7 +42,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
 
   $scope.xmpp = {
     // Reference to the account managed by the "xmpp" service
-    account: function() {}, //xmpp.account,
+    account: {}, //xmpp.account,
     // Boolean flag, used to disable the "Save" button, while waiting for
     // xmpp.saveAccount to finish.
     saving: false,
@@ -62,6 +59,18 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
       //  $scope.xmpp.saving = false;
       //  $rootScope.$broadcast('closeModalSettingsXmpp');
       //});
+      remoteStorage.messages.setAccount('xmpp',
+            $scope.xmpp.account.username+'/'+$scope.xmpp.account.resource,
+            $scope.xmpp.account).
+      then(function () {
+        console.log('xmpp config saved to remotestorage');
+        console.log("closing modalwindow");
+        $scope.xmpp.saving = false;
+        $rootScope.$broadcast('closeModalSettingsXmpp');
+        $location.path('/');
+      }, function () {
+        console.log('error saving config to remoteStorage!');
+      });
     }
   };
 
