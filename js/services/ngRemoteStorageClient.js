@@ -1,6 +1,9 @@
-var ngRemoteStorageClient = angular.module('ngRemoteStorageClient', []);
+//var ngRemoteStorageClient = angular.module('ngRemoteStorageClient', []);
+//
+//ngRemoteStorageClient.factory('RS', ['$rootScope', '$q',
 
-ngRemoteStorageClient.factory('RS', ['$rootScope', '$q',
+var ngRemoteStorageClient = angular.module('ngRemoteStorageClient', []).
+factory('RS', ['$rootScope', '$q',
 function ($rootScope, $q) {
 
   return {
