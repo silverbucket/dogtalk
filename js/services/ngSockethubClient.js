@@ -85,12 +85,12 @@ function ($rootScope, $q) {
     return defer.promise;
   }
 
+  config.get = getConfig;
+  config.set = setConfig;
+  config.exists = existsConfig;
+
   return {
-    config: {
-      set: setConfig,
-      get: getConfig,
-      exists: existsConfig
-    },
+    config: config,
     connect: connect,
     register: register,
     isConnected: isConnected,

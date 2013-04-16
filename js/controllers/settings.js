@@ -8,16 +8,13 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH) {
     message: "this is the settings page fool!"
   };
   $scope.sockethub = {};
-  $scope.sockethub.config = {
-    host: '',
-    port: '',
-    secret: ''
-  };
+  $scope.sockethub.config = SH.config;
+
   $scope.sockethub.show = function () {
-      var cfg = SH.config.get();
-      $scope.sockethub.config.host = cfg.host;
-      $scope.sockethub.config.port = cfg.port;
-      $scope.sockethub.config.secret = cfg.secret;
+      //var cfg = SH.config.get();
+      //$scope.sockethub.config.host = cfg.host;
+      //$scope.sockethub.config.port = cfg.port;
+      //$scope.sockethub.config.secret = cfg.secret;
       console.log('showSockethub: ', $scope.sockethub.config.host);
       console.log('showSockethub: ', $scope.sockethub.config);
       $rootScope.$broadcast('showModalSettingsSockethub', {locked: false});
