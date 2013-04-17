@@ -4,6 +4,45 @@ var dogtalk = angular.module('dogtalk', ['ngSockethubClient', 'ngRemoteStorageCl
 
 dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
 
+  // verify XMPP connection
+  /*function verifyXMPPConnection() {
+    var defer = $q.defer();
+    console.log('dogtalk.verifyState [XMPPConnection]');
+
+    if (!XMPP.isConnected()) {
+      XMPP.connect().then(defer.resolve, function (errMsg) {
+        defer.reject({error:"xmpp-connect", message: "failed connecting to xmpp: "+errMsg});
+      });
+    } else {
+      defer.resolve();
+    }
+
+    return defer.promise;
+  }
+
+  function verifyXMPPConfig() {
+    var defer = $q.defer();
+    console.log('dogtalk.verifyState [XMPPConfig]');
+
+    // verify XMPP config exists
+    if (!XMPP.config.exists()) {
+      XMPP.getConfig().then(function (config) {
+        if (!config) {
+          defer.reject({error: "xmpp-config", message: "xmpp not configured"});
+        } else {
+          XMPP.config.set(config.host, config.port, config.secret);
+          verifyXMPPConnection().then(defer.resolve, defer.reject);
+        }
+      }, function () {
+        defer.reject({error: "xmpp-config", message: "xmpp not configured"});
+      });
+    } else {
+      verifyXMPConnection().then(defer.resolve, defer.reject);
+    }
+
+    return defer.promise;
+  }*/
+
   function verifySHRegistration() {
     var defer = $q.defer();
     console.log('dogtalk.verifyState [SHRegistration]');
