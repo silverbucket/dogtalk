@@ -6,7 +6,7 @@ var settingsCtrl = dogtalk.controller("settingsCtrl",
 function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
 
   $scope.sockethub = {
-    config: SH.config,
+    config: SH.config.data,
     saving: false,
     show: function () {
       //var cfg = SH.config.get();
@@ -21,7 +21,22 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
       console.log('saveSockethub: ', config);
       $scope.sockethub.saving = true;
       // validation ?
-      remoteStorage.sockethub.writeConfig({
+      SH.config.set($scope.sockethub.config.host,
+                    parseInt($scope.sockethub.config.port, null),
+                    $scope.sockethub.config.secret).then(function () {
+        console.log('config saved to remotestorage');
+        $scope.sockethub.config.host = config.host;
+        $scope.sockethub.config.port = config.port;
+        $scope.sockethub.config.secret = config.secret;
+        console.log("closing modalwindow");
+        $scope.sockethub.saving = false;
+        $rootScope.$broadcast('closeModalSettingsSockethub');
+        $location.path('/');
+      }, function () {
+        console.log('error saving config to remoteStorage!');
+      });
+
+     /* remoteStorage.sockethub.writeConfig({
         host: $scope.sockethub.config.host,
         port: parseInt($scope.sockethub.config.port, null),
         secret: $scope.sockethub.config.secret
@@ -36,7 +51,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
         $location.path('/');
       }, function () {
         console.log('error saving config to remoteStorage!');
-      });
+      }); */
     }
   };
 

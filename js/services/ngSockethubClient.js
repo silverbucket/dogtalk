@@ -1,6 +1,6 @@
 angular.module('ngSockethubClient', ['ngRemoteStorageClient']).
-factory('SH', ['$rootScope', '$q',
-function ($rootScope, $q) {
+factory('SH', ['$rootScope', '$q', 'RS',
+function ($rootScope, $q, RS) {
 
   var sc;
 
@@ -21,14 +21,38 @@ function ($rootScope, $q) {
   }
 
   function setConfig(host, port, secret) {
+    var defer = $q.defer();
+
     console.log('SH.setConfig: '+host+', '+port+', '+secret);
     config.host = host;
     config.port = port;
     config.secret = secret;
+
+    RS.writeConfig('sockethub', {
+      host: host,
+      port: port,
+      secret: secret
+    }).then(function () {
+
+    }, function () {
+
+    });
+    return defer.promise;
   }
 
   function getConfig() {
-    return config;
+    var defer = $q.defer();
+    if (!existsConfig()) {
+      RS.getConfig('sockethub').then(function (cfg) {
+        config.host = cfg.host;
+        config.port = cfg.port;
+        config.secret = cfg.secret;
+        defer.resolve(cfg);
+      }, defer.reject);
+    } else {
+      defer.resolve(config);
+    }
+    return defer.promise;
   }
 
   function isConnected() {
@@ -85,12 +109,15 @@ function ($rootScope, $q) {
     return defer.promise;
   }
 
-  config.get = getConfig;
-  config.set = setConfig;
-  config.exists = existsConfig;
+  var configFuncs = {
+    get: getConfig,
+    set: setConfig,
+    exists: existsConfig,
+    data: config
+  };
 
   return {
-    config: config,
+    config: configFuncs,
     connect: connect,
     register: register,
     isConnected: isConnected,

@@ -18,7 +18,7 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
     }
 
     return defer.promise;
-  }
+  }*/
 
   function verifyXMPPConfig() {
     var defer = $q.defer();
@@ -41,7 +41,7 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
     }
 
     return defer.promise;
-  }*/
+  }
 
   function verifySHRegistration() {
     var defer = $q.defer();
@@ -83,13 +83,13 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
     if (!RS.isConnected()) {
       defer.reject({error: "remotestorage-connect", message: "not connected to remoteStorage"});
     } else if (!SH.config.exists()) {
-      RS.getConfig().then(function (config) {
-        if (!config) {
-          defer.reject({error: "sockethub-config", message: "sockethub not configured"});
-        } else {
-          SH.config.set(config.host, config.port, config.secret);
-          verifySHConnection().then(defer.resolve, defer.reject);
-        }
+      SH.config.get().then(function (config) {
+        //if (!config) {
+        //  defer.reject({error: "sockethub-config", message: "sockethub not configured"});
+        //} else {
+        //SH.config.set(config.host, config.port, config.secret);
+        verifySHConnection().then(defer.resolve, defer.reject);
+        //}
       }, function () {
         defer.reject({error: "sockethub-config", message: "sockethub not configured"});
       });

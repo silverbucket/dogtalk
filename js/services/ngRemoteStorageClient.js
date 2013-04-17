@@ -16,17 +16,36 @@ function ($rootScope, $q) {
     },
     getConfig: function (module) {
       var defer = $q.defer();
-      remoteStorage.onWidget('ready', function() {
-        remoteStorage.sockethub.getConfig().then(function (config) {
+      remoteStorage.on('ready', function() {
+        remoteStorage[module].getConfig().then(function (config) {
           $rootScope.$apply(function () {
-            defer.resolve(config);
+            if (!config) {
+              defer.reject();
+            } else {
+              defer.resolve(config);
+            }
           });
         }, defer.reject);
       });
       return defer.promise;
     },
-    writeConfig: function (config) {
+    writeConfig: function (module, config) {
+      var defer = $q.defer();
 
+      remoteStorage.sockethub.writeConfig({
+        host: $scope.sockethub.config.host,
+        port: parseInt($scope.sockethub.config.port, null),
+        secret: $scope.sockethub.config.secret
+      }).then(function () {
+        $rootScope.$apply(function () {
+          defer.resolve();
+        });
+      }, function () {
+        $rootScope.$apply(function () {
+          defer.reject();
+        });
+      });
+      return defer.promise;
     }
   };
 }]);
