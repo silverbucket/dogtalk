@@ -53,6 +53,7 @@
     };
 
     function processCallback(o) {
+      //console.log('processCallback',o);
       if ((typeof this.ridDB[o.rid] !== 'undefined') &&
           (typeof this.ridDB[o.rid].promise === 'object')) {
         if ((typeof o.status !== 'undefined') &&
@@ -126,7 +127,7 @@
       function __sendAttempt() {
         sock.send(json_o);
         setTimeout(function () {
-          _this.log(4, o.rid, "checking confirmation status");
+          _this.log(4, o.rid, "checking confirmation status for rid:"+o.rid);
           if ((typeof _this.ridDB[o.rid].received === "undefined") ||
               (!_this.ridDB[o.rid].received)) {
             _this.log(3, o.rid, "confirmation not received after "+_this.cfg.confirmationTimeout+'ms, sending again.');
@@ -161,7 +162,7 @@
     };
 
     sock.onmessage = function (e) {
-      _this.log(4, null, 'onmessage fired');
+      //_this.log(4, null, 'onmessage fired');
 
       var data = JSON.parse(e.data);
       var now = new Date().getTime();
