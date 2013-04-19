@@ -9,16 +9,12 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
     config: SH.config.data,
     saving: false,
     show: function () {
-      //var cfg = SH.config.get();
-      //$scope.sockethub.config.host = cfg.host;
-      //$scope.sockethub.config.port = cfg.port;
-      //$scope.sockethub.config.secret = cfg.secret;
-      console.log('showSockethub: ', $scope.sockethub.config.host);
-      console.log('showSockethub: ', $scope.sockethub.config);
+      //console.log('showSockethub: ', $scope.sockethub.config.host);
+      //console.log('showSockethub: ', $scope.sockethub.config);
       $rootScope.$broadcast('showModalSettingsSockethub', {locked: false});
     },
     save: function (config) {
-      console.log('saveSockethub: ', config);
+      //console.log('saveSockethub: ', config);
       $scope.sockethub.saving = true;
       // validation ?
       SH.config.set($scope.sockethub.config.host,
@@ -35,23 +31,6 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
       }, function () {
         console.log('error saving config to remoteStorage!');
       });
-
-     /* remoteStorage.sockethub.writeConfig({
-        host: $scope.sockethub.config.host,
-        port: parseInt($scope.sockethub.config.port, null),
-        secret: $scope.sockethub.config.secret
-      }).then (function () {
-        console.log('config saved to remotestorage');
-        $scope.sockethub.config.host = config.host;
-        $scope.sockethub.config.port = config.port;
-        $scope.sockethub.config.secret = config.secret;
-        console.log("closing modalwindow");
-        $scope.sockethub.saving = false;
-        $rootScope.$broadcast('closeModalSettingsSockethub');
-        $location.path('/');
-      }, function () {
-        console.log('error saving config to remoteStorage!');
-      }); */
     }
   };
 
@@ -79,18 +58,6 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
        $scope.xmpp.saving = false;
        $rootScope.$broadcast('closeModalSettingsXmpp');
       });
-      /*remoteStorage.messages.setAccount('xmpp',
-            $scope.xmpp.account.username+'/'+$scope.xmpp.account.resource,
-            $scope.xmpp.account).
-      then(function () {
-        console.log('xmpp config saved to remotestorage');
-        console.log("closing modalwindow");
-        $scope.xmpp.saving = false;
-        $rootScope.$broadcast('closeModalSettingsXmpp');
-        $location.path('/');
-      }, function () {
-        console.log('error saving config to remoteStorage!');
-      });*/
     }
   };
 

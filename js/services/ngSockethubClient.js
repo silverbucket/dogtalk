@@ -28,7 +28,7 @@ function ($rootScope, $q, RS) {
     config.port = port;
     config.secret = secret;
 
-    RS.writeConfig('sockethub', config).then(defer.resolve, defer.reject);
+    RS.call('sockethub', 'writeConfig', [config]).then(defer.resolve, defer.reject);
 
     return defer.promise;
   }
@@ -36,7 +36,7 @@ function ($rootScope, $q, RS) {
   function getConfig() {
     var defer = $q.defer();
     if (!existsConfig()) {
-      RS.getConfig('sockethub').then(function (cfg) {
+      RS.call('sockethub', 'getConfig', []).then(function (cfg) {
         config.host = cfg.host;
         config.port = cfg.port;
         config.secret = cfg.secret;

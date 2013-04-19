@@ -14,49 +14,6 @@ function ($rootScope, $q) {
         return true;
       }
     },
-    getConfig: function (module) {
-      var defer = $q.defer();
-      remoteStorage.on('ready', function() {
-        remoteStorage[module].getConfig().then(function (config) {
-          $rootScope.$apply(function () {
-            if (!config) {
-              defer.reject();
-            } else {
-              defer.resolve(config);
-            }
-          });
-        }, defer.reject);
-      });
-      return defer.promise;
-    },
-    writeConfig: function (module, config) {
-      var defer = $q.defer();
-
-      remoteStorage[module].writeConfig(config).then(function() {
-        $rootScope.$apply(function () {
-          defer.resolve();
-        });
-      }, function () {
-        $rootScope.$apply(function () {
-          defer.reject();
-        });
-      });
-      return defer.promise;
-    },
-    setAccount: function (module, type, name, config) {
-      var defer = $q.defer();
-      console.log('setaccount! '+module+':'+type+':config:', config);
-      remoteStorage[module].setAccount('xmpp', type, config).then(function() {
-        $rootScope.$apply(function () {
-          defer.resolve();
-        });
-      }, function () {
-        $rootScope.$apply(function () {
-          defer.reject();
-        });
-      });
-      return defer.promise;
-    },
     call: function (module, func, params) {
       var defer = $q.defer();
       console.log('RS.call('+module+', '+func+', params):',params);
