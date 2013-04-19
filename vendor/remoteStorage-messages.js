@@ -54,7 +54,7 @@ remoteStorage.defineModule('messages', function(privateClient, publicClient) {
         });
       },
 
-      getAccounts: function(type) {
+      getAccounts: function (type) {
         if(type) {
           return privateClient.getAll('accounts/' + type + '/');
         } else {
@@ -77,7 +77,8 @@ remoteStorage.defineModule('messages', function(privateClient, publicClient) {
       },
 
       getAccount: function(type, name) {
-        return privateClient.getObject('accounts/' + type + '/' + name).
+        var urlEncodedName = encodeURIComponent(name);
+        return privateClient.getObject('accounts/' + type + '/' + urlEncodedName).
           then(function(account) {
             return account || privateClient.buildObject('account', {
               name: name
@@ -86,8 +87,10 @@ remoteStorage.defineModule('messages', function(privateClient, publicClient) {
       },
 
       setAccount: function(type, name, config) {
+        var urlEncodedName = encodeURIComponent(name);
+        console.log('rsmodule:'+type+':'+urlEncodedName+':config:', config);
         return privateClient.storeObject(
-          'account', 'accounts/' + type + '/' + name, config
+          'account', 'accounts/' + type + '/' + urlEncodedName, config
         );
       },
 
