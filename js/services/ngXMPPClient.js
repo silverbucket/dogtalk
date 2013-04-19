@@ -1,5 +1,5 @@
 angular.module('ngXMPPClient', ['ngSockethubClient', 'ngRemoteStorageClient']).
-factory('SH', ['$rootScope', '$q', 'RS', 'SH',
+factory('XMPP', ['$rootScope', '$q', 'RS', 'SH',
 function ($rootScope, $q, RS, SH) {
 
   var sc;
@@ -15,6 +15,7 @@ function ($rootScope, $q, RS, SH) {
   function existsConfig() {
     return verifyConfig(config);
   }
+
   function verifyConfig(cfg) {
     if (cfg) {
       check = cfg;
@@ -36,13 +37,13 @@ function ($rootScope, $q, RS, SH) {
     var defer = $q.defer();
 
     if (verifyConfig(cfg)) {
+      console.log('cfg:',cfg);
       config.username = cfg.username;
       config.password = cfg.password;
       config.port = cfg.port;
       config.resource = cfg.resource;
       config.server = cfg.server;
-
-      RS.setAccount('messages', 'xmpp', config.username, config).then(defer.resolve, defer.reject);
+      RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(defer.resolve, defer.reject);
     } else {
       defer.reject();
     }
@@ -52,11 +53,11 @@ function ($rootScope, $q, RS, SH) {
   function getConfig() {
     var defer = $q.defer();
     if (!existsConfig()) {
-      RS.getConfig('sockethub').then(function (cfg) {
-        config.host = cfg.host;
-        config.port = cfg.port;
-        config.secret = cfg.secret;
-        defer.resolve(cfg);
+      RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (account) {
+        console.log('account:', account);
+        console.log('account.username:', account.username);
+        setConfig(account);
+        defer.resolve(config);
       }, defer.reject);
     } else {
       defer.resolve(config);

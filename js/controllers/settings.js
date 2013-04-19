@@ -2,8 +2,8 @@
  * settings
  ***********/
 var settingsCtrl = dogtalk.controller("settingsCtrl",
-['$scope', '$route', '$routeParams', '$location', '$rootScope', 'SH', 'RS',
-function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
+['$scope', '$route', '$routeParams', '$location', '$rootScope', 'SH', 'XMPP',
+function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
 
   $scope.sockethub = {
     config: SH.config.data,
@@ -57,7 +57,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
 
   $scope.xmpp = {
     // Reference to the account managed by the "xmpp" service
-    account: {}, //xmpp.account,
+    account: XMPP.config.data, //xmpp.account,
     // Boolean flag, used to disable the "Save" button, while waiting for
     // xmpp.saveAccount to finish.
     saving: false,
@@ -70,11 +70,16 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
     // Saves the current account data. Bound to the "Save" button
     save: function() {
       $scope.xmpp.saving = true;
-      //xmpp.saveAccount($scope.xmpp.account).then(function() {
-      //  $scope.xmpp.saving = false;
-      //  $rootScope.$broadcast('closeModalSettingsXmpp');
-      //});
-      remoteStorage.messages.setAccount('xmpp',
+      XMPP.config.set($scope.xmpp.account).then(function(cfg) {
+       $scope.xmpp.account.username = cfg.username;
+       $scope.xmpp.account.password = cfg.password;
+       $scope.xmpp.account.server = cfg.server;
+       $scope.xmpp.account.resource = cfg.resource;
+       $scope.xmpp.account.port = cfg.port;
+       $scope.xmpp.saving = false;
+       $rootScope.$broadcast('closeModalSettingsXmpp');
+      });
+      /*remoteStorage.messages.setAccount('xmpp',
             $scope.xmpp.account.username+'/'+$scope.xmpp.account.resource,
             $scope.xmpp.account).
       then(function () {
@@ -85,7 +90,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, RS) {
         $location.path('/');
       }, function () {
         console.log('error saving config to remoteStorage!');
-      });
+      });*/
     }
   };
 

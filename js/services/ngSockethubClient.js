@@ -28,15 +28,8 @@ function ($rootScope, $q, RS) {
     config.port = port;
     config.secret = secret;
 
-    RS.writeConfig('sockethub', {
-      host: host,
-      port: port,
-      secret: secret
-    }).then(function () {
+    RS.writeConfig('sockethub', config).then(defer.resolve, defer.reject);
 
-    }, function () {
-
-    });
     return defer.promise;
   }
 

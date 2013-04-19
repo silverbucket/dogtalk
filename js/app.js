@@ -1,8 +1,8 @@
-var dogtalk = angular.module('dogtalk', ['ngSockethubClient', 'ngRemoteStorageClient']);
+var dogtalk = angular.module('dogtalk', ['ngSockethubClient', 'ngRemoteStorageClient', 'ngXMPPClient']);
 
 
 
-dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
+dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP, $q) {
 
   // verify XMPP connection
   /*function verifyXMPPConnection() {
@@ -20,24 +20,31 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
     return defer.promise;
   }*/
 
+
+  // XMPP CONNECT
+
+
+  // SET XMPP CREDS
+
   function verifyXMPPConfig() {
     var defer = $q.defer();
     console.log('dogtalk.verifyState [XMPPConfig]');
 
     // verify XMPP config exists
     if (!XMPP.config.exists()) {
-      XMPP.getConfig().then(function (config) {
+      XMPP.config.get().then(function (config) {
         if (!config) {
           defer.reject({error: "xmpp-config", message: "xmpp not configured"});
         } else {
-          XMPP.config.set(config.host, config.port, config.secret);
-          verifyXMPPConnection().then(defer.resolve, defer.reject);
+          defer.resolve();
+         // verifyXMPPConnection().then(defer.resolve, defer.reject);
         }
       }, function () {
         defer.reject({error: "xmpp-config", message: "xmpp not configured"});
       });
     } else {
-      verifyXMPConnection().then(defer.resolve, defer.reject);
+      //verifyXMPConnection().then(defer.resolve, defer.reject);
+      defer.resolve();
     }
 
     return defer.promise;
@@ -48,11 +55,13 @@ dogtalk.factory('verifyState', ['SH', 'RS', '$q', function (SH, RS, $q) {
     console.log('dogtalk.verifyState [SHRegistration]');
 
     if (!SH.isRegistered()) {
-      SH.register().then(defer.resolve, function (errMsg) {
+      SH.register().then(function () {
+        verifyXMPPConfig().then(defer.resolve, defer.reject);
+      }, function (errMsg) {
         defer.reject({error:"sockethub-register", message: "failed registering with sockethub: "+errMsg});
       });
     } else {
-      defer.resolve();
+      verifyXMPPConfig().then(defer.resolve, defer.reject);
     }
 
     return defer.promise;

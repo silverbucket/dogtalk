@@ -32,11 +32,7 @@ function ($rootScope, $q) {
     writeConfig: function (module, config) {
       var defer = $q.defer();
 
-      remoteStorage.sockethub.writeConfig({
-        host: $scope.sockethub.config.host,
-        port: parseInt($scope.sockethub.config.port, null),
-        secret: $scope.sockethub.config.secret
-      }).then(function () {
+      remoteStorage[module].writeConfig(config).then(function() {
         $rootScope.$apply(function () {
           defer.resolve();
         });
@@ -45,6 +41,41 @@ function ($rootScope, $q) {
           defer.reject();
         });
       });
+      return defer.promise;
+    },
+    setAccount: function (module, type, name, config) {
+      var defer = $q.defer();
+      console.log('setaccount! '+module+':'+type+':config:', config);
+      remoteStorage[module].setAccount('xmpp', type, config).then(function() {
+        $rootScope.$apply(function () {
+          defer.resolve();
+        });
+      }, function () {
+        $rootScope.$apply(function () {
+          defer.reject();
+        });
+      });
+      return defer.promise;
+    },
+    call: function (module, func, params) {
+      var defer = $q.defer();
+      console.log('RS.call('+module+', '+func+', params):',params);
+
+      try {
+        var promise = remoteStorage[module][func].apply(null, params);
+        promise.then(function (res) {
+          $rootScope.$apply(function () {
+            defer.resolve(res);
+          });
+        }, function (err) {
+          $rootScope.$apply(function () {
+            defer.reject(err);
+          });
+        });
+      } catch (e) {
+        defer.reject(e);
+      }
+
       return defer.promise;
     }
   };
@@ -93,7 +124,7 @@ function ($scope, $route, $routeParams, $location, RS) {
       };
     });
 
-    remoteStorage.claimAccess('sockethub', 'rw').then(function() {
+    remoteStorage.claimAccess({sockethub:'rw',messages:'rw'}).then(function () {
       remoteStorage.displayWidget('remotestorage-connect', {
         redirectUri: window.location.protocol + '//' + window.location.host + '/rscallback.html'
       });
