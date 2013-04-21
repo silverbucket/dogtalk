@@ -211,6 +211,12 @@
 
             if ((typeof data.status !== "undefined") && (data.status === false)) {
               _this.log(3, data.rid, "rejecting promise");
+              if (!_this.ridDB[data.rid]['received']) {
+                // sometimes we get a rejection before the confirm, in which case
+                // we need to make sure we set received so that our verification
+                // checks know to stop
+                _this.ridDB[data.rid]['received'] = now;
+              }
               handler.reject(data);
             } else {
               if (data.verb === 'register') {
