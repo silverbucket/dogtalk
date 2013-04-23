@@ -39,7 +39,8 @@
         <section id="talk" class="page">
           <div class="container-fluid">
             <div class="row-fluid">
-              <div class="span4 contacts">
+              <div class="span4 contacts" ng-controller="talkCtrl">
+                <p>presence: {{ model.presence }}</p>
                 <h4>Contacts</h4>
                 <div class="well sidebar-nav">
                   <ul class="nav nav-list">
