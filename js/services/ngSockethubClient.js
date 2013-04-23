@@ -65,7 +65,6 @@ function ($rootScope, $q, RS) {
   }
 
   function register() {
-    //console.log('ngSockethubClient.register() called');
     var defer = $q.defer();
     sc.register({
       secret: config.secret
@@ -83,13 +82,24 @@ function ($rootScope, $q, RS) {
 
   function connect() {
     var defer = $q.defer();
-    //console.log('ngSockethubClient.connect() called');
     SockethubClient.connect({
       host: 'ws://' + config.host + ':' + config.port + '/sockethub',
       confirmationTimeout: 3000,   // timeout in miliseconds to wait for confirm
       enablePings: true            // good for keepalive
     }).then(function (connection) {
       sc = connection;
+      sc.on('message', function (data) {
+        console.log('SH received message: ', data);
+      });
+      sc.on('error', function (data) {
+        console.log('SH received error: ', data);
+      });
+      sc.on('response', function (data) {
+        console.log('SH received response: ', data);
+      });
+      sc.on('close', function (data) {
+        console.log('SH received close: ', data);
+      });
       $rootScope.$apply(function () {
         defer.resolve();
       });
@@ -100,6 +110,48 @@ function ($rootScope, $q, RS) {
       });
     });
     return defer.promise;
+  }
+
+  function sendSet(platform, type, index, object) {
+    var defer = $q.defer();
+    var data = {};
+    data[type] = {};
+    data[type][index] = object;
+    sc.set(platform, data).then(function () {
+      $rootScope.$apply(function () {
+        defer.resolve();
+      });
+    }, function () {
+      $rootScope.$apply(function () {
+        defer.reject();
+      });
+    });
+
+    return defer.promise;
+  }
+
+  function sendSubmit(obj, timeout) {
+    var defer = $q.defer();
+
+    sc.submit(obj, timeout).then(function () {
+      $rootScope.$apply(function () {
+        defer.resolve();
+      });
+
+    }, function (resp) {
+      console.log('ngSockethubClient submit rejection response: ', resp);
+      $rootScope.$apply(function () {
+        defer.reject(resp.message);
+      });
+    });
+
+    return defer.promise;
+  }
+
+  function on(type, func) {
+    sc.on(type, function () {
+      $rootScope.$apply(func);
+    });
   }
 
   var configFuncs = {
@@ -114,6 +166,9 @@ function ($rootScope, $q, RS) {
     connect: connect,
     register: register,
     isConnected: isConnected,
-    isRegistered: isRegistered
+    isRegistered: isRegistered,
+    set: sendSet,
+    submit: sendSubmit,
+    on: on
   };
 }]);

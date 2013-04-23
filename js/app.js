@@ -22,9 +22,25 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
 
 
   // XMPP CONNECT
+  function verifyXMPPConnect() {
+    var defer = $q.defer();
+    console.log('dogtalk.verifyState [XMPPConnect]');
 
+    // verify XMPP config exists
+    if (!XMPP.presence.get()) {
+      XMPP.presence.set('available').then(function () {
+        console.log('win');
+        defer.resolve();
+      }, function (errMsg) {
+        console.log('loose: ', errMsg);
+        defer.reject({error: "xmpp-connect", message: errMsg});
+      });
+    } else {
+      defer.resolve();
+    }
 
-  // SET XMPP CREDS
+    return defer.promise;
+  }
 
   function verifyXMPPConfig() {
     var defer = $q.defer();
@@ -36,15 +52,13 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
         if (!config) {
           defer.reject({error: "xmpp-config", message: "xmpp not configured"});
         } else {
-          defer.resolve();
-         // verifyXMPPConnection().then(defer.resolve, defer.reject);
+          verifyXMPPConnect().then(defer.resolve, defer.reject);
         }
       }, function () {
         defer.reject({error: "xmpp-config", message: "xmpp not configured"});
       });
     } else {
-      //verifyXMPConnection().then(defer.resolve, defer.reject);
-      defer.resolve();
+      verifyXMPPConnect().then(defer.resolve, defer.reject);
     }
 
     return defer.promise;
