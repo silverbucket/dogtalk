@@ -16,7 +16,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
     save: function (config) {
       //console.log('saveSockethub: ', config);
       $scope.sockethub.saving = true;
-      // validation ?
+      // validation
       SH.config.set($scope.sockethub.config.host,
                     parseInt($scope.sockethub.config.port, null),
                     $scope.sockethub.config.secret).then(function () {
@@ -49,7 +49,7 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
     // Saves the current account data. Bound to the "Save" button
     save: function() {
       $scope.xmpp.saving = true;
-      XMPP.config.set($scope.xmpp.account).then(function(cfg) {
+      XMPP.config.set($scope.xmpp.account).then(function (cfg) {
        $scope.xmpp.account.username = cfg.username;
        $scope.xmpp.account.password = cfg.password;
        $scope.xmpp.account.server = cfg.server;
