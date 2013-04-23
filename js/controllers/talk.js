@@ -1,10 +1,11 @@
 /*******
  * talk
  *******/
-var talkCtrl = dogtalk.controller("talkCtrl",  ['$scope', '$route', '$routeParams', '$location',
-function ($scope, $route, $routeParams, $location) {
+var talkCtrl = dogtalk.controller("talkCtrl",  ['$scope', '$route', '$routeParams', '$location', 'XMPP',
+function ($scope, $route, $routeParams, $location, XMPP) {
   $scope.model = {
-    message: "this is the main page fool!"
+    message: "this is the main page fool!",
+    presence: XMPP.presence.data
   };
 
 }]);
