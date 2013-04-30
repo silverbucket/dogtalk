@@ -110,6 +110,7 @@
           // response is a success
           if (data.verb === 'register') {
             _this.state.isRegistered = true;
+            cmd.log(4, 'register object: ' + JSON.stringify(data));
           }
           cmd.log(2, "fulfilling promise");
           cmd.promise.fulfill(data);
