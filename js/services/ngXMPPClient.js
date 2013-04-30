@@ -45,13 +45,23 @@ function ($rootScope, $q, RS, SH) {
       config.port = cfg.port;
       config.resource = cfg.resource;
       config.server = cfg.server;
-      SH.set('xmpp', 'credentials', cfg.username, config).then(function () {
+
+      if (SH.isConnected()) {
+
+        SH.set('xmpp', 'credentials', cfg.username, config).then(function () {
+          RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(function () {
+            defer.resolve(cfg);
+          }, defer.reject);
+        }, function () {
+          defer.reject();
+        });
+      } else {
         RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(function () {
           defer.resolve(cfg);
         }, defer.reject);
-      }, function () {
-        defer.reject();
-      });
+      }
+
+
     } else {
       defer.reject();
     }

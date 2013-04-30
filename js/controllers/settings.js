@@ -64,9 +64,9 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
 }] );
 
 settingsCtrl.loadSettings = function (verifyState, $q) {
-    console.log('settingsCtrl conversations');
+    console.log('settingsCtrl loadSettings');
     var defer = $q.defer();
-    verifyState().then(function () {
+    verifyState(true).then(function () {
       defer.resolve();
     }, function () {
       defer.resolve();

@@ -170,6 +170,6 @@ function ($rootScope, $q, RS) {
     isRegistered: isRegistered,
     set: sendSet,
     submit: sendSubmit,
-    on: on
+    on: on,
   };
 }]);

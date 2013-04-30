@@ -43,17 +43,21 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
     return defer.promise;
   }
 
-  function verifyXMPPConfig() {
+  function verifyXMPPConfig(cfgOnly) {
     var defer = $q.defer();
     console.log('dogtalk.verifyState [XMPPConfig]');
 
     // verify XMPP config exists
     if (!XMPP.config.exists()) {
-      XMPP.config.get().then(function (config) {
+      XMPP.config.get(cfgOnly).then(function (config) {
         if ((!config) || (typeof config.username === 'undefined')) {
           defer.reject({error: "xmpp-config", message: "xmpp not configured"});
         } else {
-          verifyXMPPConnect().then(defer.resolve, defer.reject);
+          if (cfgOnly) {
+            defer.resolve();
+          } else {
+            verifyXMPPConnect().then(defer.resolve, defer.reject);
+          }
         }
       }, function () {
         defer.reject({error: "xmpp-config", message: "xmpp not configured"});
@@ -99,26 +103,29 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
     return defer.promise;
   }
 
-  return function () {
+  return function (cfgOnly) {
     var defer = $q.defer();
-    console.log('dogtalk.verifyState [RSConfig]');
+    console.log('dogtalk.verifyState [RSConfig ('+cfgOnly+')]');
 
     // verify remoteStorage connection
     if (!RS.isConnected()) {
       defer.reject({error: "remotestorage-connect", message: "not connected to remoteStorage"});
     } else if (!SH.config.exists()) {
       SH.config.get().then(function (config) {
-        //if (!config) {
-        //  defer.reject({error: "sockethub-config", message: "sockethub not configured"});
-        //} else {
-        //SH.config.set(config.host, config.port, config.secret);
-        verifySHConnection().then(defer.resolve, defer.reject);
-        //}
+        if (cfgOnly) {
+          verifyXMPPConfig(true).then(defer.resolve, defer.reject);
+        } else {
+          verifySHConnection().then(defer.resolve, defer.reject);
+        }
       }, function () {
         defer.reject({error: "sockethub-config", message: "sockethub not configured"});
       });
     } else {
-      verifySHConnection().then(defer.resolve, defer.reject);
+      if (cfgOnly) {
+        verifyXMPPConfig(true).then(defer.resolve, defer.reject);
+      } else {
+        verifySHConnection().then(defer.resolve, defer.reject);
+      }
     }
 
     return defer.promise;
