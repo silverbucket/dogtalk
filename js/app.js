@@ -29,11 +29,10 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
     // verify XMPP config exists
     if (!XMPP.presence.get()) {
       XMPP.presence.set('available').then(function () {
-        console.log('win');
-        XMPP.contacts.listen();
+        console.log('completed verifyState sucessfully');
         defer.resolve();
       }, function (errMsg) {
-        console.log('loose: ', errMsg);
+        console.log('failed verifyState: ' + errMsg);
         defer.reject({error: "xmpp-connect", message: errMsg});
       });
     } else {
@@ -143,7 +142,7 @@ dogtalk.config(['$routeProvider', function ($routeProvider) {
         loadSettings: settingsCtrl.loadSettings
       }
     }).
-    when('/:id', {
+    when('/:address', {
       templateUrl: "talk.html",
       controller: "talkCtrl",
       resolve: {

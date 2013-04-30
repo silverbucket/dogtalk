@@ -103,8 +103,8 @@ function ($rootScope, $q, RS, SH) {
         address: config.username
       },
       object: {
-        type: state,
-        status: statusText
+        state: state,
+        statusText: statusText
       }
     }, 15000).then(function () {
       presence.state = state;
@@ -118,20 +118,51 @@ function ($rootScope, $q, RS, SH) {
   }
 
 
-  function listenerContacts() {
+  function initListener() {
     SH.on('message', function (data) {
       console.log('XMPP getting message: ', data);
-      if ((data.platform === 'xmpp') &&
-          (data.verb === 'update')) {
-        if (data.actor !== config.username) {
+      if (data.actor !== config.username) {  // someone else interacting with us
+
+        // contact list & presence update
+        if (!contacts[data.actor.address]) {
           contacts[data.actor.address] = {
-            name: data.actor.address, // how should we get full name from xmpp?
-            address: data.actor.address,
-            state: data.object.state,
-            statusText: data.object.statusText,
-            target: data.target[0]
+            conversation: []
           };
         }
+
+        if ((data.platform === 'xmpp') &&
+            (data.verb === 'update')) {
+
+          contacts[data.actor.address].address = data.actor.address;
+          //contacts[data.actor.address].target = data.target[0];
+
+          //name
+          if (data.actor.name) {
+            contacts[data.actor.address].name = data.actor.name;
+          } else if (!contacts[data.actor.address].name) {
+            contacts[data.actor.address].name = data.actor.address;
+          }
+
+          //state
+          if (data.object.state) {
+            contacts[data.actor.address].state = data.object.state;
+          } else if (!contacts[data.actor.address].state) {
+            contacts[data.actor.address].state = 'online';
+          }
+
+          //statusText
+          if (data.object.statusText) {
+            contacts[data.actor.address].statusText = data.object.statusText;
+          } else if (!contacts[data.actor.address].statusText) {
+            contacts[data.actor.address].statusText = '';
+          }
+
+        } else if ((data.platform === 'xmpp') &&
+                   (data.verb === 'send')) {
+          // a new message from someone on the outside
+          contacts[data.actor.address].conversation.unshift(data);
+        }
+
       }
     });
   }
@@ -155,8 +186,8 @@ function ($rootScope, $q, RS, SH) {
       data: presence
     },
     contacts: {
-      data: contacts,
-      listen: listenerContacts
-    }
+      data: contacts
+    },
+    initListener: initListener
   };
 }]);

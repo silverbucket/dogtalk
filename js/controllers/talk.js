@@ -3,11 +3,16 @@
  *******/
 var talkCtrl = dogtalk.controller("talkCtrl",  ['$scope', '$route', '$routeParams', '$location', 'XMPP',
 function ($scope, $route, $routeParams, $location, XMPP) {
+  XMPP.initListener();  // initialize listener for incoming xmpp platform messages
+
   $scope.model = {
-    message: "this is the main page fool!",
     presence: XMPP.presence.data,
-    contacts: XMPP.contacts.data
+    contacts: XMPP.contacts.data,
+    targetAddress: ($routeParams.address) ? $routeParams.address : 'none'
   };
+
+  $scope.model.targetName = ($scope.model.contacts[$scope.model.targetAddress]) ? $scope.model.contacts[$scope.model.targetAddress].name : '';
+  $scope.model.history = $scope.model.contacts[$scope.model.targetAddress];
 
 }]);
 

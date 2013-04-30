@@ -1,4 +1,4 @@
-dogtalk.directive("loading", ['$rootScope', function ($rootScope) {
+dogtalk.directive("loading", ['$rootScope', 'XMPP', function ($rootScope, XMPP) {
   return {
     restrict: "E",
     template: '<div class="loading" ng-show="isLoading">'+
@@ -12,8 +12,6 @@ dogtalk.directive("loading", ['$rootScope', function ($rootScope) {
       });
 
       $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
-        //console.log('directive routeChangeError: ', event, current, previous, rejection);
-        //console.log('directive routeChangeError: ', rejection);
         console.log('loading: directive routeChangeError');
         scope.isLoading = false;
       });
