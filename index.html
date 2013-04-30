@@ -32,6 +32,7 @@
 
       <error></error>
       <ng-view></ng-view>
+      <loading></loading>
 
 
       <!-- dogtalk main interface -->
@@ -86,10 +87,10 @@
             </div>
             <div class="row-fluid">
               <div class="span3 configitem">
-                <h4>Facebook</h4>
+
               </div>
               <div class="span3 configitem">
-                <h4>Twitter</h4>
+
               </div>
               <div class="span6"></div>
             </div>
@@ -170,21 +171,21 @@
                <div class="control-group">
                 <label for="server" class="control-label">Server</label>
                 <div class="controls">
-                  <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" required>
+                  <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
                 </div>
               </div>
 
               <div class="control-group">
                 <label for="resource" class="control-label">Resource</label>
                 <div class="controls">
-                  <input type="text" class="required input-large" name="resource" placeholder="Enter the resource string..." ng-model="xmpp.account.resource" required>
+                  <input type="text" class="required input-large" name="resource" placeholder="Enter the resource string..." value="Dogtalk" ng-model="xmpp.account.resource" required>
                 </div>
               </div>
 
               <div class="control-group">
                 <label for="port" class="control-label">Port</label>
                 <div class="controls">
-                  <input type="text" class="required input-large" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port" required>
+                  <input type="text" class="required input-large" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
                 </div>
               </div>
 
@@ -223,6 +224,7 @@
     <script type="text/javascript" src="js/controllers/talk.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/controllers/settings.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/directives/error.js?v=0.0.1"></script>
+    <script type="text/javascript" src="js/directives/loading.js?v=0.0.1"></script>
     <script type="text/javascript" src="js/emitters.js?v=0.0.1"></script>
   </body>
 </html>
