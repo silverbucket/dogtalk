@@ -149,8 +149,9 @@ function ($rootScope, $q, RS) {
   }
 
   function on(type, func) {
-    sc.on(type, function () {
-      $rootScope.$apply(func);
+    sc.on(type, function (data) {
+      //console.log('SH passing onmessage ', data);
+      $rootScope.$apply(func(data));
     });
   }
 

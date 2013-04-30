@@ -40,15 +40,12 @@
           <div class="container-fluid">
             <div class="row-fluid">
               <div class="span4 contacts" ng-controller="talkCtrl">
-                <p>presence: {{ model.presence }}</p>
+                <p>presence: {{ model.presence.state }}</p>
                 <h4>Contacts</h4>
+                <input type="text" data-ng-model="c.name" />
                 <div class="well sidebar-nav">
                   <ul class="nav nav-list">
-                    <li class="nav-header">Online</li>
-                    <li class="active"><a href="#">Link</a></li>
-                    <li><a href="#">Link</a></li>
-                    <li class="nav-header">Offline</li>
-                    <li><a href="#">Link</a></li>
+                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" class="active"><a href="#">{{ c.name }} - {{ c.state }} </a></li>
                   </ul>
                 </div>
               </div>
@@ -211,12 +208,6 @@
         </section>
       </script>
 
-
-    <footer>
-      <div class="footer">
-      <p>dogtalk is under development and might not work</p>
-      </div>
-    </footer>
 
     <script type="text/javascript" src="vendor/jquery.min.js?v=1.9.1"></script>
     <script type="text/javascript" src="vendor/angular.js?v=1.0.6"></script>

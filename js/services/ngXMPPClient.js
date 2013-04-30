@@ -12,6 +12,8 @@ function ($rootScope, $q, RS, SH) {
     port: ''
   };
 
+  var contacts = {};
+
   function existsConfig() {
     return verifyConfig(config);
   }
@@ -106,6 +108,24 @@ function ($rootScope, $q, RS, SH) {
   }
 
 
+  function listenerContacts() {
+    SH.on('message', function (data) {
+      console.log('XMPP getting message: ', data);
+      if ((data.platform === 'xmpp') &&
+          (data.verb === 'update')) {
+        if (data.actor !== config.username) {
+          contacts[data.actor.address] = {
+            name: data.actor.address, // how should we get full name from xmpp?
+            address: data.actor.address,
+            state: data.object.state,
+            statusText: data.object.statusText,
+            target: data.target[0]
+          };
+        }
+      }
+    });
+  }
+
 //
 // XXX TODO :
 // instead of having getters and setters, it may be better to expose the variables
@@ -123,6 +143,10 @@ function ($rootScope, $q, RS, SH) {
       set: setPresence,
       get: getPresence,
       data: presence
+    },
+    contacts: {
+      data: contacts,
+      listen: listenerContacts
     }
   };
 }]);

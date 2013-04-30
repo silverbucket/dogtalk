@@ -30,6 +30,7 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
     if (!XMPP.presence.get()) {
       XMPP.presence.set('available').then(function () {
         console.log('win');
+        XMPP.contacts.listen();
         defer.resolve();
       }, function (errMsg) {
         console.log('loose: ', errMsg);
@@ -49,7 +50,7 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
     // verify XMPP config exists
     if (!XMPP.config.exists()) {
       XMPP.config.get().then(function (config) {
-        if (!config) {
+        if ((!config) || (typeof config.username === 'undefined')) {
           defer.reject({error: "xmpp-config", message: "xmpp not configured"});
         } else {
           verifyXMPPConnect().then(defer.resolve, defer.reject);

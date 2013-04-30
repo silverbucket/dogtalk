@@ -5,7 +5,8 @@ var talkCtrl = dogtalk.controller("talkCtrl",  ['$scope', '$route', '$routeParam
 function ($scope, $route, $routeParams, $location, XMPP) {
   $scope.model = {
     message: "this is the main page fool!",
-    presence: XMPP.presence.data
+    presence: XMPP.presence.data,
+    contacts: XMPP.contacts.data
   };
 
 }]);
