@@ -160,11 +160,45 @@ function ($rootScope, $q, RS, SH) {
         } else if ((data.platform === 'xmpp') &&
                    (data.verb === 'send')) {
           // a new message from someone on the outside
+          console.log('added to conversation stack');
           contacts[data.actor.address].conversation.unshift(data);
         }
-
+    /*
+     * outgoing messsages will be coming through us, so do we need to set
+     * up a sockethub listener?
+     * maybe to validate receipt?
+     *
+     *} else { // us interacting with someone else
+      if ((data.platform === 'xmpp') &&
+          (data.verb === 'send')) {
+        // a new message from us to someone on else
+        contacts[data.target[0].address].conversation.unshift(data);
+      }*/
       }
     });
+  }
+
+
+  // send a message to sockethub
+  function sendMsg(from, to, text) {
+    var defer = $q.defer();
+    var obj = {
+      platform: 'xmpp',
+      verb: 'send',
+      actor: { address: from },
+      target: [{ address: to }],
+      object: {
+        text: text
+      }
+    };
+    SH.submit(obj).then(function () {
+      // add message to conversation stack
+      contacts[to].conversation.unshift(obj);
+      defer.resolve();
+    }, function (err) {
+      defer.reject(err);
+    });
+    return defer.promise;
   }
 
 //
@@ -188,6 +222,7 @@ function ($rootScope, $q, RS, SH) {
     contacts: {
       data: contacts
     },
-    initListener: initListener
+    initListener: initListener,
+    sendMsg: sendMsg
   };
 }]);

@@ -41,28 +41,39 @@
         <section id="talk" class="page">
           <div class="container-fluid">
             <div class="row-fluid">
+
               <div class="span2 contacts" ng-controller="talkCtrl">
                 <p>presence: {{ model.presence.state }}</p>
                 <h4>Contacts</h4>
                 <input type="text" data-ng-model="c.name" />
                 <div class="well sidebar-nav">
                   <ul class="nav nav-list">
-                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'"><a href="#/{{c.address}}">{{ c.name }} - {{ c.state }} <br /> &nbsp {{ c.address }} </a></li>
+                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" ng-class="conversationSwitch('{{ c.address }}')"><a href="#/talk/{{c.address}}">{{ c.name }} - {{ c.state }} <br /> &nbsp {{ c.address }} </a></li>
                   </ul>
                 </div>
               </div>
-              <div class="span10 messages"><p>chatting with: {{ model.targetName }} - {{ model.targetAddress }}</p>
-                <div class="conversation" ng-controller="talkCtrl">
-                  <div class="history" ng-repeat="msg in history">
-                    <div class="message">
-                      <div class="name">{{ msg.actor.name }}</div>
-                      <div class="address">msg.actor.address }}</div>
-                      <div class="text">{{ msg.object.text }}</div>
+
+              <div class="span10 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
+                <div class="conversation">
+
+                  <form name="sendMessage" class="form-horizontal" novalidate>
+                    <div class="input-append">
+                      <input class="span50" id="appendedInputButton" size="80" type="text" ng-model="model.sendText" required>
+                      <button class="btn btn-primary" type="button" ng-click="sendMsg(model.sendText)" ng-disabled="sendMessage.$invalid || model.saving">Send</button>
+                    </div>
+                  </form>
+
+                  <div class="history" ng-repeat="msg in model.currentConversation">
+                    <div class="message well">
+                      <div class="name"><small>{{ msg.actor.name }}</small></div>
+                      <div class="address"><small>{{ msg.actor.address }}</small></div>
+                      <div class="text"><p></p><p class="text-info">{{ msg.object.text }}<p></div>
                     </div>
                   </div>
-                  <div class="write"><input class="text" type"textarea" /></div>
+
                 </div>
               </div>
+
             </div>
           </div>
         </section>

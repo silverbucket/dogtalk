@@ -142,7 +142,14 @@ dogtalk.config(['$routeProvider', function ($routeProvider) {
         loadSettings: settingsCtrl.loadSettings
       }
     }).
-    when('/:address', {
+    when('/', {
+      templateUrl: "talk.html",
+      controller: "talkCtrl",
+      resolve: {
+        loadConversations: talkCtrl.loadConversations
+      }
+    }).
+    when('/talk/:address', {
       templateUrl: "talk.html",
       controller: "talkCtrl",
       resolve: {
@@ -150,8 +157,8 @@ dogtalk.config(['$routeProvider', function ($routeProvider) {
       }
     }).
     otherwise({
-    redirectTo: "/"
-  });
+      redirectTo: "/"
+    });
 }]);
 
 
