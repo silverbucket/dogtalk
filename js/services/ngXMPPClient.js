@@ -103,8 +103,8 @@ function ($rootScope, $q, RS, SH) {
         address: config.username
       },
       object: {
-        state: state,
-        statusText: statusText,
+        show: state,
+        status: statusText,
         roster: getRoster
       }
     }, 15000).then(function () {
