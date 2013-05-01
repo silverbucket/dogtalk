@@ -37,6 +37,7 @@ function ($scope, $route, $routeParams, $location, XMPP) {
   $scope.sendMsg = function (text) {
     $scope.model.saving = true;
     XMPP.sendMsg($scope.model.config.username, $scope.model.currentAddress, text).then(function () {
+      $scope.model.sendText = '';
       $scope.model.saving = false;
     }, function (err) {
       console.log('sendMsg error: '+err);
