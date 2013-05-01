@@ -59,7 +59,7 @@
                   <form name="sendMessage" class="form-horizontal" ng:submit="sendMsg(model.sendText)" novalidate>
                     <div class="input-append">
                       <input class="span50" id="appendedInputButton" size="80" type="text" ng-model="model.sendText" required>
-                      <button class="btn btn-primary" type="button" ng-disabled="sendMessage.$invalid || model.saving">Send</button>
+                      <button class="btn btn-primary" type="button" ng:click="sendMsg(model.sendText)" ng-disabled="sendMessage.$invalid || model.saving">Send</button>
                     </div>
                   </form>
 

@@ -93,7 +93,7 @@ function ($rootScope, $q, RS, SH) {
     return presence.state;
   }
 
-  function setPresence(state, statusText) {
+  function setPresence(state, statusText, getRoster) {
     var defer = $q.defer();
 
     SH.submit({
@@ -104,7 +104,8 @@ function ($rootScope, $q, RS, SH) {
       },
       object: {
         state: state,
-        statusText: statusText
+        statusText: statusText,
+        roster: getRoster
       }
     }, 15000).then(function () {
       presence.state = state;
