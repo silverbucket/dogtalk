@@ -15,7 +15,7 @@ However inially the focus is just on XMPP. When that is fully functional, IRC wi
 
 ## Current Status
 
-*** still under heavy development and considered pre-alpha **
+** still under heavy development and considered pre-alpha **
 
 Platforms:
 XMPP: sending and receiving is implemented. TODO: presence, chat status, add/remove from buddy list, multi-accounts
@@ -31,7 +31,7 @@ There is no production build for Dogtalk right now. Currently the only way to us
 
 #### Sockethub
 
-*** you must have a Sockethub instance running for Dogtalk to connect to ***
+** you must have a Sockethub instance running for Dogtalk to connect to **
 
 For instructions on installing Sockethub, please see the [Sockethub README](http://github.com/sockethub/sockethub/)
 
