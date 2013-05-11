@@ -22,6 +22,9 @@ footer {
 .username {
   font-weight: bold;
 }
+.contacts .nav-list>li>a {
+  padding: 7px;
+}
 
 /* Connection states */
 .state {
