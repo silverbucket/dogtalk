@@ -60,7 +60,6 @@ function ($rootScope, $q, RS, SH) {
         }, defer.reject);
       }
 
-
     } else {
       defer.reject();
     }
@@ -155,6 +154,21 @@ function ($rootScope, $q, RS, SH) {
           } else if (!contacts[data.actor.address].statusText) {
             contacts[data.actor.address].statusText = '';
           }
+
+          RS.call('contacts', 'byKey', ['impp', 'xmpp:'+data.actor.address]).then(function (contacts) {
+
+            if (contacts.length === 0) {
+              RS.call('contacts', 'add', [{
+                fn: data.actor.name,
+                impp: 'xmpp:'+data.actor.address
+              }]).then(function () {
+                console.log('*** contact added for '+data.actor.address);
+              }, function (err) {
+                console.log('*** contact add FAILED for '+data.actor.address, err.stack);
+              });
+            }
+
+          });
 
         } else if ((data.platform === 'xmpp') &&
                    (data.verb === 'send')) {

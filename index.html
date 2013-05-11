@@ -42,7 +42,7 @@
           <div class="container-fluid">
             <div class="row-fluid">
 
-              <div class="span2 contacts" ng-controller="talkCtrl">
+              <div class="span3 contacts" ng-controller="talkCtrl">
                 <p>presence: {{ model.presence.state }}</p>
                 <h4>Contacts</h4>
                 <input type="text" data-ng-model="c.name" />
@@ -53,7 +53,7 @@
                 </div>
               </div>
 
-              <div class="span10 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
+              <div class="span9 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
                 <div class="conversation">
 
                   <form name="sendMessage" class="form-horizontal" ng:submit="sendMsg(model.sendText)" novalidate>
@@ -236,7 +236,8 @@
     <script type="text/javascript" src="vendor/jquery.min.js?v=1.9.1"></script>
     <script type="text/javascript" src="vendor/angular.js?v=1.0.6"></script>
     <script type="text/javascript" src="vendor/remotestorage-debug.js?v=0.7.2"></script>
-    <script type="text/javascript" src="vendor/remoteStorage-messages.js?v=20130416"></script>
+    <script type="text/javascript" src="vendor/remoteStorage-messages.js?v=2013041601"></script>
+    <script type="text/javascript" src="vendor/remoteStorage-contacts.js?v=2013051101"></script>
     <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js?v=2.3.1"></script>
     <script type="text/javascript" src="vendor/promising.js?v=0.0.4"></script>
     <script type="text/javascript" src="vendor/sockethub.js?v=0.0.1"></script>

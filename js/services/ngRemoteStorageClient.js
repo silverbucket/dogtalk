@@ -81,7 +81,7 @@ function ($scope, $route, $routeParams, $location, RS) {
       };
     });
 
-    remoteStorage.claimAccess({sockethub:'rw',messages:'rw'}).then(function () {
+    remoteStorage.claimAccess({sockethub:'rw',messages:'rw',contacts:'rw'}).then(function () {
       remoteStorage.displayWidget('remotestorage-connect', {
         redirectUri: window.location.protocol + '//' + window.location.host + '/rscallback.html'
       });

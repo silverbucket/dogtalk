@@ -18,9 +18,8 @@ setTimeout(function rsConnect() {
     console.log('waiting for rs to connect');
     rsConnect();
   } else {
-    var baseUrl = window.location.origin;
-    console.log('rs connected, reloading to ' + baseUrl + "/");
-    window.location = baseUrl + "/";
+    //console.log('rs connected, reloading to ' + baseUrl + "/");
+    window.location = "/";
   }
 }, 1000);
     </script>
