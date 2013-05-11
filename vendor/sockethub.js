@@ -154,7 +154,7 @@
         // now we know that this object is either a response (has an RID) or
         // a message (new messages from sockethub)
         if (typeof data.rid === 'undefined') { // message
-          _this.log(3, data.rid, e.data);
+          _this.log(2, data.rid, e.data);
           _this.callbacks.message(data);
           return;
         }
