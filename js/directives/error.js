@@ -24,6 +24,10 @@ dogtalk.directive("error", ['$rootScope', 'SH', function ($rootScope, SH) {
           title: 'Sockethub registration problem',
           message: 'We were unable to register with your Sockethub instance'
         },
+        'xmpp-connect': {
+          title: 'XMPP connection failed',
+          message: 'There was a problem connecting to the XMPP server, please verify you settings'
+        },
         'unknown': {
           title: 'An unknown error has occurred',
           message: ''

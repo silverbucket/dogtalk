@@ -1,6 +1,9 @@
-var ngRemoteStorageClient = angular.module('ngRemoteStorageClient', []);
+//var ngRemoteStorageClient = angular.module('ngRemoteStorageClient', []);
+//
+//ngRemoteStorageClient.factory('RS', ['$rootScope', '$q',
 
-ngRemoteStorageClient.factory('RS', ['$rootScope', '$q',
+var ngRemoteStorageClient = angular.module('ngRemoteStorageClient', []).
+factory('RS', ['$rootScope', '$q',
 function ($rootScope, $q) {
 
   return {
@@ -11,15 +14,25 @@ function ($rootScope, $q) {
         return true;
       }
     },
-    getConfig: function (module) {
+    call: function (module, func, params) {
       var defer = $q.defer();
-      remoteStorage.onWidget('ready', function() {
-        remoteStorage.sockethub.getConfig().then(function (config) {
+      console.log('RS.call('+module+', '+func+', params):',params);
+
+      try {
+        var promise = remoteStorage[module][func].apply(null, params);
+        promise.then(function (res) {
           $rootScope.$apply(function () {
-            defer.resolve(config);
+            defer.resolve(res);
           });
-        }, defer.reject);
-      });
+        }, function (err) {
+          $rootScope.$apply(function () {
+            defer.reject(err);
+          });
+        });
+      } catch (e) {
+        defer.reject(e);
+      }
+
       return defer.promise;
     }
   };
@@ -68,7 +81,7 @@ function ($scope, $route, $routeParams, $location, RS) {
       };
     });
 
-    remoteStorage.claimAccess('sockethub', 'rw').then(function() {
+    remoteStorage.claimAccess({sockethub:'rw',messages:'rw'}).then(function () {
       remoteStorage.displayWidget('remotestorage-connect', {
         redirectUri: window.location.protocol + '//' + window.location.host + '/rscallback.html'
       });
