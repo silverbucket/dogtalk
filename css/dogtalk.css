@@ -69,7 +69,9 @@ form {
 
 
 .loading {
-  width: 200px;
-  margin: 10% auto auto auto;
+  position: absolute;
+  width: 10%;
+  left: 45%;
+  top: 45%;
 }
 
