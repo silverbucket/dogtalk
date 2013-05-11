@@ -46,15 +46,22 @@
                 <p>presence: {{ model.presence.state }}</p>
                 <h4>Contacts</h4>
                 <input type="text" data-ng-model="c.name" />
-                <div class="well sidebar-nav">
                   <ul class="nav nav-list">
-                    <li data-ng-repeat="r in model.requests">{{ r.actor.address }}<br /> &nbsp [ACCEPT] --- [DENY]</li>
+                    <li data-ng-repeat="r in model.requests">
+                      <span class="username">{{ r.actor.address }}</span> wants to be your friend!
+                      <a href="#" class="btn btn-success pull-left"><i class="icon-ok"></i> Accept</a>
+                      <a class="close" href="#">&times;</a>
+                    </li>
                   </ul>
 
                   <ul class="nav nav-list">
-                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" ng-class="conversationSwitch('{{ c.address }}')"><a href="#/talk/{{c.address}}">{{ c.name }} - {{ c.state }} <br /> &nbsp {{ c.address }} </a></li>
+                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" ng-class="conversationSwitch('{{ c.address }}')">
+                      <a href="#/talk/{{c.address}}">
+                        <span class="state {{ c.state }}"></span>
+                        <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>
+                      </a>
+                    </li>
                   </ul>
-                </div>
               </div>
 
               <div class="span9 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>

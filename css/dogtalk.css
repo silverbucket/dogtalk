@@ -19,6 +19,34 @@ footer {
 .contacts {
   background-color: #ffffff;
 }
+.username {
+  font-weight: bold;
+}
+
+/* Connection states */
+.state {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #777;
+}
+.online { /* green */
+  background-color: #0c0;
+  border-radius: 50%;
+}
+.away { /* yellow */
+  background-color: #cc0;
+  border-radius: 25%;
+}
+.busy { /* red */
+  background-color: #c00;
+  border-radius: 0;
+}
+.offline { /* grey */
+  background-color: #555;
+}
+
 
 .messages {
   background-color: #ffffff;
