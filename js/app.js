@@ -28,7 +28,7 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
 
     // verify XMPP config exists
     if (!XMPP.presence.get()) {
-      XMPP.presence.set('chat', '', true).then(function () {
+      XMPP.presence.set('online', '', true).then(function () {
         console.log('completed verifyState sucessfully');
         defer.resolve();
       }, function (errMsg) {
