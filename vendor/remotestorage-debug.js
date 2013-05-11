@@ -1,4 +1,4 @@
-/* remoteStorage.js 0.7-HEAD remotestorage.io, MIT-licensed */
+/* remoteStorage.js 0.7.2 remotestorage.io, MIT-licensed */
 (function() {
 
 /**
@@ -6670,11 +6670,6 @@ define('lib/widget',[
     // Query parameter: remotestorage
     if(params.remotestorage) {
       view.setUserAddress(params.remotestorage);
-      setTimeout(function() {
-        if(wireClient.getState() !== 'connected') {
-          connectStorage(params.remotestorage);
-        }
-      }, 0);
     } else {
       var userAddress = settings.get('userAddress');
       if(userAddress) {
