@@ -88,7 +88,6 @@ remoteStorage.defineModule('messages', function(privateClient, publicClient) {
 
       setAccount: function(type, name, config) {
         var urlEncodedName = encodeURIComponent(name);
-        console.log('rsmodule:'+type+':'+urlEncodedName+':config:', config);
         return privateClient.storeObject(
           'account', 'accounts/' + type + '/' + urlEncodedName, config
         );

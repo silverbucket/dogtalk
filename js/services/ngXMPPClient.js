@@ -39,7 +39,6 @@ function ($rootScope, $q, RS, SH) {
     var defer = $q.defer();
 
     if (verifyConfig(cfg)) {
-      console.log('cfg:',cfg);
       config.username = cfg.username;
       config.password = cfg.password;
       config.port = cfg.port;
@@ -72,7 +71,6 @@ function ($rootScope, $q, RS, SH) {
     var defer = $q.defer();
     if (!existsConfig()) {
       RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (account) {
-        console.log('account:', account);
         console.log('account.username:', account.username);
         setConfig(account).then(function () {
           defer.resolve(account);

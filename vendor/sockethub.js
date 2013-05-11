@@ -222,7 +222,7 @@
        */
       send: function () {
         var json_o = JSON.stringify(this.sendObject);
-        this.log(1, 'submitting: '+json_o);
+        //this.log(1, 'submitting: '+json_o);
         var __this = this;
         function __sendAttempt() {
           __this.sent = new Date().getTime();
