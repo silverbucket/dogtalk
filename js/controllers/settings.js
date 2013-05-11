@@ -17,9 +17,9 @@ function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
       //console.log('saveSockethub: ', config);
       $scope.sockethub.saving = true;
       // validation
-      SH.config.set($scope.sockethub.config.host,
-                    parseInt($scope.sockethub.config.port, null),
-                    $scope.sockethub.config.secret).then(function () {
+      SH.config.set(config.host,
+                    parseInt(config.port, null),
+                    config.secret).then(function () {
         console.log('config saved to remotestorage');
         $scope.sockethub.config.host = config.host;
         $scope.sockethub.config.port = config.port;

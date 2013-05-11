@@ -11,9 +11,9 @@ function ($rootScope, $q, RS) {
   };
 
   function existsConfig() {
-    if ((!config.host) &&
-        (!config.port) &&
-        (!config.secret)) {
+    if ((!config.host) && (config.host !== '') &&
+        (!config.port) && (config.port !== '') &&
+        (!config.secret) && (config.secret !== '')) {
       return true;
     } else {
       return false;
