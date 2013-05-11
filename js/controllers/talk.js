@@ -8,7 +8,8 @@ function ($scope, $route, $routeParams, $location, XMPP) {
   $scope.model = {
     presence: XMPP.presence.data,
     contacts: XMPP.contacts.data,
-    config: XMPP.config.data
+    config: XMPP.config.data,
+    requests: XMPP.requests.data
   };
 
   XMPP.initListener();  // initialize listener for incoming xmpp platform messages

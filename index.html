@@ -48,6 +48,10 @@
                 <input type="text" data-ng-model="c.name" />
                 <div class="well sidebar-nav">
                   <ul class="nav nav-list">
+                    <li data-ng-repeat="r in model.requests">{{ r.actor.address }}<br /> &nbsp [ACCEPT] --- [DENY]</li>
+                  </ul>
+
+                  <ul class="nav nav-list">
                     <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" ng-class="conversationSwitch('{{ c.address }}')">
                       <a href="#/talk/{{c.address}}">
                         <span class="state {{ c.state }}"></span>
