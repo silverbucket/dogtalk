@@ -13,6 +13,7 @@ function ($rootScope, $q, RS, SH) {
   };
 
   var contacts = {};
+  var requests = {};
 
   function existsConfig() {
     return verifyConfig(config);
@@ -156,7 +157,6 @@ function ($rootScope, $q, RS, SH) {
           }
 
           RS.call('contacts', 'byKey', ['impp', 'xmpp:'+data.actor.address]).then(function (contacts) {
-
             if (contacts.length === 0) {
               RS.call('contacts', 'add', [{
                 fn: data.actor.name,
@@ -167,8 +167,12 @@ function ($rootScope, $q, RS, SH) {
                 console.log('*** contact add FAILED for '+data.actor.address, err.stack);
               });
             }
-
           });
+
+        } else if ((data.platform === 'xmpp') &&
+                   (data.verb === 'request-friend')) {
+          // friend request received
+          requests[data.actor.address] = data;
 
         } else if ((data.platform === 'xmpp') &&
                    (data.verb === 'send')) {
@@ -234,6 +238,9 @@ function ($rootScope, $q, RS, SH) {
     },
     contacts: {
       data: contacts
+    },
+    requests: {
+      data: requests
     },
     initListener: initListener,
     sendMsg: sendMsg
