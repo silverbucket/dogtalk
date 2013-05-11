@@ -48,7 +48,7 @@
                 <input type="text" data-ng-model="c.name" />
                 <div class="well sidebar-nav">
                   <ul class="nav nav-list">
-                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" ng-class="conversationSwitch('{{ c.address }}')"><a href="#/talk/{{c.address}}">{{ c.name }} - {{ c.state }} <br /> &nbsp {{ c.address }} </a></li>
+                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" ng-class="conversationSwitch('{{ c.address }}')"><a href="#/talk/{{c.address}}"><span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span> {{ c.state }}</a></li>
                   </ul>
                 </div>
               </div>

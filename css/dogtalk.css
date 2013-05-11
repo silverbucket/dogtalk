@@ -19,6 +19,9 @@ footer {
 .contacts {
   background-color: #ffffff;
 }
+.username {
+  font-weight: bold;
+}
 
 .messages {
   background-color: #ffffff;
