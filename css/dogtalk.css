@@ -49,7 +49,14 @@ footer {
 .offline { /* grey */
   background-color: #555;
 }
+.notauthorized { /* bluegrey */
+  background-color: #99c;
+  border-radius: 0;
+}
 
+.fromMe {
+  text-align: right;
+}
 
 .messages {
   background-color: #ffffff;

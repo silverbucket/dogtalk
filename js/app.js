@@ -58,8 +58,8 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
             verifyXMPPConnect().then(defer.resolve, defer.reject);
           }
         }
-      }, function () {
-        defer.reject({error: "xmpp-config", message: "xmpp not configured"});
+      }, function (err) {
+        defer.reject({error: "xmpp-config", message: err});//"xmpp not configured"});
       });
     } else {
       verifyXMPPConnect().then(defer.resolve, defer.reject);
@@ -116,8 +116,8 @@ dogtalk.factory('verifyState', ['SH', 'RS', 'XMPP', '$q', function (SH, RS, XMPP
         } else {
           verifySHConnection().then(defer.resolve, defer.reject);
         }
-      }, function () {
-        defer.reject({error: "sockethub-config", message: "sockethub not configured"});
+      }, function (err) {
+        defer.reject({error: "sockethub-config", message: err});//"sockethub not configured"});
       });
     } else {
       if (cfgOnly) {

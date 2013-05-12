@@ -14,6 +14,7 @@
   <body>
       <div id="remotestorage-connect" ng-controller="initRemoteStorageCtrl"></div>
 
+
       <!--[if lt IE 7]>
         <p class="alert">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a>!</p>
       <![endif]-->
@@ -48,14 +49,14 @@
                   <ul class="nav nav-list">
                     <li data-ng-repeat="r in model.requests">
                       <p><span class="username">{{ r.actor.address }}</span> </p>
-                      <p><a href="#" class="btn btn-success pull-left"><i class="icon-ok"></i> Accept</a>
+                      <p><button class="btn btn-success pull-left" type="button" ng:click="acceptBuddyRequest(r.actor.address)" ng-disabled="model.saving"><i class="icon-ok"></i> Accept</button>
                       &nbsp; wants to be your friend! &nbsp;
                       <a class="close" href="#">&times;</a></p>
                     </li>
                   </ul>
 
                   <ul class="nav nav-list">
-                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:'c.state'" ng-class="conversationSwitch('{{ c.address }}')">
+                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:c.state" ng:class="conversationSwitch({{ c.address }})">
                       <a href="#/talk/{{c.address}}">
                         <span class="state {{ c.state }}"></span>
                         <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>
@@ -75,7 +76,7 @@
                   </form>
 
                   <div class="history" ng-repeat="msg in model.currentConversation">
-                    <div class="message well">
+                    <div class="message well" ng:class="{fromMe:isFromMe(msg.actor.address)}">
                       <div class="name"><small>{{ msg.actor.name }}</small></div>
                       <div class="address"><small>{{ msg.actor.address }}</small></div>
                       <div class="text"><p></p><p class="text-info">{{ msg.object.text }}<p></div>
@@ -99,6 +100,7 @@
           <p>{{model.message}}</p>
         </section>
       </script>
+
 
 
       <!-- dogtalk settings panel -->
@@ -132,6 +134,8 @@
         </div>
         </section>
       </script>
+
+
 
       <!-- sockethub settings modal window -->
       <div id="modalSettingsSockethub" class="modal hide fade">
@@ -178,6 +182,7 @@
       </div>
 
 
+
       <!-- XMPP settings modal window -->
       <div id="modalSettingsXmpp" class="modal hide fade">
         <div class="modal-header">
@@ -188,6 +193,13 @@
           <p>Please provide your XMPP account details</p>
           <form name="settingsXmpp" class="form-horizontal" ng-controller="settingsCtrl" novalidate>
             <fieldset>
+              <div class="control-group">
+                <label for="displayname" class="control-label">Display Name</label>
+                <div class="controls">
+                  <input type="text" class="required input-large" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
+                </div>
+              </div>
+
               <div class="control-group">
                 <label for="username" class="control-label">Username</label>
                 <div class="controls">
@@ -206,13 +218,6 @@
                 <label for="server" class="control-label">Server</label>
                 <div class="controls">
                   <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="resource" class="control-label">Resource</label>
-                <div class="controls">
-                  <input type="text" class="required input-large" name="resource" placeholder="Enter the resource string..." value="Dogtalk" ng-model="xmpp.account.resource" required>
                 </div>
               </div>
 

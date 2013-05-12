@@ -5,6 +5,7 @@ function ($rootScope, $q, RS, SH) {
   var sc;
 
   var config = {
+    displayname: '',
     username: '',
     password: '',
     server: '',
@@ -25,11 +26,10 @@ function ($rootScope, $q, RS, SH) {
     } else {
       check = config;
     }
-    if ((check.username !== '') &&
-        (check.password !== '') &&
-        (check.port !== '') &&
-        (check.resource !== '') &&
-        (check.server !== '')) {
+    if ((check.username) && (check.username !== '') &&
+        (check.password) && (check.password !== '') &&
+        (check.port) && (check.port !== '') &&
+        (check.server) && (check.server !== '')) {
       return true;
     } else {
       return false;
@@ -40,10 +40,11 @@ function ($rootScope, $q, RS, SH) {
     var defer = $q.defer();
 
     if (verifyConfig(cfg)) {
+      config.displayname = (cfg.displayname) ? cfg.displayname : '';
       config.username = cfg.username;
       config.password = cfg.password;
       config.port = cfg.port;
-      config.resource = cfg.resource;
+      config.resource = (cfg.resource) ? cfg.resource : 'Dogtalk';
       config.server = cfg.server;
 
       if (SH.isConnected()) {
@@ -62,7 +63,7 @@ function ($rootScope, $q, RS, SH) {
       }
 
     } else {
-      defer.reject();
+      defer.reject('XMPP config verification failed');
     }
     return defer.promise;
   }
@@ -73,8 +74,11 @@ function ($rootScope, $q, RS, SH) {
       RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (account) {
         console.log('account.username:', account.username);
         setConfig(account).then(function () {
+          console.log('set config done');
           defer.resolve(account);
-        }, defer.reject);
+        }, function (err) {
+          defer.reject(err);
+        });
       }, defer.reject);
     } else {
       defer.resolve(config);
@@ -122,16 +126,17 @@ function ($rootScope, $q, RS, SH) {
       console.log('XMPP getting message: ', data);
       if (data.actor !== config.username) {  // someone else interacting with us
 
-        // contact list & presence update
-        if (!contacts[data.actor.address]) {
-          contacts[data.actor.address] = {
-            conversation: []
-          };
-        }
+
 
         if ((data.platform === 'xmpp') &&
             (data.verb === 'update')) {
-
+          // contact list & presence update
+          if (!contacts[data.actor.address]) {
+            contacts[data.actor.address] = {
+              conversation: []
+            };
+          }
+          console.log('CONTACTS ADD ['+data.actor.address+']: ', contacts);
           contacts[data.actor.address].address = data.actor.address;
           //contacts[data.actor.address].target = data.target[0];
 
@@ -156,18 +161,20 @@ function ($rootScope, $q, RS, SH) {
             contacts[data.actor.address].statusText = '';
           }
 
-          RS.call('contacts', 'byKey', ['impp', 'xmpp:'+data.actor.address]).then(function (contacts) {
-            if (contacts.length === 0) {
-              RS.call('contacts', 'add', [{
-                fn: data.actor.name,
-                impp: 'xmpp:'+data.actor.address
-              }]).then(function () {
-                console.log('*** contact added for '+data.actor.address);
-              }, function (err) {
-                console.log('*** contact add FAILED for '+data.actor.address, err.stack);
-              });
-            }
-          });
+          if (data.actor.name) {
+            RS.call('contacts', 'byKey', ['impp', 'xmpp:'+data.actor.address]).then(function (contacts) {
+              if (contacts.length === 0) {
+                RS.call('contacts', 'add', [{
+                  fn: data.actor.name,
+                  impp: 'xmpp:'+data.actor.address
+                }]).then(function () {
+                  console.log('*** contact added for '+data.actor.address);
+                }, function (err) {
+                  console.log('*** contact add FAILED for '+data.actor.address, err.stack);
+                });
+              }
+            });
+          }
 
         } else if ((data.platform === 'xmpp') &&
                    (data.verb === 'request-friend')) {
@@ -177,6 +184,11 @@ function ($rootScope, $q, RS, SH) {
         } else if ((data.platform === 'xmpp') &&
                    (data.verb === 'send')) {
           // a new message from someone on the outside
+          if (!contacts[data.actor.address]) {
+            contacts[data.actor.address] = {
+              conversation: []
+            };
+          }
           console.log('added to conversation stack');
           contacts[data.actor.address].conversation.unshift(data);
         }
@@ -218,6 +230,28 @@ function ($rootScope, $q, RS, SH) {
     return defer.promise;
   }
 
+
+  function acceptBuddyRequest(from, address) {
+    var defer = $q.defer();
+
+    var obj = {
+      platform: 'xmpp',
+      verb: 'make-friend',
+      actor: { address: from },
+      target: [{ address: address }]
+    };
+
+    SH.submit(obj).then(function () {
+      console.log('acceptBuddyRequest Success');
+      defer.resolve();
+    }, function (err) {
+      console.log('acceptBuddyRequest ERROR '+err);
+      defer.reject(err);
+    });
+
+    return defer.promise;
+  }
+
 //
 // XXX TODO :
 // instead of having getters and setters, it may be better to expose the variables
@@ -240,7 +274,8 @@ function ($rootScope, $q, RS, SH) {
       data: contacts
     },
     requests: {
-      data: requests
+      data: requests,
+      accept: acceptBuddyRequest
     },
     initListener: initListener,
     sendMsg: sendMsg

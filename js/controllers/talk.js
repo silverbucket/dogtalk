@@ -1,8 +1,8 @@
 /*******
  * talk
  *******/
-var talkCtrl = dogtalk.controller("talkCtrl",  ['$scope', '$route', '$routeParams', '$location', 'XMPP',
-function ($scope, $route, $routeParams, $location, XMPP) {
+var talkCtrl = dogtalk.controller("talkCtrl",  ['$scope', '$route', '$routeParams', '$location', 'XMPP', '$rootScope',
+function ($scope, $route, $routeParams, $location, XMPP, $rootScope) {
   console.log('--- talkCtrl run');
 
   $scope.model = {
@@ -18,10 +18,13 @@ function ($scope, $route, $routeParams, $location, XMPP) {
   $scope.model.currentName = ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address].name : '';
   $scope.model.currentConversation = ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address].conversation : [];
 
+  $scope.$watch('model.contacts', function (newValue, oldValue) {
+    console.log('SCOPE WATCH CONTACTS : ', newValue);
+  });
 
   $scope.conversationSwitch = function (address) {
-    if (address !== $routeParams.address) { return ''; }
     console.log('---- talkCtrl.conversationSwitch('+address+')');
+    if (address !== $routeParams.address) { return ''; }
 
     if ($scope.model.contacts[address]) {
       $scope.model.currentAddress = address;
@@ -45,6 +48,31 @@ function ($scope, $route, $routeParams, $location, XMPP) {
       $scope.model.saving = false;
     });
 
+  };
+
+  $scope.isFromMe = function (address) {
+    if ($scope.model.config.username === address) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  $scope.acceptBuddyRequest = function (address) {
+    $scope.model.saving = true;
+    if ($scope.model.requests[address]) {
+      XMPP.requests.accept($scope.model.config.username, address).then(function () {
+        $scope.model.saving = false;
+        delete $scope.model.requests[address];
+        return true;
+      }, function (err) {
+        $scope.model.saving = false;
+        return false;
+      });
+    } else {
+      $scope.model.saving = false;
+      return false;
+    }
   };
 
 /*  $scope.$watch('model.currentAddress', function (address) {
