@@ -12,226 +12,226 @@
   </head>
 
   <body>
-      <div id="remotestorage-connect" ng-controller="initRemoteStorageCtrl"></div>
+    <div id="remotestorage-connect" ng-controller="initRemoteStorageCtrl"></div>
 
-      <!--[if lt IE 7]>
-        <p class="alert">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a>!</p>
-      <![endif]-->
-      <nav>
-        <div class="navbar" ng-controller="navCtrl">
-          <div class="navbar-inner">
-            <a class="brand" href="#"><img src="img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
-            <ul class="nav">
-              <li ng-class="navClass('settings')"><a href="#/settings" class="settings"><span class="icon-cog"></span> Settings</a></li>
-            </ul>
-          </div>
+    <!--[if lt IE 7]>
+      <p class="alert">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a>!</p>
+    <![endif]-->
+    <nav>
+      <div class="navbar" ng-controller="navCtrl">
+        <div class="navbar-inner">
+          <a class="brand" href="#"><img src="img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
+          <ul class="nav">
+            <li ng-class="navClass('settings')"><a href="#/settings" class="settings"><span class="icon-cog"></span> Settings</a></li>
+          </ul>
         </div>
-      </nav>
+      </div>
+    </nav>
 
-      <error></error>
-      <ng-view></ng-view>
-      <loading></loading>
+    <error></error>
+    <ng-view></ng-view>
+    <loading></loading>
 
-      <!-- dogtalk main interface -->
-      <script type="text/ng-template" id="talk.html">
-        <section id="talk" class="page">
-          <div class="container-fluid">
-            <div class="row-fluid">
+    <!-- dogtalk main interface -->
+    <script type="text/ng-template" id="talk.html">
+      <section id="talk" class="page">
+        <div class="container-fluid">
+          <div class="row-fluid">
 
-              <div class="span3 contacts" ng-controller="talkCtrl">
-                <p>presence: {{ model.presence.state }}</p>
-                <h4>Contacts</h4>
-                <input type="text" data-ng-model="c.name" />
+            <div class="span3 contacts" ng-controller="talkCtrl">
+              <p>presence: {{ model.presence.state }}</p>
+              <h4>Contacts</h4>
+              <input type="text" data-ng-model="c.name" />
 
-                  <ul class="nav nav-list">
-                    <li data-ng-repeat="r in model.requests">
-                      <p><span class="username">{{ r.actor.address }}</span> </p>
-                      <p><button class="btn btn-success pull-left" type="button" ng:click="acceptBuddyRequest(r.actor.address)" ng-disabled="model.saving"><i class="icon-ok"></i> Accept</button>
-                      &nbsp; wants to be your friend! &nbsp;
-                      <a class="close" href="#">&times;</a></p>
-                    </li>
-                  </ul>
+                <ul class="nav nav-list">
+                  <li data-ng-repeat="r in model.requests">
+                    <p><span class="username">{{ r.actor.address }}</span> </p>
+                    <p><button class="btn btn-success pull-left" type="button" ng:click="acceptBuddyRequest(r.actor.address)" ng-disabled="model.saving"><i class="icon-ok"></i> Accept</button>
+                    &nbsp; wants to be your friend! &nbsp;
+                    <a class="close" href="#">&times;</a></p>
+                  </li>
+                </ul>
 
-                  <ul class="nav nav-list">
-                    <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:c.state" ng:class="conversationSwitch({{ c.address }})">
-                      <a href="#/talk/{{c.address}}">
-                        <span class="state {{ c.state }}"></span>
-                        <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>
-                      </a>
-                    </li>
-                  </ul>
-              </div>
+                <ul class="nav nav-list">
+                  <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:c.state" ng:class="conversationSwitch({{ c.address }})">
+                    <a href="#/talk/{{c.address}}">
+                      <span class="state {{ c.state }}"></span>
+                      <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>
+                    </a>
+                  </li>
+                </ul>
+            </div>
 
-              <div class="span9 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
-                <div class="conversation">
+            <div class="span9 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
+              <div class="conversation">
 
-                  <form name="sendMessage" class="form-horizontal" ng:submit="sendMsg(model.sendText)" novalidate>
-                    <div class="input-append">
-                      <input class="span50" id="appendedInputButton" size="80" type="text" ng-model="model.sendText" required>
-                      <button class="btn btn-primary" type="button" ng:click="sendMsg(model.sendText)" ng-disabled="sendMessage.$invalid || model.saving">Send</button>
-                    </div>
-                  </form>
-
-                  <div class="history" ng-repeat="msg in model.currentConversation">
-                    <div class="message well" ng:class="{fromMe:isFromMe(msg.actor.address)}">
-                      <div class="name"><small>{{ msg.actor.name }}</small></div>
-                      <div class="address"><small>{{ msg.actor.address }}</small></div>
-                      <div class="text"><p></p><p class="text-info">{{ msg.object.text }}<p></div>
-                    </div>
+                <form name="sendMessage" class="form-horizontal" ng:submit="sendMsg(model.sendText)" novalidate>
+                  <div class="input-append">
+                    <input class="span50" id="appendedInputButton" size="80" type="text" ng-model="model.sendText" required>
+                    <button class="btn btn-primary" type="button" ng:click="sendMsg(model.sendText)" ng-disabled="sendMessage.$invalid || model.saving">Send</button>
                   </div>
+                </form>
 
+                <div class="history" ng-repeat="msg in model.currentConversation">
+                  <div class="message well" ng:class="{fromMe:isFromMe(msg.actor.address)}">
+                    <div class="name"><small>{{ msg.actor.name }}</small></div>
+                    <div class="address"><small>{{ msg.actor.address }}</small></div>
+                    <div class="text"><p></p><p class="text-info">{{ msg.object.text }}<p></div>
+                  </div>
                 </div>
-              </div>
 
+              </div>
             </div>
-          </div>
-        </section>
-      </script>
 
-
-      <!-- dogtalk app loading panel -->
-      <script type="text/ng-template" id="app.html">
-        <section id="appload" class="page">
-          <h2>... connecting ...</h2>
-          <p>{{model.message}}</p>
-        </section>
-      </script>
-
-
-      <!-- dogtalk settings panel -->
-      <script type="text/ng-template" id="settings.html">
-        <section id="settings" class="page">
-        <div ng-controller="settingsCtrl">
-          <h2>Settings</h2>
-          <div class="container-fluid">
-            <div class="row-fluid">
-              <div class="span3 configitem">
-                <p><a href="" ng-click="sockethub.show()"><img src="/img/sockethub-logo.svg" width="200" /></a></p>
-              </div>
-              <div class="span3 configitem">
-                <p><a href="" ng-click="xmpp.show()"><img src="/img/xmpp-logo.png" width="200" /></a></p>
-              </div>
-              <div class="span6"></div>
-            </div>
-            <div class="row-fluid">
-              <p>&nbsp; <br /></p>
-            </div>
-            <div class="row-fluid">
-              <div class="span3 configitem">
-
-              </div>
-              <div class="span3 configitem">
-
-              </div>
-              <div class="span6"></div>
-            </div>
           </div>
         </div>
-        </section>
-      </script>
+      </section>
+    </script>
 
 
-      <!-- sockethub settings modal window -->
-      <div id="modalSettingsSockethub" class="modal hide fade">
-        <div class="modal-header">
-          <img src="/img/sockethub-logo.svg" width="200" />
-          <h4>Sockethub initialization</h4>
+    <!-- dogtalk app loading panel -->
+    <script type="text/ng-template" id="app.html">
+      <section id="appload" class="page">
+        <h2>... connecting ...</h2>
+        <p>{{model.message}}</p>
+      </section>
+    </script>
+
+
+    <!-- dogtalk settings panel -->
+    <script type="text/ng-template" id="settings.html">
+      <section id="settings" class="page">
+      <div ng-controller="settingsCtrl">
+        <h2>Settings</h2>
+        <div class="container-fluid">
+          <div class="row-fluid">
+            <div class="span3 configitem">
+              <p><a href="" ng-click="sockethub.show()"><img src="/img/sockethub-logo.svg" width="200" /></a></p>
+            </div>
+            <div class="span3 configitem">
+              <p><a href="" ng-click="xmpp.show()"><img src="/img/xmpp-logo.png" width="200" /></a></p>
+            </div>
+            <div class="span6"></div>
+          </div>
+          <div class="row-fluid">
+            <p>&nbsp; <br /></p>
+          </div>
+          <div class="row-fluid">
+            <div class="span3 configitem">
+
+            </div>
+            <div class="span3 configitem">
+
+            </div>
+            <div class="span6"></div>
+          </div>
         </div>
-        <div class="modal-body">
-          <p>In order to connect to Sockethub, please enter the host, port and secret provided to you from your service provider</p>
-          <form name="settingsSockethub" class="form-horizontal" ng-controller="settingsCtrl" novalidate>
-            <fieldset>
-              <div class="control-group">
-                <label for="host" class="control-label">Hostname</label>
-                <div class="controls">
-                  <input type="text" class="required input-large" name="host" placeholder="Enter hostname..." ng-model="sockethub.config.host" required>
-                </div>
-              </div>
+      </div>
+      </section>
+    </script>
 
-              <div class="control-group">
-                <label for="port" class="control-label">Port</label>
-                <div class="controls">
-                  <input type="text" class="required input-small" name="port" placeholder="Enter port..." ng-model="sockethub.config.port" required>
-                 </div>
+
+    <!-- sockethub settings modal window -->
+    <div id="modalSettingsSockethub" class="modal hide fade">
+      <div class="modal-header">
+        <img src="/img/sockethub-logo.svg" width="200" />
+        <h4>Sockethub initialization</h4>
+      </div>
+      <div class="modal-body">
+        <p>In order to connect to Sockethub, please enter the host, port and secret provided to you from your service provider</p>
+        <form name="settingsSockethub" class="form-horizontal" ng-controller="settingsCtrl" novalidate>
+          <fieldset>
+            <div class="control-group">
+              <label for="host" class="control-label">Hostname</label>
+              <div class="controls">
+                <input type="text" class="required input-large" name="host" placeholder="Enter hostname..." ng-model="sockethub.config.host" required>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="port" class="control-label">Port</label>
+              <div class="controls">
+                <input type="text" class="required input-small" name="port" placeholder="Enter port..." ng-model="sockethub.config.port" required>
                </div>
+             </div>
 
-              <div class="control-group">
-                <label for="secret" class="control-label">Secret</label>
-                <div class="controls">
-                  <input type="text" class="required input-xlarge" name="secret" placeholder="Enter secret..." ng-model="sockethub.config.secret" required>
-                </div>
+            <div class="control-group">
+              <label for="secret" class="control-label">Secret</label>
+              <div class="controls">
+                <input type="text" class="required input-xlarge" name="secret" placeholder="Enter secret..." ng-model="sockethub.config.secret" required>
               </div>
+            </div>
 
-              <div class="control-group">
-                <div class="controls">
-                  <!-- <input class="btn-primary" type="submit" name="submit" value="submit" ng-onclick="saveSettings()" /> -->
-                  <button ng-click="sockethub.save(sockethub.config)" ng-disabled="settingsSockethub.$invalid || sockethub.saving">Submit</button>
-                </div>
+            <div class="control-group">
+              <div class="controls">
+                <!-- <input class="btn-primary" type="submit" name="submit" value="submit" ng-onclick="saveSettings()" /> -->
+                <button ng-click="sockethub.save(sockethub.config)" ng-disabled="settingsSockethub.$invalid || sockethub.saving">Submit</button>
               </div>
-            </fieldset>
-          </form>
-          <p></p>
-        </div>
-        <div class="modal-footer"></div>
+            </div>
+          </fieldset>
+        </form>
+        <p></p>
       </div>
+      <div class="modal-footer"></div>
+    </div>
 
 
-      <!-- XMPP settings modal window -->
-      <div id="modalSettingsXmpp" class="modal hide fade">
-        <div class="modal-header">
-          <img src="/img/xmpp-logo.png" />
-          <h4>XMPP configuration</h4>
-        </div>
-        <div class="modal-body">
-          <p>Please provide your XMPP account details</p>
-          <form name="settingsXmpp" class="form-horizontal" ng-controller="settingsCtrl" novalidate>
-            <fieldset>
-              <div class="control-group">
-                <label for="displayname" class="control-label">Display Name</label>
-                <div class="controls">
-                  <input type="text" class="required input-large" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="username" class="control-label">Username</label>
-                <div class="controls">
-                  <input type="text" class="required input-large" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="password" class="control-label">Password</label>
-                <div class="controls">
-                  <input type="password" class="required input-large" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
-                 </div>
-              </div>
-
-               <div class="control-group">
-                <label for="server" class="control-label">Server</label>
-                <div class="controls">
-                  <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="port" class="control-label">Port</label>
-                <div class="controls">
-                  <input type="text" class="required input-large" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
-                </div>
-              </div>
-
-              <div class="control-group">
-                <div class="controls">
-                  <button ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
-                </div>
-              </div>
-            </fieldset>
-          </form>
-          <p></p>
-        </div>
-        <div class="modal-footer"></div>
+    <!-- XMPP settings modal window -->
+    <div id="modalSettingsXmpp" class="modal hide fade">
+      <div class="modal-header">
+        <img src="/img/xmpp-logo.png" />
+        <h4>XMPP configuration</h4>
       </div>
+      <div class="modal-body">
+        <p>Please provide your XMPP account details</p>
+        <form name="settingsXmpp" class="form-horizontal" ng-controller="settingsCtrl" novalidate>
+          <fieldset>
+            <div class="control-group">
+              <label for="displayname" class="control-label">Display Name</label>
+              <div class="controls">
+                <input type="text" class="required input-large" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="username" class="control-label">Username</label>
+              <div class="controls">
+                <input type="text" class="required input-large" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="password" class="control-label">Password</label>
+              <div class="controls">
+                <input type="password" class="required input-large" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
+               </div>
+            </div>
+
+             <div class="control-group">
+              <label for="server" class="control-label">Server</label>
+              <div class="controls">
+                <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="port" class="control-label">Port</label>
+              <div class="controls">
+                <input type="text" class="required input-large" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="controls">
+                <button ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+        <p></p>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
 
 
     <!-- build:js res/js/jquery.min.js -->
