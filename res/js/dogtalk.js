@@ -26,6 +26,62 @@ function ($routeProvider) {
 
 
 /**
+ * remoteStorage & sockethub connect
+ */
+run(['SockethubSettings', 'SH', '$rootScope', 'RS', '$timeout',
+function (settings, SH, $rootScope, RS, $timeout) {
+  if (!RS.isConnected()) {
+    $timeout(function () {
+      if (!RS.isConnected()) {
+        $rootScope.$broadcast('message', {message: 'remotestorage-connect', timeout: false});
+      }
+    }, 1000);
+  }
+}]).
+
+run(['SockethubSettings', 'SH', '$rootScope', 'RS',
+function (settings, SH, $rootScope, RS) {
+  RS.call('sockethub', 'getConfig', ['']).then(function (c) {
+    console.log('GOT SH CONFIG: ', c);
+    var cfg = {};
+    if (typeof c !== 'object') {
+      //cfg = settings.conn;
+      cfg.host = 'silverbucket.net';
+      cfg.port = 443;
+      cfg.path = '/sockethub';
+      cfg.tls = true;
+      cfg.secret = '1234567890';
+    } else {
+      cfg = c;
+    }
+
+    console.log('USING SH CONFIG: ', cfg);
+    //$rootScope.$broadcast('message', {type: 'clear'});
+    // connect to sockethub and register
+    if (settings.save('conn', cfg));
+    $rootScope.$broadcast('message', {
+          message: 'attempting to connect to sockethub',
+          type: 'info',
+          timeout: false
+    });
+    SH.connect({register: true}).then(function () {
+      //console.log('connected to sockethub');
+      $rootScope.$broadcast('message', {
+            message: 'connected to sockethub',
+            type: 'success',
+            timeout: true
+      });
+    }, function (err) {
+      console.log('error connecting to sockethub: ', err);
+      $rootScope.$broadcast('SockethubConnectFailed', {message: err});
+    });
+  }, function (err) {
+    console.log("RS.call error: ",err);
+  });
+}]).
+
+
+/**
  * emitters
  */
 run(['$rootScope', 'SH',
@@ -34,26 +90,6 @@ function ($rootScope, SH) {
         Receive emitted messages from elsewhere.
         http://jsfiddle.net/VxafF/
     */
-    $rootScope.$on('showModalSettingsSockethub', function(event, args) {
-      backdrop_setting = true;
-      if ((typeof args === 'object') && (typeof args.locked !== 'undefined')) {
-        if (args.locked) {
-          backdrop_setting = "static";
-        }
-      }
-      console.log('backdrop: ' + backdrop_setting);
-      $("#modalSettingsSockethub").modal({
-        show: true,
-        keyboard: true,
-        backdrop: backdrop_setting
-      });
-    });
-
-    $rootScope.$on('closeModalSettingsSockethub', function(event, args) {
-      //console.log('closeModalSockethubSettings');
-      $("#modalSettingsSockethub").modal('hide');
-    });
-
     $rootScope.$on('showModalSettingsXmpp', function(event, args) {
       backdrop_setting = true;
       if ((typeof args === 'object') && (typeof args.locked !== 'undefined')) {
@@ -73,6 +109,8 @@ function ($rootScope, SH) {
       $("#modalSettingsXmpp").modal('hide');
     });
 }]).
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -123,37 +161,24 @@ function ($scope, $route, $routeParams, $location) {
  * controller: settingsCtrl
  */
 controller("settingsCtrl",
-['$scope', '$route', '$routeParams', '$location', '$rootScope', 'SH', 'XMPP',
-function ($scope, $route, $routeParams, $location, $rootScope, SH, XMPP) {
+['$scope', '$route', '$routeParams', '$rootScope', 'SockethubSettings', 'XMPP', 'RS',
+function ($scope, $route, $routeParams, $rootScope, SockethubSettings, XMPP, RS) {
 
-  $scope.sockethub = {
-    config: SH.config.data,
-    saving: false,
-    show: function () {
-      //console.log('showSockethub: ', $scope.sockethub.config.host);
-      //console.log('showSockethub: ', $scope.sockethub.config);
-      $rootScope.$broadcast('showModalSettingsSockethub', {locked: false});
-    },
-    save: function (config) {
-      //console.log('saveSockethub: ', config);
-      $scope.sockethub.saving = true;
-      // validation
-      SH.config.set(config.host,
-                    parseInt(config.port, null),
-                    config.secret).then(function () {
-        console.log('config saved to remotestorage');
-        $scope.sockethub.config.host = config.host;
-        $scope.sockethub.config.port = config.port;
-        $scope.sockethub.config.secret = config.secret;
-        console.log("closing modalwindow");
-        $scope.sockethub.saving = false;
-        $rootScope.$broadcast('closeModalSettingsSockethub');
-        $location.path('/');
-      }, function () {
-        console.log('error saving config to remoteStorage!');
+  $scope.sockethubSettings = function () {
+console.log('HASASD');
+    $rootScope.$broadcast('showModalSockethubSettings', { locked: false });
+  };
+
+  $scope.$watch('SockethubSettings.connected', function (newVal, oldVal) {
+    if (SockethubSettings.connected) {
+      SockethubSettings.conn.port = Number(SockethubSettings.conn.port);
+      RS.call('sockethub', 'writeConfig', [SockethubSettings.conn]).then(function () {
+        console.log("Sockethub config saved to remoteStorage");
+      }, function (err) {
+        console.log('Failed saving Sockethub config to remoteStorage: ', err);
       });
     }
-  };
+  });
 
   $scope.xmpp = {
     // Reference to the account managed by the "xmpp" service
@@ -264,7 +289,8 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope) {
     }
   };
 
-/*  $scope.$watch('model.currentAddress', function (address) {
+  /*
+  $scope.$watch('model.currentAddress', function (address) {
     if (!address) { return false; }
 
     if ($scope.model.contacts[address]) {
@@ -276,7 +302,8 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope) {
       console.log('WATCH - not in history');
     }
 
-  });*/
+  });
+  */
 
 }]).
 
@@ -356,7 +383,7 @@ directive("error",
 
         if ((typeof rejection.error === 'undefined') ||
             (typeof errors[rejection.error] == 'undefined')) {
-          scope.displayError = errors['unknown'];
+          scope.displayError = errors.unknown;
           scope.displayError.message = String(rejection.message || rejection);
         } else {
           scope.displayError = errors[rejection.error];
@@ -383,13 +410,13 @@ directive("error",
       });
     }
   };
-}]).
+}]);
 
 
 /**
  * directive: loading
  */
-directive("loading",
+/*directive("loading",
 ['$rootScope', 'XMPP', function ($rootScope, XMPP) {
   return {
     restrict: "E",
@@ -414,6 +441,6 @@ directive("loading",
       });
     }
   };
-}]);
+}]);*/
 
 
