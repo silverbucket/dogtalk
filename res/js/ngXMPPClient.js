@@ -1,4 +1,4 @@
-angular.module('ngXMPPClient', ['ngSockethubClient', 'ngRemoteStorageClient']).
+angular.module('ngXMPPClient', ['ngSockethubClient', 'ngRemoteStorage']).
 factory('XMPP', ['$rootScope', '$q', 'RS', 'SH',
 function ($rootScope, $q, RS, SH) {
 
