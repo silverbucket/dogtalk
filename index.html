@@ -7,8 +7,8 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="res/css/dogtalk.css">
-    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css?v=2.3.1">
-    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap-responsive.min.css?v=2.3.1">
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css?v=3.0">
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap-theme.min.css?v=3.0">
   </head>
 
   <body>
@@ -20,7 +20,7 @@
     <nav>
       <div class="navbar" ng-controller="navCtrl">
         <div class="navbar-inner">
-          <a class="brand" href="#"><img src="img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
+          <a class="brand" href="#"><img src="res/img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
           <ul class="nav">
             <li ng-class="navClass('settings')"><a href="#/settings" class="settings"><span class="icon-cog"></span> Settings</a></li>
           </ul>
@@ -106,10 +106,10 @@
         <div class="container-fluid">
           <div class="row-fluid">
             <div class="span3 configitem">
-              <p><a href="" ng-click="sockethub.show()"><img src="/img/sockethub-logo.svg" width="200" /></a></p>
+              <p><a href="" ng-click="sockethub.show()"><img src="res/img/sockethub-logo.svg" width="200" /></a></p>
             </div>
             <div class="span3 configitem">
-              <p><a href="" ng-click="xmpp.show()"><img src="/img/xmpp-logo.png" width="200" /></a></p>
+              <p><a href="" ng-click="xmpp.show()"><img src="res/img/xmpp-logo.png" width="200" /></a></p>
             </div>
             <div class="span6"></div>
           </div>
@@ -134,7 +134,7 @@
     <!-- sockethub settings modal window -->
     <div id="modalSettingsSockethub" class="modal hide fade">
       <div class="modal-header">
-        <img src="/img/sockethub-logo.svg" width="200" />
+        <img src="res/img/sockethub-logo.svg" width="200" />
         <h4>Sockethub initialization</h4>
       </div>
       <div class="modal-body">
@@ -179,7 +179,7 @@
     <!-- XMPP settings modal window -->
     <div id="modalSettingsXmpp" class="modal hide fade">
       <div class="modal-header">
-        <img src="/img/xmpp-logo.png" />
+        <img src="res/img/xmpp-logo.png" />
         <h4>XMPP configuration</h4>
       </div>
       <div class="modal-body">
@@ -235,38 +235,32 @@
 
 
     <!-- build:js res/js/jquery.min.js -->
-    <script src="vendor/jquery.min.js?v=1.10.1"></script>
+    <script type="text/javascript" src="vendor/jquery.min.js?v=1.10.1"></script>
     <!-- endbuild -->
     <!-- build:js res/js/angular.min.js -->
-    <script src="vendor/angular.min.js?v=1.0.7"></script>
+    <script type="text/javascript" src="vendor/angular.min.js?v=1.0.7"></script>
     <!-- endbuild -->
     <!-- build:js res/js/bootstrap.min.js -->
-    <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.0"></script>
+    <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js?v=3.0"></script>
     <!-- endbuild -->
     <!-- build:js res/js/remotestorage.min.js -->
-    <script src="vendor/remotestorage/remotestorage.min.js?v=0.8.1"></script>
+    <script type="text/javascript" src="vendor/remotestorage/remotestorage.min.js?v=0.8.1"></script>
     <!-- endbuild -->
     <!-- build:js res/js/sockethub-client.min.js -->
-    <script src="vendor/sockethub-client/sockethub-client.js"></script>
+    <script type="text/javascript" src="vendor/sockethub-client/sockethub-client.js"></script>
     <!-- endbuild -->
     <!-- build:js res/js/remotestorage-modules.min.js -->
-    <script src="vendor/remotestorage/remotestorage-sockethub.js?v=0.0.1"></script>
-    <script type="text/javascript" src="vendor/remoteStorage-messages.js?v=2013041601"></script>
-    <script type="text/javascript" src="vendor/remoteStorage-contacts.js?v=2013051101"></script>
+    <script type="text/javascript" src="vendor/remotestorage/remotestorage-sockethub.js?v=0.0.1"></script>
+    <script type="text/javascript" src="vendor/remotestorage/remotestorage-messages.js?v=2013041601"></script>
+    <script type="text/javascript" src="vendor/remotestorage/remotestorage-contacts.js?v=2013051101"></script>
     <!-- endbuild -->
     <!-- build:js res/js/app.min.js -->
-    <script src="res/js/ngRemoteStorage.js?v=0.0.1"></script>
+    <script src="vendor/remotestorage/ngRemoteStorage.js?v=0.0.1"></script>
     <script src="vendor/sockethub-client/angular/ngSockethubClient.js?v=0.0.1"></script>
     <script src="vendor/sockethub-client/angular/ngSockethubRemoteStorage.js?v=0.0.1"></script>
     <!-- endbuild -->
 
-
-    <script type="text/javascript" src="res/js/app.js?v=0.0.1"></script>
-    <script type="text/javascript" src="res/js/services/ngXMPPClient.js?v=0.0.1"></script>
-    <script type="text/javascript" src="res/js/controllers/talk.js?v=0.0.1"></script>
-    <script type="text/javascript" src="res/js/controllers/settings.js?v=0.0.1"></script>
-    <script type="text/javascript" src="res/js/directives/error.js?v=0.0.1"></script>
-    <script type="text/javascript" src="res/js/directives/loading.js?v=0.0.1"></script>
-    <script type="text/javascript" src="res/js/emitters.js?v=0.0.1"></script>
+    <script type="text/javascript" src="res/js/dogtalk.js?v=0.0.1"></script>
+    <script type="text/javascript" src="res/js/ngXMPPClient.js?v=0.0.1"></script>
   </body>
 </html>
