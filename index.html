@@ -37,9 +37,11 @@
     </nav>
 
 
-    <message></message>
+    <div class="message-container">
+      <div message></div>
+    </div>
     <ng-view></ng-view>
-    <loading></loading>
+    <!--<loading></loading>-->
     <div sockethub-settings></div>
 
     <!-- dogtalk main interface -->
@@ -147,7 +149,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <img src="res/img/xmpp-logo.png" />
-            <h4>XMPP configuration</h4>
           </div>
           <!--- XXXX TODO ------------ UPDATE MODAL FORM -->
           <div class="modal-body">
@@ -155,50 +156,45 @@
             <form name="settingsXmpp" role="form" ng-controller="settingsCtrl" novalidate>
               <fieldset>
                 <div class="form-group">
-                  <label for="displayname" class="control-label">Display Name</label>
-                  <div class="controls">
-                    <input type="text" class="required input-large" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
-                  </div>
+                  <label for="displayname">Display Name</label>
+                  <input type="text" class="required form-control" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
                 </div>
 
                 <div class="form-group">
                   <label for="username" class="control-label">Username</label>
-                  <div class="controls">
-                    <input type="text" class="required input-large" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
-                  </div>
+                  <input type="text" class="required form-control" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
                 </div>
 
                 <div class="form-group">
                   <label for="password" class="control-label">Password</label>
-                  <div class="controls">
-                    <input type="password" class="required input-large" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
-                   </div>
+                  <input type="password" class="required form-control" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
                 </div>
 
                  <div class="form-group">
                   <label for="server" class="control-label">Server</label>
                   <div class="controls">
-                    <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
+                    <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label for="port" class="control-label">Port</label>
                   <div class="controls">
-                    <input type="text" class="required input-large" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
+                    <input type="text" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
                   </div>
                 </div>
 
-                <div class="control-group">
-                  <div class="controls">
-                    <button ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
-                  </div>
-                </div>
               </fieldset>
-            </form>
             <p></p>
           </div>
-          <div class="modal-footer"></div>
+          <div class="modal-footer">
+                <div class="control-group">
+                  <div class="controls">
+                    <button class="btn btn-primary" ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
+                  </div>
+                </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
