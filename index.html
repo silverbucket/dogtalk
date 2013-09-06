@@ -21,8 +21,10 @@
       <div class="navbar navbar-default" ng-controller="navCtrl">
         <div class="container">
           <div class="navbar-header">
-
-            <a class="brand" href="#"><img src="res/img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><img src="res/img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
           </div>
           <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
@@ -34,7 +36,8 @@
       </div>
     </nav>
 
-    <error></error>
+
+    <message></message>
     <ng-view></ng-view>
     <loading></loading>
     <div sockethub-settings></div>
@@ -139,60 +142,65 @@
 
 
     <!-- XMPP settings modal window -->
-    <div id="modalSettingsXmpp" class="modal hide fade">
-      <div class="modal-header">
-        <img src="res/img/xmpp-logo.png" />
-        <h4>XMPP configuration</h4>
+    <div id="modalSettingsXmpp" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <img src="res/img/xmpp-logo.png" />
+            <h4>XMPP configuration</h4>
+          </div>
+          <!--- XXXX TODO ------------ UPDATE MODAL FORM -->
+          <div class="modal-body">
+            <p>Please provide your XMPP account details</p>
+            <form name="settingsXmpp" role="form" ng-controller="settingsCtrl" novalidate>
+              <fieldset>
+                <div class="form-group">
+                  <label for="displayname" class="control-label">Display Name</label>
+                  <div class="controls">
+                    <input type="text" class="required input-large" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="username" class="control-label">Username</label>
+                  <div class="controls">
+                    <input type="text" class="required input-large" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="password" class="control-label">Password</label>
+                  <div class="controls">
+                    <input type="password" class="required input-large" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
+                   </div>
+                </div>
+
+                 <div class="form-group">
+                  <label for="server" class="control-label">Server</label>
+                  <div class="controls">
+                    <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="port" class="control-label">Port</label>
+                  <div class="controls">
+                    <input type="text" class="required input-large" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <div class="controls">
+                    <button ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+            <p></p>
+          </div>
+          <div class="modal-footer"></div>
+        </div>
       </div>
-      <div class="modal-body">
-        <p>Please provide your XMPP account details</p>
-        <form name="settingsXmpp" class="form-horizontal" ng-controller="settingsCtrl" novalidate>
-          <fieldset>
-            <div class="control-group">
-              <label for="displayname" class="control-label">Display Name</label>
-              <div class="controls">
-                <input type="text" class="required input-large" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label for="username" class="control-label">Username</label>
-              <div class="controls">
-                <input type="text" class="required input-large" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label for="password" class="control-label">Password</label>
-              <div class="controls">
-                <input type="password" class="required input-large" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
-               </div>
-            </div>
-
-             <div class="control-group">
-              <label for="server" class="control-label">Server</label>
-              <div class="controls">
-                <input type="text" class="required input-large" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label for="port" class="control-label">Port</label>
-              <div class="controls">
-                <input type="text" class="required input-large" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
-              </div>
-            </div>
-
-            <div class="control-group">
-              <div class="controls">
-                <button ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
-              </div>
-            </div>
-          </fieldset>
-        </form>
-        <p></p>
-      </div>
-      <div class="modal-footer"></div>
     </div>
 
 
@@ -217,12 +225,12 @@
     <script type="text/javascript" src="vendor/remotestorage/remotestorage-contacts.js?v=2013051101"></script>
     <!-- endbuild -->
     <!-- build:js res/js/app.min.js -->
-    <script src="vendor/remotestorage/ngRemoteStorage.js?v=0.0.1"></script>
-    <script src="vendor/sockethub-client/angular/ngSockethubClient.js?v=0.0.1"></script>
-    <script src="vendor/sockethub-client/angular/ngSockethubRemoteStorage.js?v=0.0.1"></script>
-    <!-- endbuild -->
-
+    <script type="text/javascript" src="vendor/angular-shared/ngMessages.js?v=0.0.1"></script>
+    <script type="text/javascript" src="vendor/angular-shared/ngRemoteStorage.js?v=0.0.1"></script>
+    <script type="text/javascript" src="vendor/sockethub-client/angular/ngSockethubClient.js?v=0.0.1"></script>
+    <script type="text/javascript" src="vendor/sockethub-client/angular/ngSockethubRemoteStorage.js?v=0.0.1"></script>
     <script type="text/javascript" src="res/js/dogtalk.js?v=0.0.1"></script>
     <script type="text/javascript" src="res/js/ngXMPPClient.js?v=0.0.1"></script>
+    <!-- endbuild -->
   </body>
 </html>
