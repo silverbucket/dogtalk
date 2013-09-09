@@ -1,4 +1,6 @@
 angular.module('ngXMPPClient', ['ngSockethubClient', 'ngRemoteStorage']).
+
+
 factory('XMPP', ['$rootScope', '$q', 'RS', 'SH',
 function ($rootScope, $q, RS, SH) {
 
@@ -122,7 +124,7 @@ function ($rootScope, $q, RS, SH) {
 
 
   function initListener() {
-    SH.on('message', function (data) {
+    SH.on('xmpp', 'message', function (data) {
       console.log('XMPP getting message: ', data);
       if (data.actor !== config.username) {  // someone else interacting with us
 
