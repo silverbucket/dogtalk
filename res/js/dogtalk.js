@@ -36,7 +36,6 @@ function (RScfg) {
     ['rss', 'rw', {'cache': false}],
     ['articles', 'rw', {'cache': false}]
   ];
-  RScfg.init();
 }]).
 
 
