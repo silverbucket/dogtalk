@@ -177,7 +177,7 @@ function ($rootScope, SH, XMPP) {
       }
       console.log('backdrop: ' + backdrop_setting);
 
-      XMPP.modal.message = (typeof args.message === 'string') ? args.message : 'false';
+      XMPP.modal.message = (typeof args.message === 'string') ? args.message : undefined;
 
       $("#modalSettingsXmpp").modal({
         show: true,
