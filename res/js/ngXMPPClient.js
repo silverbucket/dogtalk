@@ -267,6 +267,9 @@ function ($rootScope, $q, RS, SH) {
       exists: existsConfig,
       data: config
     },
+    modal: {
+      message: ''
+    },
     presence: {
       set: setPresence,
       get: getPresence,

@@ -33,8 +33,8 @@ run(['RemoteStorageConfig',
 function (RScfg) {
   RScfg.modules = [
     ['sockethub', 'rw', {'cache': false}],
-    ['rss', 'rw', {'cache': false}],
-    ['articles', 'rw', {'cache': false}]
+    ['messages', 'rw', {'cache': false}],
+    ['contacts', 'rw', {'cache': false}]
   ];
 }]).
 
@@ -99,10 +99,71 @@ function (settings, SH, $rootScope, RS) {
 
 
 /**
+ * get xmpp config
+ */
+run(['SH', '$rootScope', 'RS', 'XMPP',
+function (SH, $rootScope, RS) {
+  RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (c) {
+    console.log('GOT XMPP CONFIG: ', c);
+    var cfg = {};
+
+    if (c === undefined) {
+      console.log('YOO!');
+      $rootScope.$broadcast('showModalSettingsXmpp', { message: 'No existing XMPP configuration information found', locked: false });
+      $rootScope.$broadcast('message', {
+        message: 'xmpp-connection',
+        type: 'error',
+        timeout: false
+        //important: true
+      });
+    }
+
+
+    /*
+    if ((typeof c !== 'object') || (typeof c.host !== 'string')) {
+      //cfg = settings.conn;
+      cfg.host = 'silverbucket.net';
+      cfg.port = 443;
+      cfg.path = '/sockethub';
+      cfg.tls = true;
+      cfg.secret = '1234567890';
+    } else {
+      cfg = c;
+    }
+
+    console.log('USING SH CONFIG: ', cfg);
+    //$rootScope.$broadcast('message', {type: 'clear'});
+    // connect to sockethub and register
+    if (settings.save('conn', cfg));
+    $rootScope.$broadcast('message', {
+          message: 'attempting to connect to sockethub',
+          type: 'info',
+          timeout: false
+    });
+    SH.connect({register: true}).then(function () {
+      //console.log('connected to sockethub');
+      $rootScope.$broadcast('message', {
+            message: 'connected to sockethub',
+            type: 'success',
+            timeout: true
+      });
+    }, function (err) {
+      console.log('error connecting to sockethub: ', err);
+      $rootScope.$broadcast('SockethubConnectFailed', {message: err});
+    });
+    */
+  }, function (err) {
+    console.log("RS.call failed: ",err);
+  });
+}]).
+
+
+
+/**
  * emitters
  */
-run(['$rootScope', 'SH',
-function ($rootScope, SH) {
+run(['$rootScope', 'SH', 'XMPP',
+function ($rootScope, SH, XMPP) {
     /*
         Receive emitted messages from elsewhere.
         http://jsfiddle.net/VxafF/
@@ -115,12 +176,17 @@ function ($rootScope, SH) {
         }
       }
       console.log('backdrop: ' + backdrop_setting);
+
+      XMPP.modal.message = (typeof args.message === 'string') ? args.message : 'false';
+
       $("#modalSettingsXmpp").modal({
         show: true,
         keyboard: true,
         backdrop: backdrop_setting
       });
     });
+
+
 
     $rootScope.$on('closeModalSettingsXmpp', function(event, args) {
       $("#modalSettingsXmpp").modal('hide');
@@ -182,11 +248,14 @@ controller("settingsCtrl",
 function ($scope, $route, $routeParams, $rootScope, SockethubSettings, XMPP, RS) {
 
   $scope.sockethubSettings = function () {
-console.log('HASASD');
+//console.log('HASASD');
     $rootScope.$broadcast('showModalSockethubSettings', { locked: false });
   };
 
-  $scope.$watch('SockethubSettings.connected', function (newVal, oldVal) {
+  /*
+   FIXME: ...
+
+   $scope.$watch('SockethubSettings.connected', function (newVal, oldVal) {
     if (SockethubSettings.connected) {
       SockethubSettings.conn.port = Number(SockethubSettings.conn.port);
       RS.call('sockethub', 'writeConfig', [SockethubSettings.conn]).then(function () {
@@ -196,6 +265,9 @@ console.log('HASASD');
       });
     }
   });
+  */
+
+  $scope.modal = XMPP.modal;
 
   $scope.xmpp = {
     // Reference to the account managed by the "xmpp" service

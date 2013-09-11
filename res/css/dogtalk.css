@@ -85,3 +85,11 @@ form {
   top: 45%;
 }
 
+
+
+/*
+ * XMPP modal
+ */
+.xmpp-modal-message {
+  text-align: center;
+}

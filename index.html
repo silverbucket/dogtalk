@@ -144,7 +144,7 @@
 
 
     <!-- XMPP settings modal window -->
-    <div id="modalSettingsXmpp" class="modal fade">
+    <div id="modalSettingsXmpp" class="modal fade" ng-controller="settingsCtrl">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -152,8 +152,11 @@
           </div>
           <!--- XXXX TODO ------------ UPDATE MODAL FORM -->
           <div class="modal-body">
+            <div class="alert alert-warning xmpp-modal-message"><p ng-bind="modal.message"></p></div>
+
             <p>Please provide your XMPP account details</p>
-            <form name="settingsXmpp" role="form" ng-controller="settingsCtrl" novalidate>
+
+            <form name="settingsXmpp" role="form" novalidate>
               <fieldset>
                 <div class="form-group">
                   <label for="displayname">Display Name</label>
