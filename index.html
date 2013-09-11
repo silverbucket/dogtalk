@@ -148,54 +148,59 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <img src="res/img/xmpp-logo.png" />
           </div>
-          <!--- XXXX TODO ------------ UPDATE MODAL FORM -->
           <div class="modal-body">
-            <div class="alert alert-warning xmpp-modal-message"><p ng-bind="modal.message"></p></div>
-
+            <div ng-show="modal.message" class="alert alert-warning xmpp-modal-message">
+              <p ng-bind="modal.message"></p>
+            </div>
             <p>Please provide your XMPP account details</p>
+            <form name="settingsXmpp" role="form" class="form-horizontal" novalidate>
 
-            <form name="settingsXmpp" role="form" novalidate>
-              <fieldset>
-                <div class="form-group">
-                  <label for="displayname">Display Name</label>
-                  <input type="text" class="required form-control" name="username" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
+              <div class="form-group">
+                <label for="displayname" class="control-label col-lg-2">Display Name</label>
+                <div class="col-lg-10">
+                  <input type="text" class="required form-control" name="displayName" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
                 </div>
+              </div>
 
-                <div class="form-group">
-                  <label for="username" class="control-label">Username</label>
+              <div class="form-group">
+                <label for="username" class="control-label col-lg-2">Username</label>
+                <div class="col-lg-10">
                   <input type="text" class="required form-control" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
                 </div>
+              </div>
 
-                <div class="form-group">
-                  <label for="password" class="control-label">Password</label>
+              <div class="form-group">
+                <label for="password" class="control-label col-lg-2">Password</label>
+                <div class="col-lg-10">
                   <input type="password" class="required form-control" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
                 </div>
+              </div>
 
-                 <div class="form-group">
-                  <label for="server" class="control-label">Server</label>
-                  <div class="controls">
-                    <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
-                  </div>
+               <div class="form-group">
+                <label for="server" class="control-label col-lg-2">Server</label>
+                <div class="col-lg-10">
+                  <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
                 </div>
+              </div>
 
-                <div class="form-group">
-                  <label for="port" class="control-label">Port</label>
-                  <div class="controls">
-                    <input type="text" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
-                  </div>
+              <div class="form-group">
+                <label for="port" class="control-label col-lg-2">Port</label>
+                <div class="col-lg-10">
+                  <input type="number" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
                 </div>
+              </div>
 
-              </fieldset>
-            <p></p>
+              <p></p>
           </div>
           <div class="modal-footer">
-                <div class="control-group">
-                  <div class="controls">
-                    <button class="btn btn-primary" ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
-                  </div>
+              <div class="control-group">
+                <div class="controls">
+                  <button class="btn btn-primary" ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
                 </div>
+              </div>
             </form>
           </div>
         </div>
