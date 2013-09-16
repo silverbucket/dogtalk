@@ -5,7 +5,6 @@ factory('XMPP', ['$rootScope', '$q', 'RS', 'SH',
 function ($rootScope, $q, RS, SH) {
 
   var sc;
-
   var config = {
     displayname: '',
     username: '',
@@ -127,8 +126,6 @@ function ($rootScope, $q, RS, SH) {
     SH.on('xmpp', 'message', function (data) {
       console.log('XMPP getting message: ', data);
       if (data.actor !== config.username) {  // someone else interacting with us
-
-
 
         if ((data.platform === 'xmpp') &&
             (data.verb === 'update')) {
@@ -285,4 +282,76 @@ function ($rootScope, $q, RS, SH) {
     initListener: initListener,
     sendMsg: sendMsg
   };
+}]).
+
+
+run(['$rootScope', 'SH', 'XMPP',
+function ($rootScope, SH, XMPP) {
+    /*
+        Receive emitted messages from elsewhere.
+        http://jsfiddle.net/VxafF/
+    */
+    $rootScope.$on('showModalSettingsXmpp', function(event, args) {
+      backdrop_setting = true;
+      if ((typeof args === 'object') && (typeof args.locked !== 'undefined')) {
+        if (args.locked) {
+          backdrop_setting = "static";
+        }
+      }
+      console.log('backdrop: ' + backdrop_setting);
+
+      XMPP.modal.message = (typeof args.message === 'string') ? args.message : undefined;
+
+      $("#modalSettingsXmpp").modal({
+        show: true,
+        keyboard: true,
+        backdrop: backdrop_setting
+      });
+    });
+
+    $rootScope.$on('closeModalSettingsXmpp', function(event, args) {
+      $("#modalSettingsXmpp").modal('hide');
+    });
+}]).
+
+directive('xmppSettings', ['XMPP', '$rootScope',
+function (XMPP, $rootScope) {
+  return {
+    restrict: 'A',
+    templateUrl: 'xmpp-settings.html',
+    link: function (scope) {
+      scope.modal = XMPP.modal;
+      scope.xmpp = {
+        // Reference to the account managed by the "xmpp" service
+        account: XMPP.config.data, //xmpp.account,
+        // Boolean flag, used to disable the "Save" button, while waiting for
+        // xmpp.saveAccount to finish.
+        saving: false,
+        // Method: show
+        // Displays the XMPP settings window
+        show: function() {
+          $rootScope.$broadcast('showModalSettingsXmpp', { locked: false });
+        },
+        // Method: save
+        // Saves the current account data. Bound to the "Save" button
+        save: function() {
+          scope.xmpp.saving = true;
+          XMPP.config.set(scope.xmpp.account).then(function (cfg) {
+           scope.xmpp.account.username = cfg.username;
+           scope.xmpp.account.password = cfg.password;
+           scope.xmpp.account.server = cfg.server;
+           scope.xmpp.account.resource = cfg.resource;
+           scope.xmpp.account.port = cfg.port;
+           scope.xmpp.saving = false;
+           $rootScope.$broadcast('closeModalSettingsXmpp');
+          });
+        }
+      };
+    }
+  };
 }]);
+
+
+
+
+

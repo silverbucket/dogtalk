@@ -143,70 +143,73 @@
     </script>
 
 
+
     <!-- XMPP settings modal window -->
-    <div id="modalSettingsXmpp" class="modal fade" ng-controller="settingsCtrl">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <img src="res/img/xmpp-logo.png" />
-          </div>
-          <div class="modal-body">
-            <div ng-show="modal.message" class="alert alert-warning xmpp-modal-message">
-              <p ng-bind="modal.message"></p>
+    <script type="text/ng-template" id ="xmpp-settings.html">
+      <div id="modalSettingsXmpp" class="modal fade" ng-controller="settingsCtrl">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <img src="res/img/xmpp-logo.png" />
             </div>
-            <p>Please provide your XMPP account details</p>
-            <form name="settingsXmpp" role="form" class="form-horizontal" novalidate>
-
-              <div class="form-group">
-                <label for="displayname" class="control-label col-lg-2">Display Name</label>
-                <div class="col-lg-10">
-                  <input type="text" class="required form-control" name="displayName" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
-                </div>
+            <div class="modal-body">
+              <div ng-show="modal.message" class="alert alert-warning xmpp-modal-message">
+                <p ng-bind="modal.message"></p>
               </div>
+              <p>Please provide your XMPP account details</p>
+              <form name="settingsXmpp" role="form" class="form-horizontal" novalidate>
 
-              <div class="form-group">
-                <label for="username" class="control-label col-lg-2">Username</label>
-                <div class="col-lg-10">
-                  <input type="text" class="required form-control" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
+                <div class="form-group">
+                  <label for="displayname" class="control-label col-lg-2">Display Name</label>
+                  <div class="col-lg-10">
+                    <input type="text" class="required form-control" name="displayName" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-group">
-                <label for="password" class="control-label col-lg-2">Password</label>
-                <div class="col-lg-10">
-                  <input type="password" class="required form-control" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
+                <div class="form-group">
+                  <label for="username" class="control-label col-lg-2">Username</label>
+                  <div class="col-lg-10">
+                    <input type="text" class="required form-control" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
+                  </div>
                 </div>
-              </div>
 
-               <div class="form-group">
-                <label for="server" class="control-label col-lg-2">Server</label>
-                <div class="col-lg-10">
-                  <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
+                <div class="form-group">
+                  <label for="password" class="control-label col-lg-2">Password</label>
+                  <div class="col-lg-10">
+                    <input type="password" class="required form-control" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-group">
-                <label for="port" class="control-label col-lg-2">Port</label>
-                <div class="col-lg-10">
-                  <input type="number" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
+                 <div class="form-group">
+                  <label for="server" class="control-label col-lg-2">Server</label>
+                  <div class="col-lg-10">
+                    <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
+                  </div>
                 </div>
-              </div>
 
-              <p></p>
-          </div>
-          <div class="modal-footer">
-              <div class="control-group">
-                <div class="controls">
-                  <button class="btn btn-primary" ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
+                <div class="form-group">
+                  <label for="port" class="control-label col-lg-2">Port</label>
+                  <div class="col-lg-10">
+                    <input type="number" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
+                  </div>
                 </div>
-              </div>
-            </form>
+
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <div class="control-group">
+                  <div class="controls">
+                    <button class="btn btn-primary" ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
+    </script>
+    <div xmpp-settings></div>
 
     <!-- build:js res/js/jquery.min.js -->
     <script type="text/javascript" src="vendor/jquery.min.js?v=1.10.1"></script>
