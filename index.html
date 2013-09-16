@@ -146,12 +146,12 @@
 
     <!-- XMPP settings modal window -->
     <script type="text/ng-template" id ="xmpp-settings.html">
-      <div id="modalSettingsXmpp" class="modal fade" ng-controller="settingsCtrl">
+      <div id="modalSettingsXmpp" class="modal fade">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-              <img src="res/img/xmpp-logo.png" />
+              <img data-ng-src="{{ xmpp.env.logo }}" ng-cloak/>
             </div>
             <div class="modal-body">
               <div ng-show="modal.message" class="alert alert-warning xmpp-modal-message">
