@@ -1,46 +1,68 @@
 angular.module('ngXMPPClient', ['ngSockethubClient', 'ngRemoteStorage']).
 
 
-factory('XMPP', ['$rootScope', '$q', 'RS', 'SH',
-function ($rootScope, $q, RS, SH) {
-
-  var sc;
-  var config = {
+/**
+ * default settings
+ */
+value('XMPPSettings', {
+  conn: {
     displayname: '',
     username: '',
     password: '',
-    server: '',
-    resource: '',
-    port: ''
-  };
-
-  var contacts = {};
-  var requests = {};
-
-  function existsConfig() {
-    return verifyConfig(config);
-  }
-
-  function verifyConfig(cfg) {
-    if (cfg) {
-      check = cfg;
+    server: 'jabber.org',
+    resource: 'Dogtalk'+Math.floor((Math.random()*100)+1),
+    port: 5222
+  },
+  connected: false,
+  env: {
+    logo: '/res/img/xmpp-logo.png'
+  },
+  save: function (prop, obj) {
+    if (this.verify(prop, obj)) {
+      if (!obj.resource) {
+        obj.resource = this[prop].resource;
+      }
+      this[prop] = obj;
+      console.log('XMPPSettings saved: '+prop+': ', this[prop]);
+      return true;
     } else {
-      check = config;
+      console.log('XMPPSettings save failed: '+prop+': ', this[prop]);
+      return false;
     }
-    if ((check.username) && (check.username !== '') &&
-        (check.password) && (check.password !== '') &&
-        (check.port) && (check.port !== '') &&
-        (check.server) && (check.server !== '')) {
+  },
+  exists: function (prop) {
+    this.verify(prop, settings.conn);
+  },
+  verify: function (prop, p) {
+    if (!p) {
+      p = this[prop];
+    }
+    if ((p.displayname) && (p.displayname !== '') &&
+        (p.username) && (p.username !== '') &&
+        (p.password) && (p.password !== '') &&
+        (p.server) && (p.server !== '') &&
+        (p.port) && (p.port !== '')) {
       return true;
     } else {
       return false;
     }
   }
+}).
 
-  function setConfig(cfg) {
+
+/**
+ * factory: XMPP
+ */
+factory('XMPP', ['$rootScope', '$q', 'SH', 'XMPPSettings',
+function ($rootScope, $q, SH, settings) {
+
+  var contacts = {};
+  var requests = {};
+
+  function connect(cfg) {
     var defer = $q.defer();
 
-    if (verifyConfig(cfg)) {
+    if (settings.verify(cfg)) {
       config.displayname = (cfg.displayname) ? cfg.displayname : '';
       config.username = cfg.username;
       config.password = cfg.password;
@@ -69,23 +91,6 @@ function ($rootScope, $q, RS, SH) {
     return defer.promise;
   }
 
-  function getConfig() {
-    var defer = $q.defer();
-    if (!existsConfig()) {
-      RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (account) {
-        console.log('account.username:', account.username);
-        setConfig(account).then(function () {
-          console.log('set config done');
-          defer.resolve(account);
-        }, function (err) {
-          defer.reject(err);
-        });
-      }, defer.reject);
-    } else {
-      defer.resolve(config);
-    }
-    return defer.promise;
-  }
 
   var presence = {
     state: undefined,
@@ -258,12 +263,7 @@ function ($rootScope, $q, RS, SH) {
 // fields change
 //
   return {
-    config: {
-      get: getConfig,
-      set: setConfig,
-      exists: existsConfig,
-      data: config
-    },
+    connect: connect,
     modal: {
       message: ''
     },
@@ -285,6 +285,10 @@ function ($rootScope, $q, RS, SH) {
 }]).
 
 
+
+/**
+ * emitter: modal windows
+ */
 run(['$rootScope', 'SH', 'XMPP',
 function ($rootScope, SH, XMPP) {
     /*
@@ -314,8 +318,13 @@ function ($rootScope, SH, XMPP) {
     });
 }]).
 
-directive('xmppSettings', ['XMPP', '$rootScope',
-function (XMPP, $rootScope) {
+
+
+/**
+ * directive: xmppSettings
+ */
+directive('xmppSettings', ['XMPP', '$rootScope', 'XMPPSettings',
+function (XMPP, $rootScope, XMPPSettings) {
   return {
     restrict: 'A',
     templateUrl: 'xmpp-settings.html',
@@ -323,9 +332,10 @@ function (XMPP, $rootScope) {
       scope.modal = XMPP.modal;
       scope.xmpp = {
         // Reference to the account managed by the "xmpp" service
-        account: XMPP.config.data, //xmpp.account,
+        account: XMPPSettings.conn, //xmpp.account,
         // Boolean flag, used to disable the "Save" button, while waiting for
         // xmpp.saveAccount to finish.
+        env: XMPPSettings.env,
         saving: false,
         // Method: show
         // Displays the XMPP settings window
