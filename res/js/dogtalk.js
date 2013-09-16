@@ -1,4 +1,4 @@
-angular.module('dogtalk', ['ngSockethubClient', 'ngRemoteStorage', 'ngXMPPClient', 'ngMessages']).
+angular.module('dogtalk', ['ngSockethubClient', 'ngSockethubRemoteStorage', 'ngRemoteStorage', 'ngXMPPClient', 'ngMessages']).
 
 
 /**
@@ -40,10 +40,10 @@ function (RScfg) {
 
 
 /**
- * check
+ * check remoteStorage connections
  */
-run(['SockethubSettings', 'SH', '$rootScope', 'RS', '$timeout',
-function (settings, SH, $rootScope, RS, $timeout) {
+run(['$rootScope', 'RS', '$timeout',
+function ($rootScope, RS, $timeout) {
   if (!RS.isConnected()) {
     $timeout(function () {
       if (!RS.isConnected()) {
@@ -53,47 +53,20 @@ function (settings, SH, $rootScope, RS, $timeout) {
   }
 }]).
 
+
+
 /**
  * sockethub config & connect
  */
-run(['SockethubSettings', 'SH', '$rootScope', 'RS',
-function (settings, SH, $rootScope, RS) {
-  RS.call('sockethub', 'getConfig', ['']).then(function (c) {
-    console.log('GOT SH CONFIG: ', c);
-    var cfg = {};
-    if ((typeof c !== 'object') || (typeof c.host !== 'string')) {
-      //cfg = settings.conn;
-      cfg.host = 'silverbucket.net';
-      cfg.port = 443;
-      cfg.path = '/sockethub';
-      cfg.tls = true;
-      cfg.secret = '1234567890';
-    } else {
-      cfg = c;
-    }
-
-    console.log('USING SH CONFIG: ', cfg);
-    //$rootScope.$broadcast('message', {type: 'clear'});
-    // connect to sockethub and register
-    if (settings.save('conn', cfg));
-    $rootScope.$broadcast('message', {
-          message: 'attempting to connect to sockethub',
-          type: 'info',
-          timeout: false
-    });
-    SH.connect({register: true}).then(function () {
-      //console.log('connected to sockethub');
-      $rootScope.$broadcast('message', {
-            message: 'connected to sockethub',
-            type: 'success',
-            timeout: true
-      });
-    }, function (err) {
-      console.log('error connecting to sockethub: ', err);
-      $rootScope.$broadcast('SockethubConnectFailed', {message: err});
-    });
-  }, function (err) {
-    console.log("RS.call error: ",err);
+run(['SockethubBootstrap',
+function (SockethubBootstrap) {
+  SockethubBootstrap.run({
+    // default connection settings
+    host: 'silverbucket.net',
+    port: '443',
+    path: '/sockethub',
+    tls: true,
+    secret: '1234567890'
   });
 }]).
 
@@ -108,13 +81,18 @@ function (SH, $rootScope, RS) {
     var cfg = {};
 
     if (c === undefined) {
-      console.log('YOO!');
       $rootScope.$broadcast('showModalSettingsXmpp', { message: 'No existing XMPP configuration information found', locked: false });
       $rootScope.$broadcast('message', {
         message: 'xmpp-connection',
         type: 'error',
         timeout: false
         //important: true
+      });
+    } else {
+      XMPP.connect(c).then(function () {
+        console.log('xmpp connected');
+      }, function (err) {
+
       });
     }
 
@@ -244,14 +222,14 @@ function ($scope, $route, $routeParams, $rootScope, SockethubSettings, XMPP, RS)
  * controller: talkCtrl
  */
 controller("talkCtrl",
-['$scope', '$route', '$routeParams', '$location', 'XMPP', '$rootScope',
-function ($scope, $route, $routeParams, $location, XMPP, $rootScope) {
+['$scope', '$route', '$routeParams', '$location', 'XMPP', '$rootScope', 'XMPPSettings',
+function ($scope, $route, $routeParams, $location, XMPP, $rootScope, XMPPSettings) {
   console.log('--- talkCtrl run');
 
   $scope.model = {
     presence: XMPP.presence.data,
     contacts: XMPP.contacts.data,
-    config: XMPP.config.data,
+    config: XMPPSettings.conn,
     requests: XMPP.requests.data
   };
 
