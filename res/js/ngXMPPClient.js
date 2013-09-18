@@ -34,6 +34,7 @@ value('XMPPSettings', {
     this.verify(prop, settings.conn);
   },
   verify: function (prop, p) {
+    console.log("VERIFY CALLED ["+prop+"] ", p);
     if (!p) {
       p = this[prop];
     }
@@ -53,8 +54,8 @@ value('XMPPSettings', {
 /**
  * factory: XMPP
  */
-factory('XMPP', ['$rootScope', '$q', 'SH', 'XMPPSettings',
-function ($rootScope, $q, SH, settings) {
+factory('XMPP', ['$rootScope', '$q', 'SH', 'XMPPSettings', 'RS',
+function ($rootScope, $q, SH, settings, RS) {
 
   var contacts = {};
   var requests = {};
@@ -62,28 +63,32 @@ function ($rootScope, $q, SH, settings) {
   function connect(cfg) {
     var defer = $q.defer();
 
-    if (settings.verify(cfg)) {
-      config.displayname = (cfg.displayname) ? cfg.displayname : '';
+    if (settings.verify('conn', cfg)) {
+      settings.save('conn', cfg);
+      var config = {};
       config.username = cfg.username;
       config.password = cfg.password;
       config.port = cfg.port;
       config.resource = (cfg.resource) ? cfg.resource : 'Dogtalk';
       config.server = cfg.server;
-
-      if (SH.isConnected()) {
-
+      config.actor = {};
+      config.actor.name = cfg.displayname;
+      config.actor.address = cfg.username+'@'+cfg.server+'/'+config.resource;
+      //if (SH.isConnected()) {
         SH.set('xmpp', 'credentials', cfg.username, config).then(function () {
+          return setPresence('availble', '', true);
+        }).then(function () {
           RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(function () {
-            defer.resolve(cfg);
+            defer.resolve();
           }, defer.reject);
-        }, function () {
-          defer.reject();
+        }, function (err) {
+          defer.reject(err.message);
         });
-      } else {
+      /*} else {
         RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(function () {
           defer.resolve(cfg);
         }, defer.reject);
-      }
+      }*/
 
     } else {
       defer.reject('XMPP config verification failed');
@@ -108,7 +113,7 @@ function ($rootScope, $q, SH, settings) {
       platform: 'xmpp',
       verb: 'update',
       actor: {
-        address: config.username
+        address: settings.conn.username
       },
       object: {
         show: state,
@@ -130,7 +135,7 @@ function ($rootScope, $q, SH, settings) {
   function initListener() {
     SH.on('xmpp', 'message', function (data) {
       console.log('XMPP getting message: ', data);
-      if (data.actor !== config.username) {  // someone else interacting with us
+      if (data.actor !== settings.conn.username) {  // someone else interacting with us
 
         if ((data.platform === 'xmpp') &&
             (data.verb === 'update')) {
@@ -346,22 +351,20 @@ function (XMPP, $rootScope, XMPPSettings) {
         // Saves the current account data. Bound to the "Save" button
         save: function() {
           scope.xmpp.saving = true;
-          XMPP.config.set(scope.xmpp.account).then(function (cfg) {
-           scope.xmpp.account.username = cfg.username;
-           scope.xmpp.account.password = cfg.password;
-           scope.xmpp.account.server = cfg.server;
-           scope.xmpp.account.resource = cfg.resource;
-           scope.xmpp.account.port = cfg.port;
-           scope.xmpp.saving = false;
-           $rootScope.$broadcast('closeModalSettingsXmpp');
+          console.log('connecting...');
+          XMPP.connect(scope.xmpp.account).then(function () {
+            // xmpp credentials and signon success
+            scope.xmpp.saving = false;
+            console.log('connecting SUCESS');
+            $rootScope.$broadcast('closeModalSettingsXmpp');
+          }, function (err) {
+            // xmpp credentials and signon failure
+            scope.xmpp.saving = false;
+            console.log('connecting FAILED: ',err);
+            XMPP.modal.message = err;
           });
         }
       };
     }
   };
 }]);
-
-
-
-
-

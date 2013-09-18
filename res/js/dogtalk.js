@@ -75,7 +75,7 @@ function (SockethubBootstrap) {
  * get xmpp config
  */
 run(['SH', '$rootScope', 'RS', 'XMPP',
-function (SH, $rootScope, RS) {
+function (SH, $rootScope, RS, XMPP) {
   RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (c) {
     console.log('GOT XMPP CONFIG: ', c);
     var cfg = {};
@@ -92,7 +92,13 @@ function (SH, $rootScope, RS) {
       XMPP.connect(c).then(function () {
         console.log('xmpp connected');
       }, function (err) {
-
+        $rootScope.$broadcast('showModalSettingsXmpp', { message: 'Error connecting via XMPP '+err, locked: false });
+        console.log('xmpp ERROR', err);
+        $rootScope.$broadcast('message', {
+          message: err,
+          type: 'error',
+          timeout: true
+        });
       });
     }
 
