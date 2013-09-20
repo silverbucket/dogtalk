@@ -61,7 +61,7 @@ function ($rootScope, RS, $timeout) {
 run(['SockethubBootstrap',
 function (SockethubBootstrap) {
   SockethubBootstrap.run({
-    // default connection settings
+    // default connection settings, if none found in remoteStorage
     host: 'silverbucket.net',
     port: '443',
     path: '/sockethub',
@@ -74,14 +74,17 @@ function (SockethubBootstrap) {
 /**
  * get xmpp config
  */
-run(['SH', '$rootScope', 'RS', 'XMPP',
-function (SH, $rootScope, RS, XMPP) {
+run(['SH', '$rootScope', 'RS', 'XMPP', 'XMPPSettings',
+function (SH, $rootScope, RS, XMPP, settings) {
   RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (c) {
     console.log('GOT XMPP CONFIG: ', c);
     var cfg = {};
 
     if (c === undefined) {
-      $rootScope.$broadcast('showModalSettingsXmpp', { message: 'No existing XMPP configuration information found', locked: false });
+      $rootScope.$broadcast('showModalSettingsXmpp', {
+        message: 'No existing XMPP configuration information found',
+        locked: false
+      });
       $rootScope.$broadcast('message', {
         message: 'xmpp-connection',
         type: 'error',

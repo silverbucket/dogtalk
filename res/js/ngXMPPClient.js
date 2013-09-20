@@ -38,7 +38,7 @@ value('XMPPSettings', {
     if (!p) {
       p = this[prop];
     }
-    if ((p.displayname) && (p.displayname !== '') &&
+    if ((typeof p.displayname !== 'undefined') && (p.displayname !== '') &&
         (p.username) && (p.username !== '') &&
         (p.password) && (p.password !== '') &&
         (p.server) && (p.server !== '') &&
@@ -82,6 +82,7 @@ function ($rootScope, $q, SH, settings, RS) {
             defer.resolve();
           }, defer.reject);
         }, function (err) {
+          //console.log('ERR:',err.message.message);
           defer.reject(err.message);
         });
       /*} else {

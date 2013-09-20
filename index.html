@@ -68,7 +68,7 @@
                 </ul>
 
                 <ul class="nav nav-list nav-pills nav-stacked">
-                  <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:c.state" ng:class="conversationSwitch({{ c.address }})">
+                  <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:c.state" ng:class="conversationSwitch('{{ c.address }}')">
                     <a href="#/talk/{{c.address}}">
                       <span class="state {{ c.state }}"></span>
                       <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>
@@ -174,7 +174,7 @@
                 <div class="form-group">
                   <label for="username" class="control-label col-lg-2">Username</label>
                   <div class="col-lg-10">
-                    <input type="text" class="required form-control" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
+                    <input type="email" class="required form-control" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
                   </div>
                 </div>
 
