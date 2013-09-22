@@ -105,40 +105,6 @@ function (SH, $rootScope, RS, XMPP, settings) {
       });
     }
 
-
-    /*
-    if ((typeof c !== 'object') || (typeof c.host !== 'string')) {
-      //cfg = settings.conn;
-      cfg.host = 'silverbucket.net';
-      cfg.port = 443;
-      cfg.path = '/sockethub';
-      cfg.tls = true;
-      cfg.secret = '1234567890';
-    } else {
-      cfg = c;
-    }
-
-    console.log('USING SH CONFIG: ', cfg);
-    //$rootScope.$broadcast('message', {type: 'clear'});
-    // connect to sockethub and register
-    if (settings.save('conn', cfg));
-    $rootScope.$broadcast('message', {
-          message: 'attempting to connect to sockethub',
-          type: 'info',
-          timeout: false
-    });
-    SH.connect({register: true}).then(function () {
-      //console.log('connected to sockethub');
-      $rootScope.$broadcast('message', {
-            message: 'connected to sockethub',
-            type: 'success',
-            timeout: true
-      });
-    }, function (err) {
-      console.log('error connecting to sockethub: ', err);
-      $rootScope.$broadcast('SockethubConnectFailed', {message: err});
-    });
-    */
   }, function (err) {
     console.log("RS.call failed: ",err);
   });
@@ -336,43 +302,5 @@ function ($scope, $route, $routeParams, $location) {
   };
 }]);
 
-
-
-
-///////////////////////////////////////////////////////////////////////////
-//
-// DIRECTIVES
-//
-///////////////////////////////////////////////////////////////////////////
-
-/**
- * directive: loading
- */
-/*directive("loading",
-['$rootScope', 'XMPP', function ($rootScope, XMPP) {
-  return {
-    restrict: "E",
-    template: '<div class="loading" ng-show="isLoading">'+
-              '<img src="img/loading_animation.gif" />' +
-              '</div>',
-    link: function (scope) {
-
-      $rootScope.$on("$routeChangeStart", function () {
-        console.log('loading: directive routeChangeStart');
-        scope.isLoading = true;
-      });
-
-      $rootScope.$on("$routeChangeError", function (event, current, previous, rejection) {
-        console.log('loading: directive routeChangeError');
-        scope.isLoading = false;
-      });
-
-      $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
-        console.log('loading: directive routeChangeSuccess');
-        scope.isLoading = false;
-      });
-    }
-  };
-}]);*/
 
 
