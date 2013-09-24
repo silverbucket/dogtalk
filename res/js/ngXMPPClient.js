@@ -10,7 +10,7 @@ value('XMPPSettings', {
     username: '',
     password: '',
     server: 'jabber.org',
-    resource: 'Dogtalk'+Math.floor((Math.random()*100)+1),
+    resource: 'Dogtalk',//+Math.floor((Math.random()*100)+1),
     port: 5222
   },
   connected: false,
@@ -76,7 +76,7 @@ function ($rootScope, $q, SH, settings, RS) {
       config.actor.address = cfg.username+'@'+cfg.server+'/'+config.resource;
       //if (SH.isConnected()) {
         SH.set('xmpp', 'credentials', cfg.username, config).then(function () {
-          return setPresence('availble', '', true);
+          return setPresence('available', '', true);
         }).then(function () {
           RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(function () {
             defer.resolve();
