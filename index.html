@@ -43,8 +43,6 @@
 
     <ng-view></ng-view>
 
-    <!--<loading></loading>-->
-
     <div sockethub-settings></div>
 
     <!-- dogtalk main interface -->
@@ -125,7 +123,7 @@
               <p><a href="" ng-click="sockethubSettings()"><img src="res/img/sockethub-logo.svg" width="200" /></a></p>
             </div>
             <div class="col-md-3 configitem">
-              <p><a href="" ng-click="xmpp.show()"><img src="res/img/xmpp-logo.png" width="200" /></a></p>
+              <p><a href="" ng-click="xmppSettings()"><img src="res/img/xmpp-logo.png" width="200" /></a></p>
             </div>
             <div class="col-md-6"></div>
           </div>
@@ -155,7 +153,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-              <img data-ng-src="{{ xmpp.env.logo }}" ng-cloak/>
+              <img data-ng-src="{{ settings.env.logo }}" ng-cloak/>
             </div>
             <div class="modal-body">
               <div ng-show="modal.message" class="alert alert-warning xmpp-modal-message">
@@ -163,48 +161,50 @@
               </div>
               <p>Please provide your XMPP account details</p>
               <form name="settingsXmpp" role="form" class="form-horizontal" novalidate>
-
-                <div class="form-group">
-                  <label for="displayname" class="control-label col-lg-2">Display Name</label>
-                  <div class="col-lg-10">
-                    <input type="text" class="required form-control" name="displayName" placeholder="Enter display name..." ng-model="xmpp.account.displayname">
+                <fieldset>
+                  <div class="form-group">
+                    <label for="displayname" class="control-label col-lg-2">Display Name</label>
+                    <div class="col-lg-10 controls">
+                      <input type="text" class="required form-control" name="displayName" placeholder="Enter display name..." ng-model="settings.conn.displayname">
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group">
-                  <label for="username" class="control-label col-lg-2">Username</label>
-                  <div class="col-lg-10">
-                    <input type="email" class="required form-control" name="username" placeholder="Enter username..." ng-model="xmpp.account.username">
+                  <div class="form-group">
+                    <label for="username" class="control-label col-lg-2">Username</label>
+                    <div class="col-lg-10 controls">
+                      <input type="email" class="required form-control" name="username" placeholder="Enter username..." ng-model="settings.conn.username" required>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group">
-                  <label for="password" class="control-label col-lg-2">Password</label>
-                  <div class="col-lg-10">
-                    <input type="password" class="required form-control" name="password" placeholder="Enter password..." ng-model="xmpp.account.password" required>
+                  <div class="form-group">
+                    <label for="password" class="control-label col-lg-2">Password</label>
+                    <div class="col-lg-10 controls">
+                      <input type="password" class="required form-control" name="password" placeholder="Enter password..." ng-model="settings.conn.password" required>
+                    </div>
                   </div>
-                </div>
 
-                 <div class="form-group">
-                  <label for="server" class="control-label col-lg-2">Server</label>
-                  <div class="col-lg-10">
-                    <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="xmpp.account.server" >
+                   <div class="form-group">
+                    <label for="server" class="control-label col-lg-2">Server</label>
+                    <div class="col-lg-10 controls">
+                      <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="settings.conn.server" required>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group">
-                  <label for="port" class="control-label col-lg-2">Port</label>
-                  <div class="col-lg-10">
-                    <input type="number" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="xmpp.account.port">
+                  <div class="form-group">
+                    <label for="port" class="control-label col-lg-2">Port</label>
+                    <div class="col-lg-10 controls">
+                      <input type="number" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="settings.conn.port" required>
+                    </div>
                   </div>
-                </div>
 
-                <p></p>
+                  <p></p>
+                </fieldset>
             </div>
             <div class="modal-footer">
                 <div class="control-group">
                   <div class="controls">
-                    <button class="btn btn-primary" ng-click="xmpp.save()" ng-disabled="settingsXmpp.$invalid || xmpp.saving">Save</button>
+                    <button class="btn btn-primary" ng-click="save(settings.conn)"
+                            ng-disabled="!settings.verify(\'conn\', settings.conn) || saving">Submit</button>
                   </div>
                 </div>
               </form>
