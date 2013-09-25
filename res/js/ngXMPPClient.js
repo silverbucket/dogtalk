@@ -18,6 +18,7 @@ value('XMPPSettings', {
     logo: '/res/img/xmpp-logo.png'
   },
   save: function (prop, obj) {
+console.log('---------- A');
     if (this.verify(prop, obj)) {
       if (!obj.resource) {
         obj.resource = this[prop].resource;
@@ -31,6 +32,7 @@ value('XMPPSettings', {
     }
   },
   exists: function (prop) {
+console.log('---------- B');
     this.verify(prop, settings.conn);
   },
   verify: function (prop, p) {
@@ -63,6 +65,7 @@ function ($rootScope, $q, SH, settings, RS) {
   function connect(cfg) {
     var defer = $q.defer();
 
+console.log('---------- C');
     if (settings.verify('conn', cfg)) {
       settings.save('conn', cfg);
       var config = {};
@@ -330,41 +333,37 @@ function ($rootScope, SH, XMPP) {
  * directive: xmppSettings
  */
 directive('xmppSettings', ['XMPP', '$rootScope', 'XMPPSettings',
-function (XMPP, $rootScope, XMPPSettings) {
+function (XMPP, $rootScope, settings) {
   return {
     restrict: 'A',
     templateUrl: 'xmpp-settings.html',
     link: function (scope) {
       scope.modal = XMPP.modal;
-      scope.xmpp = {
-        // Reference to the account managed by the "xmpp" service
-        account: XMPPSettings.conn, //xmpp.account,
-        // Boolean flag, used to disable the "Save" button, while waiting for
-        // xmpp.saveAccount to finish.
-        env: XMPPSettings.env,
-        saving: false,
-        // Method: show
-        // Displays the XMPP settings window
-        show: function() {
-          $rootScope.$broadcast('showModalSettingsXmpp', { locked: false });
-        },
-        // Method: save
-        // Saves the current account data. Bound to the "Save" button
-        save: function() {
-          scope.xmpp.saving = true;
-          console.log('connecting...');
-          XMPP.connect(scope.xmpp.account).then(function () {
-            // xmpp credentials and signon success
-            scope.xmpp.saving = false;
-            console.log('connecting SUCESS');
-            $rootScope.$broadcast('closeModalSettingsXmpp');
-          }, function (err) {
-            // xmpp credentials and signon failure
-            scope.xmpp.saving = false;
-            console.log('connecting FAILED: ',err);
-            XMPP.modal.message = err;
-          });
-        }
+      scope.saving = false;
+      scope.settings = settings;
+
+      // Method: show
+      // Displays the XMPP settings window
+      scope.show = function() {
+        $rootScope.$broadcast('showModalSettingsXmpp', { locked: false });
+      };
+
+      // Method: save
+      // Saves the current account data. Bound to the "Save" button
+      scope.save = function() {
+        scope.saving = true;
+        console.log('connecting...');
+        XMPP.connect(scope.settings.conn).then(function () {
+          // xmpp credentials and signon success
+          scope.saving = false;
+          console.log('connecting SUCESS');
+          $rootScope.$broadcast('closeModalSettingsXmpp');
+        }, function (err) {
+          // xmpp credentials and signon failure
+          scope.saving = false;
+          console.log('connecting FAILED: ',err);
+          XMPP.modal.message = err;
+        });
       };
     }
   };
