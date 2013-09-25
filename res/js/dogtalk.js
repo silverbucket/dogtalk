@@ -175,6 +175,10 @@ function ($scope, $route, $routeParams, $rootScope, SockethubSettings, XMPP, RS)
     $rootScope.$broadcast('showModalSockethubSettings', { locked: false });
   };
 
+  $scope.xmppSettings = function () {
+    $rootScope.$broadcast('showModalSettingsXmpp', { locked: false });
+  };
+
   /*
    FIXME: ...
    $scope.$watch('SockethubSettings.connected', function (newVal, oldVal) {
