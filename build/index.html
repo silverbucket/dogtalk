@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="dogtalk" ng-controller="appCtrl">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>dogtalk</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="res/css/bootstrap.min.css">
+    <link rel="stylesheet" href="res/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="res/css/app.min.css">
+  </head>
+
+  <body>
+    <div id="remotestorage-connect" ng-controller="remoteStorageCtrl"></div>
+
+    <!--[if lt IE 7]>
+      <p class="alert">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a>!</p>
+    <![endif]-->
+    <nav>
+      <div class="navbar navbar-default" ng-controller="navCtrl">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><img src="res/img/dogtalk-logo.svg" width="120" alt="Dogtalk" /></a>
+          </div>
+          <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li ng-class="navClass('home')"><a href="#/" class="home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+              <li ng-class="navClass('settings')"><a href="#/settings" class="settings"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="message-container">
+      <div message></div>
+    </div>
+
+    <ng-view></ng-view>
+
+    <div sockethub-settings></div>
+
+    <!-- dogtalk main interface -->
+    <script type="text/ng-template" id="talk.html">
+      <section id="talk" class="page">
+        <div class="container">
+          <div class="row">
+
+            <div class="col-md-3 contacts" ng-controller="talkCtrl">
+              <p>presence: {{ model.presence.state }}</p>
+              <h4>Contacts</h4>
+              <input type="text" data-ng-model="c.name" />
+
+                <ul class="nav nav-list nav-pills nav-stacked">
+                  <li data-ng-repeat="r in model.requests">
+                    <p><span class="username">{{ r.actor.address }}</span> </p>
+                    <p><button class="btn btn-success pull-left" type="button" ng:click="acceptBuddyRequest(r.actor.address)" ng-disabled="model.saving"><i class="icon-ok"></i> Accept</button>
+                    &nbsp; wants to be your friend! &nbsp;
+                    <a class="close" href="#">&times;</a></p>
+                  </li>
+                </ul>
+
+                <ul class="nav nav-list nav-pills nav-stacked">
+                  <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:c.state" ng:class="conversationSwitch('{{ c.address }}')">
+                    <a href="#/talk/{{c.address}}">
+                      <span class="state {{ c.state }}"></span>
+                      <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>
+                    </a>
+                  </li>
+                </ul>
+            </div>
+
+            <div class="col-md-9 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
+              <div class="conversation">
+
+                <form name="sendMessage" class="form-horizontal" ng:submit="sendMsg(model.sendText)" novalidate>
+                  <div class="input-append">
+                    <input class="span50" id="appendedInputButton" size="80" type="text" ng-model="model.sendText" required>
+                    <button class="btn btn-primary" type="button" ng:click="sendMsg(model.sendText)" ng-disabled="sendMessage.$invalid || model.saving">Send</button>
+                  </div>
+                </form>
+
+                <div class="history" ng-repeat="msg in model.currentConversation">
+                  <div class="message well" ng:class="{fromMe:isFromMe(msg.actor.address)}">
+                    <div class="name"><small>{{ msg.actor.name }}</small></div>
+                    <div class="address"><small>{{ msg.actor.address }}</small></div>
+                    <div class="text"><p></p><p class="text-info">{{ msg.object.text }}<p></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </script>
+
+
+    <!-- dogtalk app loading panel -->
+    <script type="text/ng-template" id="app.html">
+      <section id="appload" class="page">
+        <h2>... connecting ...</h2>
+        <p>{{model.message}}</p>
+      </section>
+    </script>
+
+
+
+    <!-- dogtalk settings panel -->
+    <script type="text/ng-template" id="settings.html">
+      <section id="settings" class="page">
+      <div ng-controller="settingsCtrl">
+        <h2>Settings</h2>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-3 configitem">
+              <p><a href="" ng-click="sockethubSettings()"><img src="res/img/sockethub-logo.svg" width="200" /></a></p>
+            </div>
+            <div class="col-md-3 configitem">
+              <p><a href="" ng-click="xmppSettings()"><img src="res/img/xmpp-logo.png" width="200" /></a></p>
+            </div>
+            <div class="col-md-6"></div>
+          </div>
+          <div class="row">
+            <p>&nbsp; <br /></p>
+          </div>
+          <div class="row">
+            <div class="col-md-3 configitem">
+
+            </div>
+            <div class="col-md-3 configitem">
+
+            </div>
+            <div class="col-md-6"></div>
+          </div>
+        </div>
+      </div>
+      </section>
+    </script>
+
+
+
+    <!-- XMPP settings modal window -->
+    <script type="text/ng-template" id ="xmpp-settings.html">
+      <div id="modalSettingsXmpp" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <img data-ng-src="{{ settings.env.logo }}" ng-cloak/>
+            </div>
+            <div class="modal-body">
+              <div ng-show="modal.message" class="alert alert-warning xmpp-modal-message">
+                <p ng-bind="modal.message"></p>
+              </div>
+              <p>Please provide your XMPP account details</p>
+              <form name="settingsXmpp" role="form" class="form-horizontal" novalidate>
+                <fieldset>
+                  <div class="form-group">
+                    <label for="displayname" class="control-label col-lg-2">Display Name</label>
+                    <div class="col-lg-10 controls">
+                      <input type="text" class="required form-control" name="displayName" placeholder="Enter display name..." ng-model="settings.conn.displayname">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="username" class="control-label col-lg-2">Username</label>
+                    <div class="col-lg-10 controls">
+                      <input type="text" class="required form-control" name="username" placeholder="Enter username..." ng-model="settings.conn.username" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="password" class="control-label col-lg-2">Password</label>
+                    <div class="col-lg-10 controls">
+                      <input type="password" class="required form-control" name="password" placeholder="Enter password..." ng-model="settings.conn.password" required>
+                    </div>
+                  </div>
+
+                   <div class="form-group">
+                    <label for="server" class="control-label col-lg-2">Server</label>
+                    <div class="col-lg-10 controls">
+                      <input type="text" class="required form-control" name="server" placeholder="Enter the XMPP server domain..." ng-model="settings.conn.server" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="port" class="control-label col-lg-2">Port</label>
+                    <div class="col-lg-10 controls">
+                      <input type="number" class="required form-control" name="port" placeholder="Enter the port number..." ng-model="settings.conn.port" required>
+                    </div>
+                  </div>
+
+                  <p></p>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <div class="control-group">
+                  <div class="controls">
+                    <button class="btn btn-primary" ng-click="save(settings.conn)"
+                            ng-disabled="!settings.verify('conn', settings.conn) || saving">Submit</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+    <div xmpp-settings></div>
+
+    <script src="res/js/jquery.min.js"></script>
+    <script src="res/js/angular.min.js"></script>
+    <script src="res/js/bootstrap.min.js"></script>
+    <script src="res/js/remotestorage.min.js"></script>
+    <script src="res/js/sockethub-client.min.js"></script>
+    <script src="res/js/remotestorage-modules.min.js"></script>
+    <script src="res/js/app.min.js"></script>
+  </body>
+</html>
