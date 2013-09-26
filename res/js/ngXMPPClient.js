@@ -18,7 +18,6 @@ value('XMPPSettings', {
     logo: '/res/img/xmpp-logo.png'
   },
   save: function (prop, obj) {
-console.log('---------- A');
     if (this.verify(prop, obj)) {
       if (!obj.resource) {
         obj.resource = this[prop].resource;
@@ -32,11 +31,10 @@ console.log('---------- A');
     }
   },
   exists: function (prop) {
-console.log('---------- B');
     this.verify(prop, settings.conn);
   },
   verify: function (prop, p) {
-    console.log("VERIFY CALLED ["+prop+"] ", p);
+    //console.log("VERIFY CALLED ["+prop+"] ", p);
     if (!p) {
       p = this[prop];
     }
@@ -65,7 +63,6 @@ function ($rootScope, $q, SH, settings, RS) {
   function connect(cfg) {
     var defer = $q.defer();
 
-console.log('---------- C');
     if (settings.verify('conn', cfg)) {
       settings.save('conn', cfg);
       var config = {};
