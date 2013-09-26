@@ -22,6 +22,18 @@ value('XMPPSettings', {
       if (!obj.resource) {
         obj.resource = this[prop].resource;
       }
+
+      // build fullJid
+      if (!obj.fullJid) {
+        if (obj.username.indexOf('@') === -1) {
+          obj.bareJid = obj.username + '@' + obj.server;
+        } else {
+          bareJid = obj.username;
+        }
+        obj.fullJid = obj.bareJid + '/' + obj.resource;
+      }
+      obj.actor = obj.fullJid;
+
       this[prop] = obj;
       console.log('XMPPSettings saved: '+prop+': ', this[prop]);
       return true;
@@ -73,23 +85,18 @@ function ($rootScope, $q, SH, settings, RS) {
       config.server = cfg.server;
       config.actor = {};
       config.actor.name = cfg.displayname;
-      config.actor.address = cfg.username+'@'+cfg.server+'/'+config.resource;
-      //if (SH.isConnected()) {
-        SH.set('xmpp', 'credentials', cfg.username, config).then(function () {
-          return setPresence('available', '', true);
-        }).then(function () {
-          RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(function () {
-            defer.resolve();
-          }, defer.reject);
-        }, function (err) {
-          //console.log('ERR:',err.message.message);
-          defer.reject(err.message);
-        });
-      /*} else {
+      config.actor.address = settings.conn.actor;//cfg.username+'@'+cfg.server+'/'+config.resource;
+
+      SH.set('xmpp', 'credentials', settings.conn.actor, config).then(function () {
+        return setPresence(settings.conn.actor, 'available', '', true);
+      }).then(function () {
         RS.call('messages', 'setAccount', ['xmpp', 'default', cfg]).then(function () {
-          defer.resolve(cfg);
+          defer.resolve();
         }, defer.reject);
-      }*/
+      }, function (err) {
+        //console.log('ERR:',err.message.message);
+        defer.reject(err.message);
+      });
 
     } else {
       defer.reject('XMPP config verification failed');
@@ -107,14 +114,14 @@ function ($rootScope, $q, SH, settings, RS) {
     return presence.state;
   }
 
-  function setPresence(state, statusText, getRoster) {
+  function setPresence(actor, state, statusText, getRoster) {
     var defer = $q.defer();
 
     SH.submit({
       platform: 'xmpp',
       verb: 'update',
       actor: {
-        address: settings.conn.username
+        address: actor
       },
       object: {
         show: state,
@@ -133,10 +140,11 @@ function ($rootScope, $q, SH, settings, RS) {
   }
 
 
+  // FIXME - this function needs to be re-evaluated and probably re-factored
   function initListener() {
     SH.on('xmpp', 'message', function (data) {
       console.log('XMPP getting message: ', data);
-      if (data.actor !== settings.conn.username) {  // someone else interacting with us
+      if (data.actor !== settings.conn.actor) {  // someone else interacting with us
 
         if ((data.platform === 'xmpp') &&
             (data.verb === 'update')) {
@@ -255,7 +263,7 @@ function ($rootScope, $q, SH, settings, RS) {
       console.log('acceptBuddyRequest Success');
       defer.resolve();
     }, function (err) {
-      console.log('acceptBuddyRequest ERROR '+err);
+      console.log('acceptBuddyRequest ERROR ',err);
       defer.reject(err);
     });
 
