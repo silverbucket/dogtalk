@@ -11,8 +11,8 @@ module.exports = function(grunt) {
       },
       app: {
         src: ['res/js/dogtalk.js',
-              'res/js/ngRSS.js',
-              'res/js/ngRemoteStorage.js',
+              'res/js/ngXMPPClient.js',
+              'vendor/sockethub-client/angular/ngRemoteStorage.js',
               'vendor/sockethub-client/angular/ngSockethubClient.js'],
         dest: 'build/app.js.tmp'
       },
@@ -27,10 +27,6 @@ module.exports = function(grunt) {
       css: {
         src: ['res/**/*.css'],
         dest: 'build/app.css.tmp'
-      },
-      flatuiCSS: {
-        src: ['vendor/flat-ui/*.css'],
-        dest: 'build/flat-ui.css.tmp'
       }
     },
     copy: {
