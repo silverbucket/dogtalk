@@ -202,13 +202,13 @@ function ($scope, $route, $routeParams, $rootScope, SockethubSettings, XMPP, RS)
  */
 controller("talkCtrl",
 ['$scope', '$route', '$routeParams', '$location', 'XMPP', '$rootScope', 'XMPPSettings',
-function ($scope, $route, $routeParams, $location, XMPP, $rootScope, XMPPSettings) {
+function ($scope, $route, $routeParams, $location, XMPP, $rootScope, settings) {
   console.log('--- talkCtrl run');
 
   $scope.model = {
     presence: XMPP.presence.data,
     contacts: XMPP.contacts.data,
-    config: XMPPSettings.conn,
+    settings: settings,
     requests: XMPP.requests.data
   };
 
@@ -240,7 +240,7 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, XMPPSetting
 
   $scope.sendMsg = function (text) {
     $scope.model.saving = true;
-    XMPP.sendMsg($scope.model.config.username, $scope.model.currentAddress, text).then(function () {
+    XMPP.sendMsg(settings.conn.actor, $scope.model.currentAddress, text).then(function () {
       $scope.model.sendText = '';
       $scope.model.saving = false;
     }, function (err) {
@@ -251,7 +251,7 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, XMPPSetting
   };
 
   $scope.isFromMe = function (address) {
-    if ($scope.model.config.username === address) {
+    if (settings.conn.username === address) {
       return true;
     } else {
       return false;
@@ -261,7 +261,8 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, XMPPSetting
   $scope.acceptBuddyRequest = function (address) {
     $scope.model.saving = true;
     if ($scope.model.requests[address]) {
-      XMPP.requests.accept($scope.model.config.username, address).then(function () {
+      console.log('settings;',settings);
+      XMPP.requests.accept(settings.conn.actor, address).then(function () {
         $scope.model.saving = false;
         delete $scope.model.requests[address];
         return true;
