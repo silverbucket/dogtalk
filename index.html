@@ -6,9 +6,17 @@
     <title>dogtalk</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="res/css/dogtalk.css">
-    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css?v=3.0">
-    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap-theme.min.css?v=3.0">
+
+    <!-- build:css res/css/bootstrap.min.css -->
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css?v=3.0.0" />
+    <!-- endbuild -->
+    <!-- build:css res/css/bootstrap-theme.min.css -->
+    <!--<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap-theme.min.css?v=3.0.0" />
+    -->
+    <!-- endbuild -->
+    <!-- build:css res/css/app.min.css -->
+    <link rel="stylesheet" href="res/css/dogtalk.css?v=0.0.1" />
+    <!-- endbuild -->
   </head>
 
   <body>
@@ -172,7 +180,7 @@
                   <div class="form-group">
                     <label for="username" class="control-label col-lg-2">Username</label>
                     <div class="col-lg-10 controls">
-                      <input type="email" class="required form-control" name="username" placeholder="Enter username..." ng-model="settings.conn.username" required>
+                      <input type="text" class="required form-control" name="username" placeholder="Enter username..." ng-model="settings.conn.username" required>
                     </div>
                   </div>
 
