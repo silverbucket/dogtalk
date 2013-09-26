@@ -10,7 +10,7 @@ module.exports = function(grunt) {
         stripBanners: true
       },
       app: {
-        src: ['res/js/dogfeed.js',
+        src: ['res/js/dogtalk.js',
               'res/js/ngRSS.js',
               'res/js/ngRemoteStorage.js',
               'vendor/sockethub-client/angular/ngSockethubClient.js'],
