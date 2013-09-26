@@ -1,1 +1,7 @@
+# setup
+git remote add 5apps git@5apps.com:silverbucket_dogtalk.git
+npm install
+
+# deploy
+grunt
 git subtree push --prefix build/ 5apps master
