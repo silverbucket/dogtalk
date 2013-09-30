@@ -168,8 +168,8 @@ function ($scope, $route, $routeParams, $location) {
  * controller: settingsCtrl
  */
 controller("settingsCtrl",
-['$scope', '$route', '$routeParams', '$rootScope', 'SockethubSettings', 'XMPP', 'RS',
-function ($scope, $route, $routeParams, $rootScope, SockethubSettings, XMPP, RS) {
+['$scope', '$route', '$routeParams', '$rootScope',
+function ($scope, $route, $routeParams, $rootScope) {
 
   $scope.sockethubSettings = function () {
     $rootScope.$broadcast('showModalSockethubSettings', { locked: false });
