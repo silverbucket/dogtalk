@@ -345,7 +345,7 @@ function (XMPP, $rootScope, settings) {
     link: function (scope) {
       scope.modal = XMPP.modal;
       scope.saving = false;
-      scope.settings = settings;
+      scope.xmppSettings = settings;
 
       // Method: show
       // Displays the XMPP settings window
@@ -358,7 +358,7 @@ function (XMPP, $rootScope, settings) {
       scope.save = function() {
         scope.saving = true;
         console.log('connecting...');
-        XMPP.connect(scope.settings.conn).then(function () {
+        XMPP.connect(scope.xmppSettings.conn).then(function () {
           // xmpp credentials and signon success
           scope.saving = false;
           console.log('connecting SUCESS');
