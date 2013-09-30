@@ -372,4 +372,45 @@ function (XMPP, $rootScope, settings) {
       };
     }
   };
+}]).
+
+
+
+/**
+ * directive: contactsList
+ */
+directive('contactsList', [
+function () {
+  return {
+    restrict: 'E',
+    scope: {
+      'contacts': '=',
+      'requests': '='
+    },
+    template: '<h4 ng-transclude></h4>' +
+              '<div class="add-contact">' +
+              '  <input type="text" data-ng-model="c.name" />' +
+              '</div>' +
+              '<ul class="nav nav-list nav-pills nav-stacked">' +
+              '  <li data-ng-repeat="r in requests">' +
+              '    <p><span class="username">{{ r.actor.address }}</span> </p>' +
+              '    <p><button class="btn btn-success pull-left" type="button"' +
+              '               ng-click="acceptBuddyRequest(r.actor.address)"' +
+              '               ng-disabled="model.saving"><span class="glyphicon glyphicon-ok"></i> Accept</button>' +
+              '       <div style="margin-left: 3px; display: inline;">wants to be your friend!</div>' +
+              '      <a class="close" href="#">&times;</a>' +
+              '    </p>' +
+              '  </li>' +
+              '</ul>' +
+              '<ul class="nav nav-list nav-pills nav-stacked">' +
+              '  <li data-ng-repeat="c in contacts | filter:c.name | orderBy:c.state"' +
+              '      ng-class="conversationSwitch(c.address)">' +
+              '    <a href="#/talk/{{c.address}}">' +
+              '      <span class="state {{ c.state }}"></span>' +
+              '     <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>' +
+              '    </a>' +
+              '  </li>' +
+              '</ul>',
+    transclude: true
+  };
 }]);
