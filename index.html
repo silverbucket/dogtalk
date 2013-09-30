@@ -59,28 +59,11 @@
         <div class="container">
           <div class="row">
 
-            <div class="col-md-3 contacts" ng-controller="talkCtrl">
-              <p>presence: {{ model.presence.state }}</p>
-              <h4>Contacts</h4>
-              <input type="text" data-ng-model="c.name" />
-
-                <ul class="nav nav-list nav-pills nav-stacked">
-                  <li data-ng-repeat="r in model.requests">
-                    <p><span class="username">{{ r.actor.address }}</span> </p>
-                    <p><button class="btn btn-success pull-left" type="button" ng:click="acceptBuddyRequest(r.actor.address)" ng-disabled="model.saving"><i class="icon-ok"></i> Accept</button>
-                    &nbsp; wants to be your friend! &nbsp;
-                    <a class="close" href="#">&times;</a></p>
-                  </li>
-                </ul>
-
-                <ul class="nav nav-list nav-pills nav-stacked">
-                  <li data-ng-repeat="c in model.contacts | filter:c.name | orderBy:c.state" ng:class="conversationSwitch('{{ c.address }}')">
-                    <a href="#/talk/{{c.address}}">
-                      <span class="state {{ c.state }}"></span>
-                      <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>
-                    </a>
-                  </li>
-                </ul>
+            <div class="col-md-3" ng-controller="talkCtrl">
+              <div class="presence">
+                <p>presence: {{ model.presence.state }}</p>
+              </div>
+              <contacts-list class="contacts" contacts="model.contacts" requests="model.requests">Contacts</contacts-list>
             </div>
 
             <div class="col-md-9 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
