@@ -343,29 +343,31 @@ function (XMPP, $rootScope, settings) {
     restrict: 'A',
     templateUrl: 'xmpp-settings.html',
     link: function (scope) {
-      scope.modal = XMPP.modal;
-      scope.saving = false;
-      scope.xmppSettings = settings;
+      scope.xmpp = {
+        modal: XMPP.modal,
+        saving: false,
+        settings: settings
+      };
 
       // Method: show
       // Displays the XMPP settings window
-      scope.show = function() {
+      scope.xmpp.show = function() {
         $rootScope.$broadcast('showModalSettingsXmpp', { locked: false });
       };
 
       // Method: save
       // Saves the current account data. Bound to the "Save" button
-      scope.save = function() {
-        scope.saving = true;
+      scope.xmpp.save = function() {
+        scope.xmpp.saving = true;
         console.log('connecting...');
-        XMPP.connect(scope.xmppSettings.conn).then(function () {
+        XMPP.connect(scope.xmpp.settings.conn).then(function () {
           // xmpp credentials and signon success
-          scope.saving = false;
+          scope.xmpp.saving = false;
           console.log('connecting SUCESS');
           $rootScope.$broadcast('closeModalSettingsXmpp');
         }, function (err) {
           // xmpp credentials and signon failure
-          scope.saving = false;
+          scope.xmpp.saving = false;
           console.log('connecting FAILED: ',err);
           XMPP.modal.message = err;
         });
