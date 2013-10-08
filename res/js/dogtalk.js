@@ -112,13 +112,6 @@ function (SH, $rootScope, RS, XMPP, settings) {
 
 
 
-/**
- * emitters
- */
-
-
-
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -179,20 +172,6 @@ function ($scope, $route, $routeParams, $rootScope) {
     $rootScope.$broadcast('showModalSettingsXmpp', { locked: false });
   };
 
-  /*
-   FIXME: ...
-   $scope.$watch('SockethubSettings.connected', function (newVal, oldVal) {
-    if (SockethubSettings.connected) {
-      SockethubSettings.conn.port = Number(SockethubSettings.conn.port);
-      RS.call('sockethub', 'writeConfig', [SockethubSettings.conn]).then(function () {
-        console.log("Sockethub config saved to remoteStorage");
-      }, function (err) {
-        console.log('Failed saving Sockethub config to remoteStorage: ', err);
-      });
-    }
-  });
-  */
-
 }]).
 
 
@@ -211,8 +190,6 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, settings) {
     settings: settings,
     requests: XMPP.requests.data
   };
-
-  XMPP.initListener();  // initialize listener for incoming xmpp platform messages
 
   $scope.model.currentAddress = ($routeParams.address) ? $routeParams.address : 'none';
   $scope.model.currentName = ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address].name : '';
