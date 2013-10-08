@@ -141,7 +141,7 @@ function ($rootScope, $q, SH, settings, RS) {
 
 
   // FIXME - this function needs to be re-evaluated and probably re-factored
-  function initListener() {
+  (function initListener() {
     SH.on('xmpp', 'message', function (data) {
       console.log('XMPP getting message: ', data);
       if (data.actor !== settings.conn.actor) {  // someone else interacting with us
@@ -223,7 +223,7 @@ function ($rootScope, $q, SH, settings, RS) {
       }*/
       }
     });
-  }
+  })();
 
 
   // send a message to sockethub
@@ -270,12 +270,12 @@ function ($rootScope, $q, SH, settings, RS) {
     return defer.promise;
   }
 
-//
-// XXX TODO :
-// instead of having getters and setters, it may be better to expose the variables
-// directly and then have some kind of watcher (angular ?) to do stuff when the
-// fields change
-//
+  //
+  // XXX TODO :
+  // instead of having getters and setters, it may be better to expose the variables
+  // directly and then have some kind of watcher (angular ?) to do stuff when the
+  // fields change
+  //
   return {
     connect: connect,
     modal: {
@@ -293,7 +293,6 @@ function ($rootScope, $q, SH, settings, RS) {
       data: requests,
       accept: acceptBuddyRequest
     },
-    initListener: initListener,
     sendMsg: sendMsg
   };
 }]).
@@ -393,15 +392,14 @@ function () {
               '<div class="add-contact">' +
               '  <input type="text" data-ng-model="c.name" />' +
               '</div>' +
-              '<ul class="nav nav-list nav-pills nav-stacked">' +
-              '  <li data-ng-repeat="r in requests">' +
-              '    <p><span class="username">{{ r.actor.address }}</span> </p>' +
-              '    <p><button class="btn btn-success pull-left" type="button"' +
+              '<ul class="nav nav-list nav-pills nav-stacked xmpp-conact-requests">' +
+              '  <li class="xmpp-contact-request" data-ng-repeat="r in requests">' +
+              '    <span class="username add-username">{{ r.actor.address }}</span>' +
+              '      <a class="close" href="#">&times;</a>' +
+              '    <button class="btn btn-success" type="button"' +
               '               ng-click="acceptBuddyRequest(r.actor.address)"' +
               '               ng-disabled="model.saving"><span class="glyphicon glyphicon-ok"></i> Accept</button>' +
               '       <div style="margin-left: 3px; display: inline;">wants to be your friend!</div>' +
-              '      <a class="close" href="#">&times;</a>' +
-              '    </p>' +
               '  </li>' +
               '</ul>' +
               '<ul class="nav nav-list nav-pills nav-stacked">' +

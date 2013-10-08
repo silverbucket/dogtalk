@@ -22,6 +22,10 @@ footer {
 .username {
   font-weight: bold;
 }
+
+.add-username {
+  display: block;
+}
 .contacts .nav-list>li>a {
   padding: 7px;
 }
@@ -86,6 +90,10 @@ form {
 }
 
 
+
+.xmpp-contact-request-button {
+  float: none !important;
+}
 
 /*
  * XMPP modal
