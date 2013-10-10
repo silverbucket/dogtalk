@@ -106,7 +106,6 @@ value('ChatSettings', {
     sockethub_props: ['username', 'password', 'server', 'resource', 'port'],
     required_props: ['username', 'password', 'server', 'resource', 'port'],
     save: function (cfg) {
-      console.log('SAVE GOT CFG : ', cfg);
       if (!cfg.resource) {
         cfg.resource = this.xmpp.config.resource;
       }
@@ -130,7 +129,6 @@ value('ChatSettings', {
         };
       }
 
-      console.log('*(*& THIS: ', this);
       this.config = cfg;
     }
   },
@@ -208,14 +206,9 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
     if (save(platform, cfg)) {
       cfg = settings[platform].config;
       var credentials = {};
-      console.log("REQUIREMENTS: ",settings[platform].sockethub_props);
       for (var i in settings[platform].sockethub_props) {
-        console.log('attaching property: '+settings[platform].sockethub_props[i]);
         credentials[settings[platform].sockethub_props[i]] = cfg[settings[platform].sockethub_props[i]];
       }
-      console.log("SETTINGS: ", settings[platform].config);
-      console.log("CONFIG: ", cfg);
-      console.log("CREDS: ", credentials);
 
       SH.set(platform, 'credentials', settings[platform].config.actor.address, credentials).then(function () {
         return setPresence(settings[platform].config.actor.address, 'available', '', true);
@@ -278,6 +271,7 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
 
         if ((data.platform === 'xmpp') &&
             (data.verb === 'update')) {
+
           // contact list & presence update
           if (!contacts[data.actor.address]) {
             contacts[data.actor.address] = {
@@ -286,13 +280,15 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
           }
           console.log('CONTACTS ADD ['+data.actor.address+']: ', contacts);
           contacts[data.actor.address].address = data.actor.address;
-          //contacts[data.actor.address].target = data.target[0];
+          contacts[data.actor.address].platform = 'xmpp';
+          // so we know what account this contact is from
+          contacts[data.actor.address].account = data.target[0];
 
           //name
           if (data.actor.name) {
             contacts[data.actor.address].name = data.actor.name;
           } else if (!contacts[data.actor.address].name) {
-            contacts[data.actor.address].name = data.actor.address;
+            contacts[data.actor.address].name = '';//data.actor.address;
           }
 
           //state
@@ -309,7 +305,7 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
             contacts[data.actor.address].statusText = '';
           }
 
-          if (data.actor.name) {
+          if (data.actor.address) {
             RS.call('contacts', 'byKey', ['impp', 'xmpp:'+data.actor.address]).then(function (contacts) {
               if (contacts.length === 0) {
                 RS.call('contacts', 'add', [{
@@ -357,12 +353,13 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
 
 
   // send a message to sockethub
-  function sendMsg(from, to, text) {
+  function sendMsg(to, text) {
+    var from = contacts[to].account;
     var defer = $q.defer();
     var obj = {
-      platform: 'xmpp',
+      platform: from.platform,
       verb: 'send',
-      actor: { address: from },
+      actor: { address: from.address },
       target: [{ address: to }],
       object: {
         text: text
@@ -379,13 +376,14 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
   }
 
 
-  function acceptBuddyRequest(from, address) {
+  function acceptBuddyRequest(address) {
     var defer = $q.defer();
+    var from = contacts[address].account;
 
     var obj = {
-      platform: 'xmpp',
+      platform: from.platform,
       verb: 'make-friend',
-      actor: { address: from },
+      actor: { address: from.address },
       target: [{ address: address }]
     };
 
@@ -398,6 +396,22 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
     });
 
     return defer.promise;
+  }
+
+
+  function getBaseJid(address) {
+    return address.split('/')[0];
+  }
+
+  function isFromMe(address) {
+    for (var platform in settings) {
+      if (settings[platform].config.actor.address === address) {
+        return true;
+      } else if (getBaseJid(settings[platform].config.actor.address) === getBaseJid(address)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   //
@@ -423,7 +437,8 @@ function ($rootScope, $q, SH, ChatSettings, RS) {
       data: requests,
       accept: acceptBuddyRequest
     },
-    sendMsg: sendMsg
+    sendMsg: sendMsg,
+    isFromMe: isFromMe
   };
 }]).
 
@@ -585,29 +600,7 @@ function () {
       'contacts': '=',
       'requests': '='
     },
-    template: '<h4 ng-transclude></h4>' +
-              '<div class="add-contact">' +
-              '  <input type="text" data-ng-model="c.name" />' +
-              '</div>' +
-              '<ul class="nav nav-list nav-pills nav-stacked xmpp-conact-requests">' +
-              '  <li class="xmpp-contact-request" data-ng-repeat="r in requests">' +
-              '    <span class="username add-username">{{ r.actor.address }}</span>' +
-              '    <a class="close" href="#">&times;</a>' +
-              '    <button class="btn btn-success" type="button"' +
-              '            ng-click="acceptBuddyRequest(r.actor.address)"' +
-              '            ng-disabled="model.saving"><span class="glyphicon glyphicon-ok"></i> Accept</button>' +
-              '    <div style="margin-left: 3px; display: inline;">wants to be your friend!</div>' +
-              '  </li>' +
-              '</ul>' +
-              '<ul class="nav nav-list nav-pills nav-stacked">' +
-              '  <li data-ng-repeat="c in contacts | filter:c.name | orderBy:c.state"' +
-              '      ng-class="conversationSwitch(c.address)">' +
-              '    <a href="#/talk/{{c.address}}">' +
-              '      <span class="state {{ c.state }}"></span>' +
-              '     <span class="username" data-toggle="tooltip" title="{{ c.address }}">{{ c.name }}</span>' +
-              '    </a>' +
-              '  </li>' +
-              '</ul>',
+    templateUrl: 'res/js/chat/contacts-list.tpl.html',
     transclude: true
   };
 }]);

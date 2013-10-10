@@ -154,7 +154,7 @@ function ($scope, $route, $routeParams, $rootScope) {
 controller("talkCtrl",
 ['$scope', '$route', '$routeParams', '$location', 'Chat', '$rootScope', 'ChatSettings',
 function ($scope, $route, $routeParams, $location, Chat, $rootScope, ChatSettings) {
-  console.log('--- talkCtrl run');
+  console.log('--- talkCtrl run '+$routeParams.address);
 
   $scope.model = {
     presence: Chat.presence.data,
@@ -164,23 +164,25 @@ function ($scope, $route, $routeParams, $location, Chat, $rootScope, ChatSetting
   };
 
   $scope.model.current = {
+    address: $routeParams.address,
     contact: ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address] : '',
     conversation: ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address].conversation : []
   };
+  console.log('scope.model.current.contact: ', $scope.model.current);
 
   $scope.$watch('model.contacts', function (newValue, oldValue) {
-    console.log('SCOPE WATCH CONTACTS : ', newValue);
+    console.log('SCOPE WATCH CONTACTS : ', newValue, oldValue);
   });
 
   $scope.conversationSwitch = function (address) {
-    console.log('---- talkCtrl.conversationSwitch('+address+')');
+    console.log('---- talkCtrl.conversationSwitch(' + address + ')');
     if (address !== $routeParams.address) { return ''; }
 
     if ($scope.model.contacts[address]) {
       $scope.model.current.contact = ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address] : '';
       $scope.model.current.conversation = $scope.model.contacts[address].conversation;
 
-      console.log('currentConversation: ',$scope.model.current.conversation);
+      console.log('currentConversation: ', $scope.model.current.conversation);
     } else {
       console.log('talkCtrl.conversationSwitch() - not in history');
     }
@@ -190,11 +192,11 @@ function ($scope, $route, $routeParams, $location, Chat, $rootScope, ChatSetting
 
   $scope.sendMsg = function (text) {
     $scope.model.saving = true;
-    Chat.sendMsg($scope.model.current.sourceAddress, $scope.model.current.address, text).then(function () {
+    Chat.sendMsg($scope.model.current.address, text).then(function () {
       $scope.model.sendText = '';
       $scope.model.saving = false;
     }, function (err) {
-      console.log('sendMsg error: '+err);
+      console.log('sendMsg error: ',err);
       $scope.model.saving = false;
     });
 
@@ -204,10 +206,11 @@ function ($scope, $route, $routeParams, $location, Chat, $rootScope, ChatSetting
     return Chat.isFromMe(address);
   };
 
-  $scope.acceptBuddyRequest = function (sourceAddress, address) {
+  $scope.acceptBuddyRequest = function (address) {
+    console.log('acceptBuddyRequest: ' + address);
     $scope.model.saving = true;
     if ($scope.model.requests[address]) {
-      Chat.requests.accept(settings.conn.actor.address, address).then(function () {
+      Chat.requests.accept(address).then(function () {
         $scope.model.saving = false;
         delete $scope.model.requests[address];
         return true;
@@ -237,11 +240,3 @@ function ($scope, $route, $routeParams, $location, Chat, $rootScope, ChatSetting
   });
   */
 }]);
-
-
-
-
-
-
-
-
