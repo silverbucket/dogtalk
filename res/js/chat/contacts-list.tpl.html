@@ -1,0 +1,24 @@
+<h4 ng-transclude></h4>
+<div class="add-contact">
+  <input type="text" data-ng-model="c.name" />
+</div>
+<ul class="nav nav-list nav-pills nav-stacked xmpp-conact-requests">
+  <li class="xmpp-contact-request" data-ng-repeat="r in requests">
+    <span class="username add-username">{{ r.actor.address }}</span>
+    <a class="close" href="#">&times;</a>
+    <button class="btn btn-success" type="button"
+            ng-click="acceptBuddyRequest(r.actor.address)"
+            ng-disabled="model.saving"><span class="glyphicon glyphicon-ok"></span> Accept</button>
+    <div style="margin-left: 3px; display: inline;">wants to be your friend!</div>
+  </li>
+</ul>
+<ul class="nav nav-list nav-pills nav-stacked">
+  <li data-ng-repeat="c in contacts | filter:c.name | orderBy:c.state"
+      ng-class="conversationSwitch(c.address)">
+    <a href="#/talk/{{c.address}}">
+      <span class="state {{ c.state }}"></span>
+     <span class="username" data-toggle="tooltip" title="{{ c.address }}" ng-show="!c.name">{{ c.address }}</span>
+     <span class="username" data-toggle="tooltip" title="{{ c.address }}" ng-show="c.name">{{ c.name }}</span>
+    </a>
+  </li>
+</ul>
