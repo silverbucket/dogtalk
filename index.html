@@ -66,7 +66,7 @@
               <contacts-list class="contacts" contacts="model.contacts" requests="model.requests">Contacts</contacts-list>
             </div>
 
-            <div class="col-md-9 messages"><p>chatting with: {{ model.current.name }} - {{ model.current.address }}</p>
+            <div class="col-md-9 messages"><p>chatting with: {{ model.current.contact.name }} - {{ model.current.contact.address }}</p>
               <div class="conversation">
 
                 <form name="sendMessage" class="form-horizontal" ng:submit="sendMsg(model.sendText)" novalidate>
