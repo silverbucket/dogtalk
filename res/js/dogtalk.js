@@ -1,4 +1,10 @@
-angular.module('dogtalk', ['ngSockethubClient', 'ngSockethubRemoteStorage', 'ngRemoteStorage', 'ngXMPPClient', 'ngMessages']).
+angular.module('dogtalk', [
+    'ngSockethubClient',
+    'ngSockethubRemoteStorage',
+    'ngRemoteStorage',
+    'ngChat',
+    'ngMessages'
+    ]).
 
 
 /**
@@ -39,6 +45,7 @@ function (RScfg) {
 }]).
 
 
+
 /**
  * check remoteStorage connections
  */
@@ -70,45 +77,6 @@ function (SockethubBootstrap) {
   });
 }]).
 
-
-/**
- * get xmpp config
- */
-run(['SH', '$rootScope', 'RS', 'XMPP', 'XMPPSettings',
-function (SH, $rootScope, RS, XMPP, settings) {
-  RS.call('messages', 'getAccount', ['xmpp', 'default']).then(function (c) {
-    console.log('GOT XMPP CONFIG: ', c);
-    var cfg = {};
-
-    if (c === undefined) {
-      $rootScope.$broadcast('showModalSettingsXmpp', {
-        message: 'No existing XMPP configuration information found',
-        locked: false
-      });
-      $rootScope.$broadcast('message', {
-        message: 'xmpp-connection',
-        type: 'error',
-        timeout: false
-        //important: true
-      });
-    } else {
-      XMPP.connect(c).then(function () {
-        console.log('xmpp connected');
-      }, function (err) {
-        $rootScope.$broadcast('showModalSettingsXmpp', { message: 'Error connecting via XMPP '+err, locked: false });
-        console.log('xmpp ERROR', err);
-        $rootScope.$broadcast('message', {
-          message: err,
-          type: 'error',
-          timeout: true
-        });
-      });
-    }
-
-  }, function (err) {
-    console.log("RS.call failed: ",err);
-  });
-}]).
 
 
 
@@ -172,6 +140,10 @@ function ($scope, $route, $routeParams, $rootScope) {
     $rootScope.$broadcast('showModalSettingsXmpp', { locked: false });
   };
 
+  $scope.ircSettings = function () {
+    $rootScope.$broadcast('showModalSettingsIrc', { locked: false });
+  };
+
 }]).
 
 
@@ -180,20 +152,21 @@ function ($scope, $route, $routeParams, $rootScope) {
  * controller: talkCtrl
  */
 controller("talkCtrl",
-['$scope', '$route', '$routeParams', '$location', 'XMPP', '$rootScope', 'XMPPSettings',
-function ($scope, $route, $routeParams, $location, XMPP, $rootScope, settings) {
+['$scope', '$route', '$routeParams', '$location', 'Chat', '$rootScope', 'ChatSettings',
+function ($scope, $route, $routeParams, $location, Chat, $rootScope, ChatSettings) {
   console.log('--- talkCtrl run');
 
   $scope.model = {
-    presence: XMPP.presence.data,
-    contacts: XMPP.contacts.data,
-    settings: settings,
-    requests: XMPP.requests.data
+    presence: Chat.presence.data,
+    contacts: Chat.contacts.data,
+    requests: Chat.requests.data,
+    settings: ChatSettings
   };
 
-  $scope.model.currentAddress = ($routeParams.address) ? $routeParams.address : 'none';
-  $scope.model.currentName = ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address].name : '';
-  $scope.model.currentConversation = ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address].conversation : [];
+  $scope.model.current = {
+    contact: ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address] : '',
+    conversation: ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address].conversation : []
+  };
 
   $scope.$watch('model.contacts', function (newValue, oldValue) {
     console.log('SCOPE WATCH CONTACTS : ', newValue);
@@ -204,10 +177,10 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, settings) {
     if (address !== $routeParams.address) { return ''; }
 
     if ($scope.model.contacts[address]) {
-      $scope.model.currentAddress = address;
-      $scope.model.currentName = $scope.model.contacts[address].name;
-      $scope.model.currentConversation = $scope.model.contacts[address].conversation;
-      console.log('currentConversation: ',$scope.model.currentConversation);
+      $scope.model.current.contact = ($scope.model.contacts[$routeParams.address]) ? $scope.model.contacts[$routeParams.address] : '';
+      $scope.model.current.conversation = $scope.model.contacts[address].conversation;
+
+      console.log('currentConversation: ',$scope.model.current.conversation);
     } else {
       console.log('talkCtrl.conversationSwitch() - not in history');
     }
@@ -217,7 +190,7 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, settings) {
 
   $scope.sendMsg = function (text) {
     $scope.model.saving = true;
-    XMPP.sendMsg(settings.conn.actor, $scope.model.currentAddress, text).then(function () {
+    Chat.sendMsg($scope.model.current.sourceAddress, $scope.model.current.address, text).then(function () {
       $scope.model.sendText = '';
       $scope.model.saving = false;
     }, function (err) {
@@ -228,18 +201,13 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, settings) {
   };
 
   $scope.isFromMe = function (address) {
-    if (settings.conn.username === address) {
-      return true;
-    } else {
-      return false;
-    }
+    return Chat.isFromMe(address);
   };
 
-  $scope.acceptBuddyRequest = function (address) {
+  $scope.acceptBuddyRequest = function (sourceAddress, address) {
     $scope.model.saving = true;
     if ($scope.model.requests[address]) {
-      console.log('settings;',settings);
-      XMPP.requests.accept(settings.conn.actor, address).then(function () {
+      Chat.requests.accept(settings.conn.actor.address, address).then(function () {
         $scope.model.saving = false;
         delete $scope.model.requests[address];
         return true;
@@ -268,23 +236,7 @@ function ($scope, $route, $routeParams, $location, XMPP, $rootScope, settings) {
 
   });
   */
-
-}]).
-
-
-
-/**
- * controller: log
- */
-controller("logCtrl",
-['$scope', '$route', '$routeParams', '$location',
-function ($scope, $route, $routeParams, $location) {
-  $scope.model = {
-    message: "this is the log page fool!"
-  };
 }]);
-
-
 
 
 
