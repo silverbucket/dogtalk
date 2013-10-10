@@ -66,7 +66,7 @@
               <contacts-list class="contacts" contacts="model.contacts" requests="model.requests">Contacts</contacts-list>
             </div>
 
-            <div class="col-md-9 messages"><p>chatting with: {{ model.currentName }} - {{ model.currentAddress }}</p>
+            <div class="col-md-9 messages"><p>chatting with: {{ model.current.name }} - {{ model.current.address }}</p>
               <div class="conversation">
 
                 <form name="sendMessage" class="form-horizontal" ng:submit="sendMsg(model.sendText)" novalidate>
@@ -76,7 +76,7 @@
                   </div>
                 </form>
 
-                <div class="history" ng-repeat="msg in model.currentConversation">
+                <div class="history" ng-repeat="msg in model.current.conversation">
                   <div class="message well" ng:class="{fromMe:isFromMe(msg.actor.address)}">
                     <div class="name"><small>{{ msg.actor.name }}</small></div>
                     <div class="address"><small>{{ msg.actor.address }}</small></div>
@@ -232,7 +232,7 @@
     <script type="text/javascript" src="vendor/sockethub-client/angular/ngSockethubClient.js?v=0.0.1"></script>
     <script type="text/javascript" src="vendor/sockethub-client/angular/ngSockethubRemoteStorage.js?v=0.0.1"></script>
     <script type="text/javascript" src="res/js/dogtalk.js?v=0.0.1"></script>
-    <script type="text/javascript" src="res/js/ngXMPPClient.js?v=0.0.1"></script>
+    <script type="text/javascript" src="res/js/chat/chat.js?v=0.0.1"></script>
     <!-- endbuild -->
   </body>
 </html>
