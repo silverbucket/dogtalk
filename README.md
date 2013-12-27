@@ -47,3 +47,7 @@ For instructions on installing Sockethub, please see the [Sockethub README](http
 The above set of commands will check out the latest clone, and run a simple http server to access Dogtalk from your browser.
 
 From a browser you should now be able to access: ```http://localhost:9000```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/silverbucket/dogtalk/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
